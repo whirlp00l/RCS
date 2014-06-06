@@ -1,8 +1,0 @@
-[34mdebug[39m: --------------------------------------------------------
-[34mdebug[39m: :: Wed Jun 04 2014 03:41:15 GMT-0400 (Eastern Daylight Time)
-[34mdebug[39m: 
-[34mdebug[39m: Environment	: development
-[34mdebug[39m: Port		: \\.\pipe\1aecf366-f13e-4485-b04a-bfbf6491b4df
-[34mdebug[39m: --------------------------------------------------------
-[31merror[39m: Server doesn't seem to be starting.
-[31merror[39m: Perhaps something else is already running on port \\.\pipe\1aecf366-f13e-4485-b04a-bfbf6491b4df?
