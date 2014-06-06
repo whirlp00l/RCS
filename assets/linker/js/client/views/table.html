@@ -1,0 +1,56 @@
+<!-- <div class="page-header">
+    <h1>Table List for "{{restaurantName}}"</h1>
+</div>
+<div class="row">
+    <div class="col-xs-7">
+        <input type="text" class="form-control" ng-model="query" placeholder="Search for a Table" />
+</div>
+<div class="row">
+    <div class="col-xs-12"><hr ></div>
+</div> -->
+<div class="row" ng-switch on="tables.length">
+    <ul ng-switch-when="0">
+        <li>
+            <em>
+                No Tables . Would you like to
+                <a href="#/newTable">create one</a>?
+        </li>
+    </ul>
+    <ul ng-switch-default>
+        <table border="1">
+            <td>id</td>
+            <td>RestaurantName</td>
+            <td>TableName</td>
+            <td>Status</td>
+            <td />
+            <tr ng-repeat="table in tables | filter:query">
+                <td>{{table.id}}</td>
+                <td>{{table.RestaurantName}}</td>
+                <td>{{table.TableName}}</td>
+                <td>{{table.Status}}</td>
+                <td><a href="#/deleteTable/{{table.Name}}">delete</a></td>
+            </tr>
+        </table>
+    </ul>
+</div>
+<div class="row">
+    <div class="col-xs-12"><hr ></div>
+</div>
+<div class="row">
+    <div class="col-xs-5">
+        <a href="#/newTable/{{restaurantName}}" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus"></span> New Table
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12"><hr ></div>
+</div>
+<div class="row">
+    <div class="col-xs-5">
+        <a href="#/listRestaurants" class="btn btn-default" role="button">
+            <span class="glyphicon glyphicon-arrow-left"></span> Back to Restaurant List
+        </a>
+    </div>
+</div>
+<p>&nbsp;</p>

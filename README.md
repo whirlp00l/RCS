@@ -1,0 +1,2 @@
+# RcsOnSail
+### a Sails application

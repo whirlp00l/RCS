@@ -1,0 +1,27 @@
+<div class="page-header">
+    <h1>Create New Restaurant</h1>
+</div>
+<form role="form" ng-submit="createRestaurant()">
+    <div class="form-group">
+        <label for="restaurantName">Restaurant Name</label>
+        <input type="text" ng-model="restaurantName" class="form-control"
+               id="restaurantName" placeholder="Enter restaurant name">
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <button class="btn btn-primary pull-left" type="submit">
+                Create
+            </button>
+        </div>
+    </div>
+</form>
+<div class="row">
+    <div class="col-xs-12"><hr ></div>
+</div>
+<div class="row">
+    <div class="col-xs-5">
+        <a href="#/listRestaurants" class="btn btn-default" role="button">
+            <span class="glyphicon glyphicon-arrow-left"></span> Back to Restaurant List
+        </a>
+    </div>
+</div>

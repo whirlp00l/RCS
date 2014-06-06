@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="jumbotron">
+    <h1>Request List</h1>
+    <ul>
+      <% _.each(requests, function (request) { %>
+        <li>[<%= request.id %>] <%= request.RestaurantName %>, <%= request.TableName %>, <%= request.Type %>, <%= request.PayType %>, <%= request.Status %></li>
+      <% }) %>
+  </ul>
+  </div>
+</div>
