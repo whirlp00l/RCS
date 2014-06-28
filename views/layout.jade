@@ -1,0 +1,42 @@
+doctype html
+html
+  head
+    title= title
+
+    // Viewport mobile tag for sensible mobile support
+    meta(name="viewport",content="width=device-width, initial-scale=1, maximum-scale=1")
+
+    block styles
+    link(rel='stylesheet', href='/linker/bootstrap/css/bootstrap-theme.css')
+    link(rel='stylesheet', href='/linker/bootstrap/css/bootstrap.css')
+    link(rel='stylesheet', href='/linker/styles/custom.css')
+    link(rel='stylesheet', href='/linker/styles/rcsTable.css')
+
+  body
+    block body
+
+    script(type='text/javascript', src='/jst.js')
+
+    script(src='/linker/js/angular/angular.js')
+    script(src='/linker/js/angular-ui-router/angular-ui-router.js')
+    script(src='/linker/js/socket.io.js')
+    script(src='/linker/js/sails.io.js')
+    script(src='/linker/jquery/jquery-1.11.1.js')
+    script(src='/linker/bootstrap/js/bootstrap.js')
+    script(src='/linker/js/client/client.js')
+    script(src='/linker/js/client/controllers/homeCtrl.js')
+    script(src='/linker/js/client/controllers/requestCtrl.js')
+    script(src='/linker/js/client/controllers/tableCtrl.js')
+    script(src='/linker/js/client/controllers/loginCtrl.js')
+    script(src='/linker/js/client/controllers/requestModalCtrl.js')
+    script(src='/linker/js/client/controllers/newTableModalCtrl.js')
+    script(src='/linker/js/client/controllers/viewTableModalCtrl.js')
+    script(src='/linker/js/client/directives/rcsTable.js')
+    script(src='/linker/js/client/directives/rcsRequest.js')
+    script(src='/linker/js/client/directives/rcsAutofocus.js')
+    script(src='/linker/js/client/directives/testDiv.js')
+    script(src='/linker/js/client/service/rcsData.js')
+    script(src='/linker/js/datetimeFormat.js')
+    script(src='/linker/js/stringFormat.js')
+    script(src='/linker/js/ui-bootstrap-tpls-0.11.0.min.js')
+

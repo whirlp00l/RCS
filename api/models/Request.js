@@ -30,13 +30,23 @@ module.exports = {
       in: ['cash', 'card', 'alipay'],
       notEmpty: true
     },
+    PayAmount: {
+      type: 'float'
+    },
     Status: {
       type: 'string',
       in: ['new', 'inProgress', 'closed'],
       required: true,
       notEmpty: true,
       defaultsTo: 'new'
-    }    
+    },
+    Importance: {
+      type: 'int',
+      defaultsTo: 0
+    },
+    ClosedAt: {
+      type: 'string'
+    }
   }
 
 };

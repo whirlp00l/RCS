@@ -19,11 +19,49 @@ var Table = {
       required: true,
       notEmpty: true
     },
+    TableType: {
+      type: 'string'
+    },
     Status: {
       type: 'string',
       in: ['empty', 'ordering', 'ordered', 'paying', 'paid'],
       defaultsTo: 'empty'
     },
+    MapRow: {
+      type: 'int',
+      required: true,
+      notEmpty: true      
+    },
+    MapCol: {
+      type: 'int',
+      required: true,
+      notEmpty: true  
+    },
+    Token: {
+      type: 'string'
+    },
+    LinkedTabletId: {
+      type: 'string'
+    },
+    LinkTime: {
+      type: 'datetime'
+    },
+    RequestCount: {
+      type: 'int',
+      defaultsTo: 0
+    },
+    StatusUpdateAt: {
+      type: 'datetime'
+    },
+    BookName: {
+      type: 'string'
+    },
+    BookCell: {
+      type: 'string'
+    },
+    BookDateTime: {
+      type: 'datetime'
+    }
   },
 
   // beforeCreate: function(values, next) {

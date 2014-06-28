@@ -1,0 +1,14 @@
+.modal-header
+  h3.modal-title 新建餐桌 位置: 第{{row+1}}行 第{{col+1}}列
+.modal-body
+  form(ng-submit="ok()")
+    div
+      | 餐桌名称:
+      input.form-control(type="text" ng-model="data.tableName" ng-required="true" rcs-auto-focus)
+    div
+      | 餐桌类型:
+      input.form-control(type="text" ng-model="data.tableType")
+    input.noShow(type="submit" id="submit" value="提交")
+.modal-footer
+  button.btn.btn-success(ng-click="ok()") 创建
+  button.btn.btn-danger(ng-click="cancel()") 取消

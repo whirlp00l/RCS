@@ -35,9 +35,43 @@ module.exports.routes = {
   '/': {
     view: 'angular/index'
   },
-  // '/table/list': {
-  //   view: 'Table/list'
-  // }
+
+  '/angular/login': {
+    view: 'angular/login'
+  },
+
+  '/angular/home': {
+    view: 'angular/home'
+  },
+
+  '/angular/rcsTable': {
+    view: 'angular/rcsTable'
+  },
+
+  '/angular/rcsRequest': {
+    view: 'angular/rcsRequest'
+  },
+
+  '/angular/modalViewTable': {
+    view: 'angular/modalViewTable'
+  },
+
+  '/angular/modalNewTable': {
+    view: 'angular/modalNewTable'
+  },
+
+  '/angular/modalViewRequest': {
+    view: 'angular/modalViewRequest'
+  },
+
+  '/angular/modalConfirmPay': {
+    view: 'angular/modalConfirmPay'
+  },
+
+  // test
+  '/angular/test': {
+    view: 'angular/test'
+  },
   /*
   // But what if you want your home page to display
   // a signup form located at `views/user/signup.ejs`?

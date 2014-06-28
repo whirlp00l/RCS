@@ -1,0 +1,82 @@
+@-webkit-keyframes blink { 
+  50% { 
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+}
+@keyframes blink { 
+  50% { 
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.row-rcs-table {
+  margin: 0px, 0px, 0px, 0px;
+}
+
+.col-rcs-table {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.rcs-table {
+  background-color: #000;
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+  width: 100%;
+  border: 5px solid #FFF;
+  color: #000;
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  transition : border 500ms ease-out;
+  -webkit-transition : border 500ms ease-out; 
+  -moz-transition : border 500ms ease-out;
+  -o-transition : border 500ms ease-out;
+}
+
+.rcs-table:hover {
+  border: 5px solid rgba(0, 0, 0, 0.7);
+}
+
+.rcs-table-none{
+  background-color: transparent;
+}
+
+.rcs-table-empty{
+  background-color: #645E55;
+  color: #FFF;
+}
+
+.rcs-table-paying{
+  background-color: #CC0000;
+  color: #FFF;
+}
+
+.rcs-table-paid{
+  background-color: #8A1717;
+  color: #FFF;
+}
+
+.rcs-table-with-request {
+  border: 5px dashed rgba(255, 0, 0, 0.9);
+  animation: blink .25s step-end infinite alternate;
+  -webkit-animation: blink .25s step-end infinite alternate;
+}
+
+.rcs-table-with-book {
+  border: 8px solid rgba(0, 0, 0, 0.9);
+}
+
+.rcs-table-tooltip {
+  font-size: 16px;
+}
+
+.tooltip {
+  width: 200px;
+  height: 120px;
+  text-align: left;
+}
+
+.tooltip * {
+  opacity: 0.9;
+}
