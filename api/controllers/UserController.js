@@ -54,14 +54,16 @@ module.exports = {
       if (user) {
         bcrypt.compare(password, user.Password, function(err, match){
           if (err) {
-            return res.json({error: 'Internal Server error'}, 500);
+            return res.serverError(err);
           }
 
           if (match) {
             req.session.user = user.Email;
+            req.session.userRole = user.Role;
             return res.json(user, 200);
           } else {
             req.session.user = null;
+            req.session.userRole = null;
             return res.forbidden();
           }
         });
@@ -74,6 +76,7 @@ module.exports = {
   logout: function(req, res){
     var user = req.session.user;
     req.session.user = null;
+    req.session.userRole = null;
     res.json({message: 'User ' + user + ' has been logged out'}, 200);
   },
 

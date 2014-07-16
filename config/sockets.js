@@ -26,7 +26,7 @@ module.exports.sockets = {
             console.log(err);
             socket.disconnect();
           } else {
-            console.log("User authenticated:" + user.email + ", role:" + user.role);
+            console.log("User authenticated:" + user.Email + ", role:" + user.Role);
             return
           }
         });

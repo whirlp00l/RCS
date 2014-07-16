@@ -18,14 +18,9 @@ module.exports.policies = {
   // (`true` allows public access) 
   '*': false,
 
-  // 'Auth':
-  // {
-  //   '*': true
-  // },
-
   'User':
   {
-    'deleteAll': true,
+    'deleteAll': true, // test only
 
     'logout': 'isAuthenticated',
     'login': true,
@@ -34,22 +29,26 @@ module.exports.policies = {
 
   'Restaurant':
   {
-    'deleteAll': true,
+    'deleteAll': true, // test only
 
-    'create': 'isAuthenticated',
-    'addAdmin': 'isAuthenticated',
+    'create': ['isAuthenticated', 'isManager'],
+    'addAdmin': ['isAuthenticated', 'isManager'],
     'list': 'isAuthenticated'
   },
 
   'Table':
   {
-    '*': 'isAuthenticated'
-    // '*': true
+    '*': 'isAuthenticated',
+
+    'deleteAll': true // test only
   },
 
   'Request':
   {
-    '*': 'isAuthenticated'
+    '*': 'isAuthenticated',
+    'create': 'isLinkedTablet',    
+
+    'deleteAll': true // test only
   },
 
   /*

@@ -154,20 +154,31 @@ module.exports = {
   },
 
   link:  function (req, res, next) {
-    var tabletId = req.param('LinkedTabletId');
-    if (!tabletId || tabletId == '') return res.send('Invalid LinkedTabletId [' + tabletId + ']', 500);
+    var tabletId = req.body.LinkedTabletId;
+    var tableId = req.param('id');
 
-    Table.findOne({id: req.param('id')}).done(function (err, table) {
-      if (err) return res.send(500);
-      if (!table) return res.send('No table with id=' + req.param('id') + ' exists!', 404);
+    if (!tabletId || !tableId) {
+      return res.send('Invalid LinkedTabletId [' + tabletId + ']', 500);
+    }
 
-      table.LinkedTabletId = req.param('LinkedTabletId');
+    Table.findOneById(tableId).done(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!table) {
+        return res.badRequest('No table with id=' + tableId + ' exists!');
+      }
+
+      table.LinkedTabletId = tabletId;
       table.LinkTime = new Date();
       table.Token = require('node-uuid').v4();
 
       var saveAndReturn = function () {
         table.save(function (err) {
-          if (err) console.log("save table err: " + err);
+          if (err) {
+            return res.serverError(err);
+          }
 
           Table.publishUpdate(table.id, {
             LinkedTabletId: table.LinkedTabletId,
@@ -175,7 +186,7 @@ module.exports = {
             Token: table.Token
           });
 
-          res.redirect('/table/' + table.id);
+          res.json(table);
         })
       }
 

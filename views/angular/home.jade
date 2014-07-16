@@ -32,12 +32,12 @@
               i.glyphicon.glyphicon-bell 当前
             p
               br
-            .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10")
+            .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10 track by $index")
               div(rcs-request)
           tab
             tab-heading
               i.glyphicon.glyphicon-time 历史
             p
               br
-            .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10")
+            .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
               div(rcs-request)

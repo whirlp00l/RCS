@@ -32,7 +32,7 @@ module.exports = {
         }).done(function(err, request) {
           Request.publishCreate({
             id: request.id,
-            RestaurantName: request.RestaurantName, 
+            RestaurantName: request.RestaurantName,
             TableName: request.TableName,
             Type: request.Type,
             PayType: request.PayType,
@@ -40,7 +40,7 @@ module.exports = {
             Importance: request.Importance
           });
 
-          console.log("create request " + request.id);
+          console.log('create request ' + request.id);
           if (i == tables.length - 1) {
             res.redirect('/request/');
           }
@@ -52,30 +52,24 @@ module.exports = {
   deleteAll: function (req, res, next) {
     Request.find().done(function (err, requests) {
       if (requests.length == 0) {
-        res.send("No Request");
+        res.send('No Request');
       }
       for (var i = 0 ;i < requests.length; i++) {
         requests[i].destroy(function() {
-          console.log("deleted request " + requests[i].id)
+          console.log('deleted request ' + requests[i].id)
           if (i == requests.length - 1) {
-            res.send("Request all deleted");
+            res.send('Request all deleted');
           }
         });
       }
     });
   },
 
-  show: function (req, res, next) {
-    Request.findOne(req.param('id'), function (err, request) {
-      if (err) return next(err);
-      if (!request) return next();
-      res.view({
-        request: request
-      });
-    });
-  },
-
   list: function (req, res, next) {
+    var restaurantName = req.body.RestaurantName;
+
+    // TODO: filter on restaurantName
+
     Request.find(function (err, requests) {
       if (err) return next(err);
       if (!Request) return next();
@@ -84,96 +78,106 @@ module.exports = {
       });
     });
   },
-  
+
   create: function (req, res, next) {
-    var tableName = req.param("TableName");
-    var restaurantName = req.param("RestaurantName");
-    var token = req.param("Token"); // TODO: make token a required param
-    var type = req.param("Type");
-    var payType = req.param("PayType");
-    var payAmount = req.param("PayAmount");
+    var tableId = req.body.TableId;
+    var type = req.body.Type;
 
-    Table.findOne({
-      RestaurantName: restaurantName,
-      TableName: tableName
-    }).done(function (err, table) {
-      if (typeof table == "undefined") {
-        res.send("Not exist: Table [" + tableName + "] in Restaurant [" + restaurantName + "]");
-        return;
-      } else {
+    if (!tableId || !type ) {
+      return res.badRequest('Missing required fields.')
+    }
 
-        if (table.Token && table.Token != '' && token && token != '') {
-          if (table.Token != token) {
-            res.send("token mismatch", 500);
-            return;
-          }
+    var payType = req.body.PayType;
+    var payAmount = req.body.PayAmount;
+
+    Table.findOneById(tableId).done(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (typeof table == 'undefined') {
+        return res.badRequest('Not exist: Table id = ' + tableId);
+      }
+
+      Request.findOne({
+        id: tableId,
+        Type: type,
+        Or: [{Status: 'new'}, {Status: 'inProgress'}]
+      }).done(function (err, request) {
+        if (err) {
+          return res.serverError(err);
         }
 
-        Request.findOne({
-          RestaurantName: table.RestaurantName,
-          TableName: table.TableName,
-          Type: req.param("Type"),
-          Or: [{Status: "new"}, {Status: "inProgress"}]
-        }).done(function (err, request) {
-          if (typeof request == "undefined") {
-            Request.create({
-              RestaurantName: restaurantName,
-              TableName: tableName,
-              Type: type,
-              PayType: payType,
-              PayAmount: payAmount
-            }).done(function(err, request) {
-              Request.publishCreate({
-                id: request.id,
-                RestaurantName: table.RestaurantName, 
-                TableName: table.TableName,
-                Type: request.Type,
-                PayType: request.PayType,
-                PayAmount: request.PayAmount,
-                Status: request.Status,
-                Importance: request.Importance
-              });
+        if (typeof request == 'undefined') {
+          Request.create({
+            RestaurantName: table.RestaurantName,
+            TableName: table.TableName,
+            Type: type,
+            PayType: payType,
+            PayAmount: payAmount
+          }).done(function(err, request) {
+            if (err) {
+              return res.serverError(err);
+            }
 
-              table.RequestCount = parseInt(table.RequestCount) + 1;
+            Request.publishCreate({
+              id: request.id,
+              RestaurantName: table.RestaurantName,
+              TableName: table.TableName,
+              Type: request.Type,
+              PayType: request.PayType,
+              PayAmount: request.PayAmount,
+              Status: request.Status,
+              Importance: request.Importance
+            });
 
-              if (request.Type == "pay") {
-                table.Status = 'paying';
-                table.StatusUpdateAt = new Date();
+            table.RequestCount = parseInt(table.RequestCount) + 1;
+
+            if (request.Type == 'pay') {
+              table.Status = 'paying';
+              table.StatusUpdateAt = new Date();
+            }
+
+            table.save(function (err) {
+              if (err) {
+                return res.serverError(err);
               }
 
-              table.save(function (err) {
-                if (err) console.log("table save err:" + err);
-                Table.publishUpdate(table.id, {
-                  RequestCount: table.RequestCount,
-                  Status: table.Status,
-                  StatusUpdateAt: table.StatusUpdateAt
-                });
-
-                res.redirect('/request/' + request.id);
-              })
-            });
-          } else {
-            request.Importance = parseInt(request.Importance) + 1;
-            request.save(function (err) {
-              if (err) console.log(err);
-              Request.publishUpdate(request.id, {
-                Importance: request.Importance
+              Table.publishUpdate(table.id, {
+                RequestCount: table.RequestCount,
+                Status: table.Status,
+                StatusUpdateAt: table.StatusUpdateAt
               });
+
+              return res.json(request);
             })
-            res.redirect('/request/' + request.id);
-          }
-        });
-      }
+          });
+        } else {
+          // The same active Request exists, increase the priority
+          request.Importance = parseInt(request.Importance) + 1;
+          request.save(function (err) {
+            if (err) {
+              return res.serverError(err);
+            }
+
+            Request.publishUpdate(request.id, {
+              Importance: request.Importance
+            });
+          })
+
+          return res.json(request);
+        }
+      });
     });
   },
 
   close: function (req, res, next) {
     Request.findOne({id: req.param('id')}).done(function (err, request) {
       if (err) return res.send(500);
-      if (!request) return res.send("No request with that id exists!", 404);
+      if (!request) return res.send('No request with that id exists!', 404);
 
       request.Status = 'closed';
-      request.ClosedAt = req.param("ClosedAt");
+      request.ClosedAt = req.param('ClosedAt');
 
       request.save(function (err) {
         if (err) console.log(err);
@@ -183,8 +187,8 @@ module.exports = {
           TableName: request.TableName
         }).done(function (err, table) {
           table.RequestCount = parseInt(table.RequestCount) - 1;
-          if (request.Type == "pay") {
-            table.Status = "paid";
+          if (request.Type == 'pay') {
+            table.Status = 'paid';
             table.StatusUpdateAt = new Date();
           }
 
@@ -196,7 +200,7 @@ module.exports = {
               Status: table.Status,
               StatusUpdateAt: table.StatusUpdateAt
             });
-            
+
             res.redirect('/request/' + request.id);
           })
         })
@@ -210,5 +214,5 @@ module.exports = {
    */
   _config: {}
 
-  
+
 };
