@@ -21,7 +21,7 @@ module.exports = {
     },
     Type: {
       type: 'string',
-      in: ['pay'],
+      in: ['pay', 'water', 'call'],
       required: true,
       notEmpty: true
     },
