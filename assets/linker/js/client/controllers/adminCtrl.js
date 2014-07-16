@@ -4,8 +4,7 @@ angular
     function($scope, $state, $stateParams){
       console.log('adminCtrl');
       if (!$stateParams.restaurantName) {
-        $state.go('restaurant');
-        return;
+        return $state.go('restaurant');
       }
 
       $scope.currentRestaurant = $stateParams.restaurantName;

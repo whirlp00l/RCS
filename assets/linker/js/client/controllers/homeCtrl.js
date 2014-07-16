@@ -4,8 +4,7 @@
     function($scope, rcsSocket, $state, $stateParams){
       console.log('homeCtrl');
       if (!$stateParams.restaurantName) {
-        $state.go('restaurant');
-        return;
+        return $state.go('restaurant');
       }
 
       $scope.currentRestaurant = $stateParams.restaurantName;

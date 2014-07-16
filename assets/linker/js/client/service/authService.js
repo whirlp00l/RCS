@@ -1,39 +1,52 @@
 angular
   .module('rcs')
-  .factory('AuthService', function ($http) {
-    return {
-      login: function (credentials) {
+  .factory('AuthService', ['$rootScope', '$http', 'SessionService', 'AUTH_EVENTS', 'USER_ROLES',
+    function ($rootScope, $http, SessionService, AUTH_EVENTS, USER_ROLES) {
+
+      var authService = {};
+
+      authService.login = function (credentials) {
         return $http
           .post('User/login', {
             Email: credentials.email,
             Password: credentials.password
           })
           .then(function (data) {
-            console.log('login success.')
-            console.log(data);
-            // Session.create(data.id, data.email, data.role);
+            var user = data.data;
+            SessionService.create(user.Email, user.Role);
+            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
           });
-      },
+      };
 
-      logout: function () {
+      authService.logout = function () {
         return $http
           .get('User/logout')
           .then(function (data) {
-            console.log('logout success.')
-            console.log(data);
-            // Session.clear();
+            SessionService.destroy();
+            $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
           });
-      },
-      // ,
-      // isAuthenticated: function () {
-      //   return !!Session.userId;
-      // },
-      // isAuthorized: function (authorizedRoles) {
-      //   if (!angular.isArray(authorizedRoles)) {
-      //     authorizedRoles = [authorizedRoles];
-      //   }
-      //   return (this.isAuthenticated() &&
-      //     authorizedRoles.indexOf(Session.userRole) !== -1);
-      // }
-    };
-  })
+      };
+
+      authService.isAuthenticated = function () {
+        return !!SessionService.user;
+      };
+
+      authService.isAuthorized = function (authorizedRoles) {
+        if (!authService.isAuthenticated()) {
+          return false;
+        }
+
+        if (!angular.isArray(authorizedRoles)) {
+          authorizedRoles = [authorizedRoles];
+        }
+        return (authService.isAuthenticated() &&
+          authorizedRoles.indexOf(SessionService.userRole) !== -1);
+      };
+
+      authService.isManager = function () {
+        return authService.isAuthorized(USER_ROLES.manager)
+      };
+
+      return authService;
+
+    }])

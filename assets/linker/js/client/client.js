@@ -2,22 +2,27 @@ angular
   .module('rcs', [
     'ui.router', 'ui.bootstrap'
   ])
-  .config(['$urlRouterProvider', '$stateProvider',
-    function($urlRouterProvider, $stateProvider){
+  .config(['$urlRouterProvider', '$stateProvider', 'USER_ROLES',
+    function($urlRouterProvider, $stateProvider, USER_ROLES){
       $urlRouterProvider.otherwise('/login');
 
       $stateProvider
         .state('login', {
           url: '/login',
           templateUrl: '/angular/login',
-          controller: 'loginCtrl'
+          controller: 'loginCtrl',
+          data: {
+            name: '登录',
+            authorizedRoles: [USER_ROLES.any]
+          },
         })
         .state('restaurant', {
           url: '/restaurant',
           templateUrl: '/angular/restaurant',
           controller: 'restaurantCtrl',
           data: {
-            name: '餐厅选择'
+            name: '餐厅选择',
+            authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
           },
           resolve: {
             restaurants: function ($http) {
@@ -32,7 +37,8 @@ angular
           templateUrl: '/angular/admin',
           controller: 'adminCtrl',
           data: {
-            name: '管理员分配'
+            name: '管理员分配',
+            authorizedRoles: [USER_ROLES.manager]
           }
         })
         .state('home', {
@@ -40,17 +46,22 @@ angular
           templateUrl: '/angular/home',
           controller: 'homeCtrl',
           data: {
-            name: '餐厅管理'
+            name: '餐厅管理',
+            authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
           }
         })
         .state('test', {
           url: '/test',
           templateUrl: '/angular/test',
+          data: {
+            name: 'test',
+            authorizedRoles: [USER_ROLES.any]
+          }
         });
     }]
   )
-  .run(['$rootScope', '$state', '$stateParams', 'AuthService',
-    function($rootScope, $state, $stateParams, AuthService) {
+  .run(['$rootScope', '$state', '$stateParams', 'AuthService', 'USER_ROLES',
+    function($rootScope, $state, $stateParams, AuthService, USER_ROLES) {
        $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
         $state.previous = {
           state: fromState,
@@ -58,32 +69,32 @@ angular
         }
       });
 
-      // $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams) {
-      //   // track the state the user wants to go to; authorization service needs this
-      //   console.log('stateChangeStart:');
-      //   console.log(toState);
-      //   console.log(toStateParams);
+      $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
+        // track the state the user wants to go to; authorization service needs this
+        var authorizedRoles = toState.data.authorizedRoles;
 
-      //   if(toStateParams.x) {
-      //     return;
-      //   }
+        if (!authorizedRoles) {
+          return;
+        }
 
-      //   if (toState.name != 'login' && toState.name != 'test') {         
-      //     event.preventDefault();
+        if (!angular.isArray(authorizedRoles)) {
+          authorizedRoles = [authorizedRoles];
+        }
 
-      //     AuthService.checkRole().then(
-      //       function success () {
-      //         console.log("auth pass. go ahead");
-      //         $state.go(toState.name, {
-      //           x: 1
-      //         });
-      //       }, 
-      //       function fail () {
-              
-      //         console.log("auth failed. force to login page")
-      //         $state.go('login');
-      //       });
-      //   }
-      // });
+        if (authorizedRoles.indexOf(USER_ROLES.any) !== -1) {
+          return;
+        }
+
+        if (!AuthService.isAuthorized(authorizedRoles)) {
+          event.preventDefault();
+          if (AuthService.isAuthenticated()) {
+            // user is not allowed
+            $state.go('login');
+          } else {
+            // user is not logged in
+            $state.go('login');
+          }
+        }
+      });
     }
   ]);

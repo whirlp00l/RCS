@@ -8,3 +8,8 @@ angular
     notAuthenticated: 'auth-not-authenticated',
     notAuthorized: 'auth-not-authorized'
   })
+  .constant('USER_ROLES', {
+    any: '*',
+    manager: 'manager',
+    admin: 'admin'
+  });
