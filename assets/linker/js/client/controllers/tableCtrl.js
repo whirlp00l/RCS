@@ -1,8 +1,8 @@
 angular
   .module('rcs')
-  .controller('tableCtrl', ['$scope', '$http', '$modal', 'rcsData',
-    function($scope, $http, $modal, rcsData){
-
+  .controller('tableCtrl', ['$scope', '$http', '$modal', 'rcsSocket',
+    function($scope, $http, $modal, rcsSocket){
+      console.log('tableCtrl');
       // initial table 2d array
       $scope.maxTableRow = 10; 
       $scope.maxTableCol = 12;
@@ -20,7 +20,7 @@ angular
           cleanTableMap();
         }
 
-        var tables = rcsData.tables;
+        var tables = rcsSocket.data.tables;
         for (var i = 0; i < tables.length; i++) {
           var row = tables[i].MapRow;
           var col = tables[i].MapCol;
@@ -46,7 +46,7 @@ angular
 
       // listen to event
       $scope.$on('tables.update', function (event, message) {
-        console.log('tableCtrl: tables length = ' + rcsData.tables.length);
+        console.log('tableCtrl: tables length = ' + rcsSocket.data.tables.length);
 
         if (message && message.verb == 'create') {
           var table = message.data;
@@ -215,7 +215,7 @@ angular
         if ($scope.ifHasBook(table)) {
           bookingInfo = (
             '<div class="rcs-table-tooltip">' +
-              '预订：{0} {1}' +
+              '预订: {0} {1}' +
             '</div>'
             ).format(
               table.data.BookName,
@@ -230,7 +230,7 @@ angular
 
         return (
           '<div class="rcs-table-tooltip">' +
-            '类型：{0}<br>状态:{1}<br>({2}分钟前更新)' +
+            '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
           '</div>'
         ).format(
           $scope.getTableTypeText(table.data),

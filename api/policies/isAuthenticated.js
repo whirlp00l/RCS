@@ -9,13 +9,22 @@
  */
 module.exports = function(req, res, next) {
 
-  // User is allowed, proceed to the next policy, 
-  // or if this is the last policy, the controller
+  // console.log('isAuthenticated?');
+
   if (req.session.user) {
-    return next();
+    User.findOneByEmail(req.session.user).done(function (err, user){
+      if(err){
+        console.log(err);
+        // console.log("User not exist:" + req.session.user);
+        return res.json({error: 'Current User do not exist in DB'}, 500);
+      } else {
+        // console.log("User authenticated:" + user.Email + ", role:" + user.Role);
+        return next();
+      }
+    });
+  } else {
+      // console.log("User not login");
+      return res.forbidden();
   }
 
-  // User is not allowed
-  // (default res.forbidden() behavior can be overridden in `config/403.js`)
-  return res.forbidden('You are not permitted to perform this action.');
 };

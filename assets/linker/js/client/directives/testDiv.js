@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .directive('testDivParent', function () {
+  .directive('testDivParent', function ($state) {
     return {
       link: function ($scope) {
         $scope.title = 'Hello world!';
@@ -8,6 +8,10 @@ angular
 
         $scope.setTitle = function () {
           $scope.title = clickTime++;
+        }
+
+        $scope.gotoAdmin = function () {
+          $state.go('admin');
         }
       }
     }

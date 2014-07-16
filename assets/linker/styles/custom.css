@@ -1,20 +1,34 @@
+
 .force-wrap {
  word-wrap: break-word;
  white-space: pre-wrap;
  max-width:100%;
 }
 
-.main-font {
+.font-kaiti {
   font-family: "楷体", Helvetica, Arial, sans-serif;
   /*font-size: 20px;*/
   color: #645E55;
 }
+
+.font-size-lg {
+  font-size: 28px
+}
+
+.font-size-md {
+  font-size: 20px
+}
+
 .background-color-default {
   background-color: #E5E0D8;
 }
 
-.background-color-primary {
+.bg-color-darkred {
   background-color: #8A1717;
+}
+
+.color-darkred {
+  color: #8A1717;
 }
 
 ul.nav {
@@ -89,4 +103,8 @@ input.noShow {
   height: 0px;
   width: 0px;
   opacity: 0;
+}
+
+.full-width {
+  width: 100%;
 }

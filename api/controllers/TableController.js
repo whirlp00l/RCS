@@ -16,58 +16,35 @@
  */
 
 module.exports = {
-  mockDelete: function (req, res, next) {
+  deleteAll: function (req, res, next) {
     Table.find().done(function (err, tables) {
       if (tables.length == 0) {
-        res.end();
+        res.send("No Table");
       }
       for (var i = 0 ;i < tables.length; i++) {
         tables[i].destroy(function() {
           console.log("deleted table" + tables[i].id)
           if (i == tables.length - 1) {
-            res.end();
+            res.send("Table all deleted");
           }
         });
       }
     });
   },
 
-  show: function (req, res, next) {
-    Table.findOne(req.param('id'), function (err, table) {
-      if (err) return next(err);
-      if (!Table) return next();
-      res.view({
-        table: table
-      });
-    });
-  },
+  list: function(req, res, next) {
+    var restaurantName = req.body.RestaurantName;
 
-  listTable: function(req, res, next) {
-    Table.find({RestaurantName: req.param('RestaurantName')}).done(function(error, tables){
-      if(error){
-        console.log(error);
-        res.json({error: 'DB error'},500);
+    if (!restaurantName) {
+      return res.badRequest('Missing required fields.')
+    }
+
+    Table.findByRestaurantName(restaurantName).done(function (err, tables){
+      if (err){
+        return res.ServerError(err);
       } else {
-        var restables = new Array();
-        tables.forEach(function(table){
-          restables.push({
-            RestaurantName: table.RestaurantName,
-            TableName: table.TableName,
-            id: table.id
-          });
-        });
-        res.json(restables);
+        res.json(tables);
       }
-    });
-  },
-
-  list: function (req, res, next) {
-    Table.find(function (err, tables) {
-      if (err) return next(err);
-      if (!Table) return next();
-      res.view({
-        tables: tables
-      });
     });
   },
 
@@ -78,13 +55,21 @@ module.exports = {
     var mapCol = req.param("MapCol");
     var tableType = req.param("TableType");
 
+    if (!restaurantName || !tableName || !tableType
+     || typeof mapRow == "undefined" || typeof mapCol == "undefined") {
+      return res.badRequest('Missing required fields.')
+    }
+
     Table.findOne({
       RestaurantName: restaurantName,
       TableName: tableName
-    }).done(function(err, table){
+    }).done(function (err, table){
+      if (err) {
+        return res.serverError(err);
+      }
+
       if (typeof table != "undefined") {
-        res.send("Table [" + table.TableName + "] already existed in Restaurant [" + table.RestaurantName + "]");
-        return;
+        return res.badRequest("Table [" + table.TableName + "] already existed in Restaurant [" + table.RestaurantName + "]");
       } else {
         Table.findOne({
           RestaurantName: restaurantName,
@@ -92,8 +77,7 @@ module.exports = {
           MapCol: mapCol
         }).done(function(err, table){
           if (typeof table != "undefined") {
-            res.send("Table at map [" + table.MapRow + "," + table.MapCol + "] already existed in Restaurant [" + table.RestaurantName + "]");
-            return;
+            return res.badRequest("Table at map [" + table.MapRow + "," + table.MapCol + "] already existed in Restaurant [" + table.RestaurantName + "]");
           } else {
             Table.create({
               RestaurantName: restaurantName,
@@ -114,7 +98,8 @@ module.exports = {
                 RequestCount: table.RequestCount,
                 StatusUpdateAt: table.StatusUpdateAt
               });
-              res.redirect('/table/' + table.id);
+
+              return res.json(table);
             });
           }
         })

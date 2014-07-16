@@ -9,9 +9,20 @@
 module.exports = {
 
   attributes: {
-    UserName: 'string',
     RestaurantName: {
-      type:'string',
+      type: 'string',
+      required: true,
+      notEmpty: true
+    },
+
+    Manager: {
+      type: 'string',
+      required: true,
+      notEmpty: true
+    },
+
+    Admins: {
+      type: 'array',
       required: true,
       notEmpty: true
     }

@@ -1,37 +1,42 @@
-.row.main-font
+.row
     .col-xs-8.bg-default
       .row
-      br
-      div(ng-controller="tableCtrl")
+        .col-xs-1.text-left
+          .btn-group(dropdown is-open="status.isopen")
+            a.dropdown-toggle.font-size-lg(href="" type="button" ng-disabled="disabled")
+              span.glyphicon.glyphicon-cog.color-darkred
+            ul.dropdown-menu(role="menu")
+              li
+                a.font-size-md(href="")
+                  span.glyphicon.glyphicon-pencil &nbsp;编辑桌子 
+              li
+                a.font-size-md(href="") 
+                  span.glyphicon.glyphicon-list-alt &nbsp;编辑菜单 
+              li.divider
+              li(ng-if="'hasOtherRest'=='hasOtherRest'")
+                a.font-size-md(href="" rcs-go-restaurant) 
+                  span.glyphicon.glyphicon-circle-arrow-left &nbsp;返回餐厅选择
+              li
+                a.font-size-md(href="" rcs-logout)
+        .col-xs-10.text-center
+          span.full-width.font-size-lg 管理餐厅『{{currentRestaurant}}』
+      .row(ng-controller="tableCtrl")
         .row.row-rcs-table(ng-repeat="tableRow in tables track by $index")
           .col-rcs-table(ng-repeat="table in tableRow", ng-class="{'col-xs-2':maxTableCol==6, 'col-xs-1':maxTableCol==12}")
             div(rcs-table)
-        //- .row
-          .col-xs-12
-            .text-center(style="background-color: #EEE; height: 30px; width: 100%; border: 5px solid #ddd")
-              button(style="height:100%; width:100%", ng-click="addTableRow()")
-              | + Add row
-            //- .row.text-center(style="background-color: #000; height: 800px; font-size: 25px;", id="size")
-      //-   button(ng-click="resize()")
-      //-     Resize
-        //- br
-        //- br
-        //- | 前方施工...请绕行...
     .col-xs-4(ng-controller="requestCtrl")
       .background-color-default(style="height: 620px;")
         tabset.background-color-default(justified="true")
           tab
             tab-heading
-              i.glyphicon.glyphicon-bell
-              | 当前
+              i.glyphicon.glyphicon-bell 当前
             p
               br
             .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10")
               div(rcs-request)
           tab
             tab-heading
-              i.glyphicon.glyphicon-time
-              | 历史
+              i.glyphicon.glyphicon-time 历史
             p
               br
             .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10")

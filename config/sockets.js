@@ -15,7 +15,26 @@ module.exports.sockets = {
   // Keep in mind that Sails' RESTful simulation for sockets 
   // mixes in socket.io events for your routes and blueprints automatically.
   onConnect: function(session, socket) {
-
+    console.log("socket server: onConnect");
+    if (socket.connected) {
+      console.log("socket client already connected");
+    } else {
+      console.log("socket client authenticated?");
+      if (session.user) {
+        User.findOneByEmail(session.user).done(function (err, user){
+          if(err){
+            console.log(err);
+            socket.disconnect();
+          } else {
+            console.log("User authenticated:" + user.email + ", role:" + user.role);
+            return
+          }
+        });
+      } else {
+        console.log("socket client not login. Disconnect it.")
+        socket.disconnect();
+      }
+    }
     // By default: do nothing
     // This is a good place to subscribe a new socket to a room, inform other users that
     // someone new has come online, or any other custom socket.io logic
@@ -23,7 +42,8 @@ module.exports.sockets = {
 
   // This custom onDisconnect function will be run each time a socket disconnects
   onDisconnect: function(session, socket) {
-
+    console.log("socket server: onDisconnect");
+    socket.disconnect();
     // By default: do nothing
     // This is a good place to broadcast a disconnect message, or any other custom socket.io logic
   },

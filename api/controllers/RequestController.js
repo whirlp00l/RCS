@@ -49,16 +49,16 @@ module.exports = {
     });
   },
 
-  mockDelete: function (req, res, next) {
+  deleteAll: function (req, res, next) {
     Request.find().done(function (err, requests) {
       if (requests.length == 0) {
-        res.end();
+        res.send("No Request");
       }
       for (var i = 0 ;i < requests.length; i++) {
         requests[i].destroy(function() {
-          console.log("deleted request" + requests[i].id)
+          console.log("deleted request " + requests[i].id)
           if (i == requests.length - 1) {
-            res.end();
+            res.send("Request all deleted");
           }
         });
       }

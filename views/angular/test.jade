@@ -1,6 +1,8 @@
 div(test-div-parent)
-  h2 {{title}}
-  button(ng-click="setTitle()") Set Title
-  div(test-div-child)
-    h4 {{title}}
-    button(ng-click="setTitleChild()") Set Title Child
+  button.btn(rcsGoBack) rcsGoBack
+  //- h2 {{title}}
+  //- button(ng-click="setTitle()") Set Title
+  //- div(test-div-child)
+  //-   h4 {{title}}
+  //-   button(ng-click="setTitleChild()") Set Title Child
+  button.btn.btn-danger(type="button" ng-click="gotoAdmin()") gotoAdmin

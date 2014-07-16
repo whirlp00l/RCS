@@ -1,11 +1,12 @@
 angular
   .module('rcs')
-  .controller('requestCtrl', ['$scope', '$http', '$modal', 'rcsData',
-    function($scope, $http, $modal, rcsData) {
-
+  .controller('requestCtrl', ['$scope', '$http', '$modal', 'rcsSocket',
+    function($scope, $http, $modal, rcsSocket) {
+      console.log('requestCtrl');
+      
       $scope.$on('requests.update', function (event) {
-        console.log('requestCtrl: requests length = ' + rcsData.requests.length);
-        $scope.requests = rcsData.requests;
+        console.log('requestCtrl: requests length = ' + rcsSocket.data.requests.length);
+        $scope.requests = rcsSocket.data.requests;
         $scope.$apply();
       })
 

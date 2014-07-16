@@ -36,14 +36,24 @@ module.exports.routes = {
     view: 'angular/index'
   },
 
+  // state templates
   '/angular/login': {
     view: 'angular/login'
+  },
+
+  '/angular/restaurant': {
+    view: 'angular/restaurant'
+  },
+
+  '/angular/admin': {
+    view: 'angular/admin'
   },
 
   '/angular/home': {
     view: 'angular/home'
   },
 
+  // directive templates
   '/angular/rcsTable': {
     view: 'angular/rcsTable'
   },
@@ -52,6 +62,7 @@ module.exports.routes = {
     view: 'angular/rcsRequest'
   },
 
+  // modal templates
   '/angular/modalViewTable': {
     view: 'angular/modalViewTable'
   },
