@@ -100,7 +100,7 @@ module.exports = {
       }
 
       Request.findOne({
-        id: tableId,
+        TableName: table.TableName,
         Type: type,
         Or: [{Status: 'new'}, {Status: 'inProgress'}]
       }).done(function (err, request) {
