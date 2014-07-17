@@ -12,4 +12,7 @@ angular
     any: '*',
     manager: 'manager',
     admin: 'admin'
+  })
+  .constant('ERROR_MESSAGE', {
+    passwordMismatch: '密码确认有误 请重新输入'
   });

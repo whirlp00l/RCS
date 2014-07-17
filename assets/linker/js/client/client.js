@@ -16,6 +16,15 @@ angular
             authorizedRoles: [USER_ROLES.any]
           },
         })
+        .state('signup', {
+          url: '/signup',
+          templateUrl: '/template/signup',
+          controller: 'signupCtrl',
+          data: {
+            name: '注册',
+            authorizedRoles: [USER_ROLES.any]
+          },
+        })
         .state('restaurant', {
           url: '/restaurant',
           templateUrl: '/template/restaurant',

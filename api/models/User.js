@@ -15,7 +15,6 @@ module.exports = {
       bcrypt.hash(attrs.Password, salt, function(err, hash) {
         if (err) return next(err);
         attrs.Password = hash;
-        console.log(hash);
         next();
       });
     });
