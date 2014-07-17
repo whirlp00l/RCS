@@ -26,5 +26,10 @@ form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole)")
         label.btn.btn-default(ng-model="selectedRole", btn-radio="role.manager") 餐厅经理
   .row.text-center
     h2
-    input.btn.btn-danger(type="submit" id="submit" value="注册")
+    .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+      input.btn.btn-danger.full-width(type="submit" id="submit" value="注册")
+  .row.text-center
+    h4
+    .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+      button.btn.btn-default.full-width(rcs-go-back)
 
