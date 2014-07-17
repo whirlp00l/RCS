@@ -71,7 +71,7 @@ angular
       // add table
       var addTable = function (row, col) {
         var modalInstance = $modal.open({
-          templateUrl: '/angular/modalNewTable',
+          templateUrl: '/template/modalNewTable',
           controller: 'newTableModalCtrl',
           resolve: {
             col: function () {
@@ -95,7 +95,7 @@ angular
 
       var viewTable = function (tableData) {
         var modalInstance = $modal.open({
-          templateUrl: '/angular/modalViewTable',
+          templateUrl: '/template/modalViewTable',
           controller: 'viewTableModalCtrl',
           resolve: {
             tableData: function () {

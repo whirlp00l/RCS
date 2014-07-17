@@ -3,6 +3,6 @@ angular
   .directive('rcsRequest', function () {
     return {
       restrict: 'A',
-      templateUrl: '/angular/rcsRequest'
+      templateUrl: '/template/rcsRequest'
     }
   });

@@ -18,13 +18,18 @@ module.exports.policies = {
   // (`true` allows public access) 
   '*': false,
 
+  'Template':
+  {
+    '*': true
+  },
+
   'User':
   {
     'deleteAll': true, // test only
 
     'logout': 'isAuthenticated',
     'login': true,
-    'create': true,
+    'create': true
   },
 
   'Restaurant':

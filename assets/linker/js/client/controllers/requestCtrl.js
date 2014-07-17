@@ -37,10 +37,10 @@ angular
             $http.post('/request/update/' + request.id, {Status:"inProgress"});
             return;
           case 'closed':
-            modalTemplate = '/angular/modalViewRequest';
+            modalTemplate = '/template/modalViewRequest';
             break;
           case 'inProgress':
-            modalTemplate = '/angular/modalConfirmPay';
+            modalTemplate = '/template/modalConfirmPay';
             break;
         }
 

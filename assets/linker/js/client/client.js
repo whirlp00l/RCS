@@ -9,7 +9,7 @@ angular
       $stateProvider
         .state('login', {
           url: '/login',
-          templateUrl: '/angular/login',
+          templateUrl: '/template/login',
           controller: 'loginCtrl',
           data: {
             name: '登录',
@@ -18,7 +18,7 @@ angular
         })
         .state('restaurant', {
           url: '/restaurant',
-          templateUrl: '/angular/restaurant',
+          templateUrl: '/template/restaurant',
           controller: 'restaurantCtrl',
           data: {
             name: '餐厅选择',
@@ -34,7 +34,7 @@ angular
         })
         .state('admin', {
           url: '/admin/:restaurantName',
-          templateUrl: '/angular/admin',
+          templateUrl: '/template/admin',
           controller: 'adminCtrl',
           data: {
             name: '管理员分配',
@@ -43,7 +43,7 @@ angular
         })
         .state('home', {
           url: '/home/:restaurantName',
-          templateUrl: '/angular/home',
+          templateUrl: '/template/home',
           controller: 'homeCtrl',
           data: {
             name: '餐厅管理',
@@ -52,7 +52,7 @@ angular
         })
         .state('test', {
           url: '/test',
-          templateUrl: '/angular/test',
+          templateUrl: '/template/test',
           data: {
             name: 'test',
             authorizedRoles: [USER_ROLES.any]

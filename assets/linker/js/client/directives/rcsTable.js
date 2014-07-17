@@ -3,6 +3,6 @@ angular
   .directive('rcsTable', function () {
     return {
       restrict: 'A',
-      templateUrl: '/angular/rcsTable'
+      templateUrl: '/template/rcsTable'
     }
   });
