@@ -26,5 +26,52 @@ angular
         }
       }
     }
+  })
+  .directive('testDiv', function (rcsAPI) {
+    return {
+      link: function ($scope) {
+        $scope.listRestaurant = function () {
+          rcsAPI.Restaurant.list().success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.createRestaurant = function () {
+          rcsAPI.Restaurant.create('KFC-Test').success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.addAdmin = function () {
+          rcsAPI.Restaurant.addAdmin('KFC-Test', 'admin1').success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.loginAdmin = function () {
+          rcsAPI.User.login('admin1', 'adm123').success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.loginManager = function () {
+          rcsAPI.User.login('manager1', 'mgr123').success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.create = function () {
+          rcsAPI.User.create('admin2', 'adm123', 'admin').success(function (data) {
+            console.log(data);
+          });
+        };
+
+        $scope.logout = function () {
+          rcsAPI.User.logout().success(function (data) {
+            console.log(data);
+          });
+        };
+      }
+    }
   });
-  // change something
+  

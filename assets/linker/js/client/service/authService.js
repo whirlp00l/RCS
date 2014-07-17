@@ -1,27 +1,21 @@
 angular
   .module('rcs')
-  .factory('AuthService', ['$rootScope', '$http', 'SessionService', 'AUTH_EVENTS', 'USER_ROLES',
-    function ($rootScope, $http, SessionService, AUTH_EVENTS, USER_ROLES) {
+  .factory('AuthService', ['$rootScope', '$http', 'SessionService', 'AUTH_EVENTS', 'USER_ROLES', 'rcsAPI',
+    function ($rootScope, $http, SessionService, AUTH_EVENTS, USER_ROLES, rcsAPI) {
 
       var authService = {};
 
       authService.login = function (credentials) {
-        return $http
-          .post('User/login', {
-            Email: credentials.email,
-            Password: credentials.password
-          })
-          .then(function (data) {
-            var user = data.data;
+        return rcsAPI.User.login(credentials.email, credentials.password)
+          .success(function (user) {
             SessionService.create(user.Email, user.Role);
             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
           });
       };
 
       authService.logout = function () {
-        return $http
-          .get('User/logout')
-          .then(function (data) {
+        return rcsAPI.User.logout()
+          .success(function () {
             SessionService.destroy();
             $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
           });
