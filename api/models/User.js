@@ -32,6 +32,12 @@ module.exports = {
       type: 'string',
       required: true,
       in: ['admin', 'manager']
+    },
+
+     toJSON: function() {
+      var obj = this.toObject();
+      delete obj.Password;
+      return obj;
     }
   }
 };
