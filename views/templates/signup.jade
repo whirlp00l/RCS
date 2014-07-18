@@ -2,7 +2,7 @@ h1 注册
 .row.text-center
   h2 请注册餐厅管理系统
 
-form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole)")
+form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole, key)")
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       label 注册邮箱
@@ -24,6 +24,11 @@ form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole)")
       .btn-group.full-width
         label.btn.btn-default(ng-model="selectedRole", btn-radio="role.admin") 管理员
         label.btn.btn-default(ng-model="selectedRole", btn-radio="role.manager") 餐厅经理
+  .row(ng-show="selectedRole==role.manager")
+    h4
+    .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
+      label 注册码 （餐厅经理）
+      input.form-control(type="text" ng-model="key" ng-required="true" placeholder="请输入注册码 (input 'key' for test)")
   .row.text-center
     h2
     .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4

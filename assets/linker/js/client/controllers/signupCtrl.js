@@ -10,13 +10,14 @@ angular
       }
 
       $scope.selectedRole = $scope.role.admin;
+      $scope.key = null;
 
-      $scope.signup = function (email, pwd, pwdConfirm, role) {
+      $scope.signup = function (email, pwd, pwdConfirm, role, key) {
         if (pwd !== pwdConfirm) {
           return alert(ERROR_MESSAGE.passwordMismatch);
         }
 
-        return rcsAPI.User.create(email, pwd, role)
+        return rcsAPI.User.create(email, pwd, role, key)
           .success(function () {
             return $state.go('login');
           })

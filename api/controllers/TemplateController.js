@@ -19,7 +19,6 @@ module.exports = {
  
   render: function(req, res){
     var templateName = req.param('name');
-    console.log(templateName);
     return res.view('templates/' + templateName)
   },
 

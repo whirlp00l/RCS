@@ -48,12 +48,13 @@ angular
           .get('User/logout')
           .error(errorAction);
         },
-        create: function (email, password, role) {
+        create: function (email, password, role, key) {
           return $http
             .post('User/create', {
               Email: email,
               Password: password,
-              Role: role
+              Role: role,
+              Key: key
             })
             .error(errorAction);
         }

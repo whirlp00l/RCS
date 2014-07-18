@@ -20,13 +20,13 @@ module.exports = {
   deleteAll: function (req, res, next) {
     User.find().done(function (err, users) {
       if (users.length == 0) {
-        res.send("No User");
+        res.send('No User');
       }
       for (var i = 0 ;i < users.length; i++) {
         users[i].destroy(function() {
-          console.log("deleted User " + users[i].Email)
+          console.log('deleted User ' + users[i].Email)
           if (i == users.length - 1) {
-            res.send("User all deleted");
+            res.send('User all deleted');
           }
         });
       }
@@ -35,14 +35,14 @@ module.exports = {
 
   login: function (req, res) {
     // if (req.session.user) {
-    //   return res.badRequest("Already logged in as [" + req.session.user + "].");
+    //   return res.badRequest('Already logged in as [' + req.session.user + '].');
     // }
 
     var email = req.body.Email;
     var password = req.body.Password;
 
     if (!email || !password) {
-      return res.badRequest("Missing required fields.")
+      return res.badRequest('Missing required fields.')
     }
 
     var bcrypt = require('bcrypt');
@@ -72,7 +72,7 @@ module.exports = {
       }
     });
   },
-  
+
   logout: function(req, res){
     var user = req.session.user;
     req.session.user = null;
@@ -86,24 +86,33 @@ module.exports = {
     var role = req.body.Role;
 
     if (!email || !password || !role) {
-      return res.badRequest("Missing required fields.")
+      return res.badRequest('Missing required fields.')
     }
 
+    var key = req.body.Key;
+
     User.findOneByEmail(email).done(function (err, user) {
-      if (typeof user != "undefined") {
-        return res.badRequest("User email [" + email + "] has already been registered.");
-      } else {
-        User.create({
-          Email: email,
-          Password: password,
-          Role: role
-        }).done(function (err, user) {
-          if (err) {
-            return res.serverError(err);
-          }
-          return res.json(user);
-        })
+      if (typeof user != 'undefined') {
+        return res.badRequest('User email [' + email + '] has already been registered.');
       }
+
+      if (role == 'manager') {
+        //TODO: read from Key Store
+        if (!key || key !== 'key') {
+          return res.badRequest('Invalid key "' + key + '"');
+        }
+      }
+
+      User.create({
+        Email: email,
+        Password: password,
+        Role: role
+      }).done(function (err, user) {
+        if (err) {
+          return res.serverError(err);
+        }
+        return res.json(user);
+      })
     })
   },
 
@@ -113,5 +122,5 @@ module.exports = {
    */
   _config: {}
 
-  
+
 };
