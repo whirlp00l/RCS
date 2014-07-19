@@ -17,10 +17,14 @@ angular
             .get('Restaurant/list')
             .error(errorAction);
         },
-        create: function (restaurantName) {
+        create: function (restaurantName, admins) {
+          if (!angular.isArray(admins)) {
+            admins = [admins];
+          }
           return $http
             .post('Restaurant/create', {
-              RestaurantName: restaurantName
+              RestaurantName: restaurantName,
+              Admins: admins
             })
             .error(errorAction);
         },

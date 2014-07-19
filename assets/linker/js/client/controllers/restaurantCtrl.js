@@ -21,7 +21,7 @@ angular
         $scope.status.isopen = false;
       }
 
-      $scope.getCurrentRestaurant = function () {
+      $scope.getDrowdownText = function () {
         if ($scope.currentRestaurant)
           return $scope.currentRestaurant;
         return '餐厅列表'

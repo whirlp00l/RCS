@@ -2,19 +2,19 @@ h1 注册
 .row.text-center
   h2 请注册餐厅管理系统
 
-form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole, key)")
+form(ng-submit="signup(info.email, info.pwd, info.pwdConfirm, info.selectedRole, info.key)")
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       label 注册邮箱
-      input.form-control(type="text" ng-model="email" ng-required="true" placeholder="请输入注册邮箱")
+      input.form-control(type="text" ng-model="info.email" ng-required="true" placeholder="请输入注册邮箱")
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       h4
       label 密码
-      input.form-control(type="password" ng-model="pwd" ng-required="true" placeholder="请设置密码")
+      input.form-control(type="password" ng-model="info.pwd" ng-required="true" placeholder="请设置密码")
   .row.text-center
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
-      input.form-control(type="password" ng-model="pwdConfirm" ng-required="true" placeholder="请确认密码")
+      input.form-control(type="password" ng-model="info.pwdConfirm" ng-required="true" placeholder="请确认密码")
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       h4
@@ -22,13 +22,13 @@ form(ng-submit="signup(email, pwd, pwdConfirm, selectedRole, key)")
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       .btn-group.full-width
-        label.btn.btn-default(ng-model="selectedRole", btn-radio="role.admin") 管理员
-        label.btn.btn-default(ng-model="selectedRole", btn-radio="role.manager") 餐厅经理
-  .row(ng-show="selectedRole==role.manager")
+        label.btn.btn-default(ng-model="info.selectedRole", btn-radio="role.admin") 管理员
+        label.btn.btn-default(ng-model="info.selectedRole", btn-radio="role.manager") 餐厅经理
+  .row(ng-if="info.selectedRole==role.manager")
     h4
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       label 注册码 （餐厅经理）
-      input.form-control(type="text" ng-model="key" ng-required="true" placeholder="请输入注册码 (input 'key' for test)")
+      input.form-control(type="text" ng-model="info.key" ng-required="true" placeholder="请输入注册码 (input 'key' for test)")
   .row.text-center
     h2
     .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4

@@ -34,11 +34,20 @@ angular
             authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
           },
           resolve: {
-            restaurants: function ($http) {
-              return $http.get('Restaurant/list').then(function (data) {
+            restaurants: function (rcsAPI) {
+              return rcsAPI.Restaurant.list().then(function (data) {
                 return data.data;
               });
             }
+          }
+        })
+        .state('newRestaurant', {
+          url: '/newRestaurant',
+          templateUrl: '/template/newRestaurant',
+          controller: 'newRestaurantCtrl',
+          data: {
+            name: '餐厅创建',
+            authorizedRoles: [USER_ROLES.manager]
           }
         })
         .state('admin', {

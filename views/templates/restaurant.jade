@@ -6,23 +6,19 @@ h1 餐厅
       .btn-group.full-width(dropdown is-open="status.isopen")
         button.btn.btn-default.dropdown-toggle.full-width(type="button", ng-disabled="disabled")
           .row
-            .col-xs-6.text-left {{getCurrentRestaurant()}}
+            .col-xs-6.text-left {{getDrowdownText()}}
             .col-xs-6.text-right
               span.caret
-        //- button.btn.btn-default(type="button") {{getCurrentRestaurant()}}
-        //- button.btn.btn-default.dropdown-toggle(type="button")
-        //-   span.caret
-        //-   span.sr-only
         ul.dropdown-menu.full-width(role="menu")
           li(ng-repeat="restaurant in restaurants")
             a(ng-click="selectRestaurant($index)") {{restaurant.RestaurantName}}
           li.divider
           li
-            a(href="") 新建餐厅
+            a(ui-sref="newRestaurant") 新建餐厅
     .col-lg-2.col-lg-offset-0.col-xs-4.col-xs-offset-4
-      button.btn.btn-danger.full-width(rcs-go-home) 管理餐厅
+      button.btn.btn-danger.full-width(ng-if="currentRestaurant" rcs-go-home) 管理餐厅
     .col-lg-2.col-lg-offset-0.col-xs-4.col-xs-offset-4
-      button.btn.btn-danger.full-width(rcs-go-admin ng-if="isManager()") 分配管理员
+      button.btn.btn-danger.full-width(ng-if="isManager() && currentRestaurant" rcs-go-admin) 分配管理员
   .row
     .col-lg-2.col-lg-offset-6.col-xs-4.col-xs-offset-4
       button.btn.btn-default.full-width(rcs-go-back)

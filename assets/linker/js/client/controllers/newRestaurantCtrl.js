@@ -1,21 +1,39 @@
-// angular
-//   .module('rcs')
-//   .controller('newRestaurantCtrl', ['$scope', '$http', function($scope, $http){
-//   	$scope.createRestaurant = function () {
-//   		var name = $scope.restaurantName;
-//   		if(name == undefined)
-//   		{
-//   			return;
-//   		}
+angular
+  .module('rcs')
+  .controller('newRestaurantCtrl', ['$scope', '$state', 'rcsAPI', 'ERROR_MESSAGE',
+    function ($scope, $state, rcsAPI, ERROR_MESSAGE) {
+      console.log('signupCtrl');
 
-//   		$http
-//   			.post('/api/createRestaurant', {Name: name})
-//   			.error(function(data, status) {
-//   				alert(data.error);
-//   			})
-//   			.success(function() {
-//   				alert('Successfully created ' + name);  				
-//   				$scope.restaurantName = '';
-//   			});
-//   	};
-//   }])
+      $scope.admins = [{name: null, show:false}];
+
+      $scope.createRestaurant = function (name, admins) {
+        var adminList = [];
+        for (var i = admins.length - 2; i >= 0; i--) {
+          adminList.push(admins[i].name);
+        }
+        
+        rcsAPI.Restaurant.create(name, adminList)
+          .success(function () {
+            $state.go('restaurant');
+          })
+      }
+
+      $scope.addAdmin = function (index) {
+        $scope.admins[index].show = true;
+        $scope.admins.push({name: null, show:false})
+      }
+
+      $scope.removeAdmin = function (index) {
+        $scope.admins.splice(index, 1);
+      }
+
+      $scope.showPlus = function (index) {
+        var admin = $scope.admins[index];
+        return !admin.show && $scope.admins.length < 4;
+      }
+
+      $scope.showMinus = function (index) {
+        var admin = $scope.admins[index];
+        return admin.show;
+      }
+    }]);

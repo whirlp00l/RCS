@@ -25,6 +25,12 @@ module.exports = {
       return res.badRequest('Missing required fields.')
     }
 
+    var admins = req.body.Admins;
+
+    for (var i = admins.length - 1; i >= 0; i--) {
+      console.log(admins[i])
+    };
+
     Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
       if (err) {
         return res.serverError(err);
@@ -34,7 +40,19 @@ module.exports = {
         return res.badRequest('Restaurant name [' + restaurantName + '] has already been used.');
       }
       
-      var admins = [currentUser];
+      if (admins && admins.length > 0) {
+        if (admins.indexOf(currentUser) == -1) {
+          admins.push(currentUser);
+        }
+      } else {
+        admins = [currentUser];
+      }
+
+      for (var i = admins.length - 1; i >= 0; i--) {
+        console.log(admins[i])
+      };
+
+      console.log('bp');
 
       Restaurant.create({
         RestaurantName: restaurantName,
@@ -71,27 +89,24 @@ module.exports = {
         return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
       }
 
-      console.log(restaurant.Admins);
-      console.log(restaurant.Admins.indexOf(admin));
-
       if (restaurant.Admins.indexOf(admin) != -1) {
         return res.badRequest('User [' + admin + '] has already been assigned as Admin to Restaurant [' + restaurantName + ']');
       }
 
-      User.findOneByEmail(admin).done(function (err, user) {
-        if (typeof user == 'undefined') {
-          return res.badRequest('User [' + admin + '] does not exist');
+      // User.findOneByEmail(admin).done(function (err, user) {
+      //   if (typeof user == 'undefined') {
+      //     return res.badRequest('User [' + admin + '] does not exist');
+      //   }
+
+      restaurant.Admins.push(admin);
+      restaurant.save(function (err, restaurant) {
+        if (err) {
+          return res.serverError(err);
         }
 
-        restaurant.Admins.push(admin);
-        restaurant.save(function (err, restaurant) {
-          if (err) {
-            return res.serverError(err);
-          }
-
-          return res.json(restaurant);
-        })
+        return res.json(restaurant);
       })
+      // })
     });
   },
   
