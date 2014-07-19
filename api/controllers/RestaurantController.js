@@ -27,10 +27,6 @@ module.exports = {
 
     var admins = req.body.Admins;
 
-    for (var i = admins.length - 1; i >= 0; i--) {
-      console.log(admins[i])
-    };
-
     Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
       if (err) {
         return res.serverError(err);
@@ -39,31 +35,37 @@ module.exports = {
       if (typeof restaurant != 'undefined') {
         return res.badRequest('Restaurant name [' + restaurantName + '] has already been used.');
       }
-      
-      if (admins && admins.length > 0) {
-        if (admins.indexOf(currentUser) == -1) {
-          admins.push(currentUser);
-        }
-      } else {
+
+      if (!admins || admins.length == 0) {
         admins = [currentUser];
       }
 
-      for (var i = admins.length - 1; i >= 0; i--) {
-        console.log(admins[i])
-      };
+      if (admins.indexOf(currentUser) == -1) {
+        admins.push(currentUser);
+      }
 
-      console.log('bp');
+      var checkedCount = 0;
+      admins.forEach(function (admin) {
+        User.findOneByEmail(admin).done(function (err, user) {
+          if (typeof user == 'undefined') {
+            return res.badRequest('User [' + admin + '] does not exist');
+          }
 
-      Restaurant.create({
-        RestaurantName: restaurantName,
-        Manager: currentUser,
-        Admins: admins
-      }).done(function (err, restaurant){
-        if (err) {
-          return res.serverError(err);
-        }
+          checkedCount = checkedCount + 1;
+          if (checkedCount == admins.length) {
+            Restaurant.create({
+              RestaurantName: restaurantName,
+              Manager: currentUser,
+              Admins: admins
+            }).done(function (err, restaurant){
+              if (err) {
+                return res.serverError(err);
+              }
 
-        return res.json(restaurant);
+              return res.json(restaurant);
+            });
+          }
+        });
       });
     });
   },
@@ -93,12 +95,50 @@ module.exports = {
         return res.badRequest('User [' + admin + '] has already been assigned as Admin to Restaurant [' + restaurantName + ']');
       }
 
-      // User.findOneByEmail(admin).done(function (err, user) {
-      //   if (typeof user == 'undefined') {
-      //     return res.badRequest('User [' + admin + '] does not exist');
-      //   }
+      User.findOneByEmail(admin).done(function (err, user) {
+        if (typeof user == 'undefined') {
+          return res.badRequest('User [' + admin + '] does not exist');
+        }
 
-      restaurant.Admins.push(admin);
+        restaurant.Admins.push(admin);
+        restaurant.save(function (err, restaurant) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          return res.json(restaurant);
+        })
+      })
+    });
+  },
+
+  removeAdmin: function (req, res) {
+    var currentUser = req.session.user;
+    var restaurantName = req.body.RestaurantName;
+    var admin = req.body.Admin;
+
+    if (!currentUser || !restaurantName || !admin) {
+      return res.badRequest('Missing required fields.')
+    }
+
+    Restaurant.findOne({
+      RestaurantName:restaurantName,
+      Manager:currentUser
+    }).done(function (err, restaurant){
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (typeof restaurant == 'undefined') {
+        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+      }
+
+      var index = restaurant.Admins.indexOf(admin);
+      if (index == -1) {
+        return res.badRequest('User [' + admin + '] is not the Admin of Restaurant [' + restaurantName + ']');
+      }
+
+      restaurant.Admins.splice(index, 1);
       restaurant.save(function (err, restaurant) {
         if (err) {
           return res.serverError(err);
@@ -106,10 +146,41 @@ module.exports = {
 
         return res.json(restaurant);
       })
-      // })
-    });
+    })
   },
-  
+
+  listAdmin: function (req, res) {
+    var currentUser = req.session.user;
+    var restaurantName = req.body.RestaurantName;
+
+    if (!currentUser || !restaurantName) {
+      return res.badRequest('Missing required fields.')
+    }
+
+    Restaurant.findOne({
+      RestaurantName:restaurantName,
+      Manager:currentUser
+    }).done(function (err, restaurant){
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (typeof restaurant == 'undefined') {
+        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+      }
+
+      var admins = [];
+
+      for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+        if (restaurant.Admins[i] != currentUser) {
+          admins.push(restaurant.Admins[i]);
+        }
+      };
+
+      return res.json(admins);
+    })
+  },
+
   list: function (req, res) {
     var currentUser = req.session.user;
 
@@ -126,7 +197,9 @@ module.exports = {
 
       for (var i = restaurants.length - 1; i >= 0; i--) {
         if (restaurants[i].Admins.indexOf(currentUser) != -1) {
-          adminRestaurants.push(restaurants[i]);
+          adminRestaurants.push({
+            RestaurantName: restaurants[i].RestaurantName
+          });
         }
       };
 
@@ -156,5 +229,5 @@ module.exports = {
    */
   _config: {}
 
-  
+
 };

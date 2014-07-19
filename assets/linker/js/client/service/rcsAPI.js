@@ -7,7 +7,11 @@ angular
 
       var errorAction = function (data, status) {
         console.log(data || 'request failed');
-        alert(status);
+        if (status === 400) {
+          alert(data.validationErrors || 400)
+        } else {
+          alert(status);
+        }
       }
 
       // exposing
@@ -35,7 +39,22 @@ angular
               Admin: admin
             })
             .error(errorAction);
-        }
+        },
+        removeAdmin: function (restaurantName, admin) {
+          return $http
+            .post('Restaurant/removeAdmin', {
+              RestaurantName: restaurantName,
+              Admin: admin
+            })
+            .error(errorAction);
+        },
+        listAdmin: function (restaurantName) {
+          return $http
+            .post('Restaurant/listAdmin', {
+              RestaurantName: restaurantName
+            })
+            .error(errorAction);
+        },
       },
 
       rcsAPI.User = {

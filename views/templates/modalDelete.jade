@@ -1,0 +1,8 @@
+.modal-header
+  h3.modal-title(ng-if="title")
+   | {{title}}
+.modal-body(ng-if="content")
+  {{content}}
+.modal-footer
+  button.btn.btn-danger(ng-click="confirm()") 确认移除
+  button.btn.btn-default(ng-click="cancel()") 取消

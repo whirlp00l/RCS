@@ -15,4 +15,10 @@ angular
   })
   .constant('ERROR_MESSAGE', {
     passwordMismatch: '密码确认有误 请重新输入'
-  });
+  })
+  .constant('TEXT', {
+    removeAdmin: {
+      title: '移除管理员: ',
+      content: '移除后，该用户将无法继续管理餐厅',
+    }
+  });;

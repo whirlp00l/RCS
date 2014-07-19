@@ -57,6 +57,14 @@ angular
           data: {
             name: '管理员分配',
             authorizedRoles: [USER_ROLES.manager]
+          },
+          resolve: {
+            admins: function ($stateParams, rcsAPI) {
+              return rcsAPI.Restaurant.listAdmin($stateParams.restaurantName)
+                .then(function (data) {
+                  return data.data;
+                });
+            }
           }
         })
         .state('home', {

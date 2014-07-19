@@ -1,11 +1,28 @@
 h1 管理员
 .row.text-center
   h2 为『{{currentRestaurant}}』指派管理员
-.row.text-center
-  .btn-group
-    button.btn.btn-lg(type="button") Admin1
-    button.btn.btn-lg(type="button") Admin2
-    button.btn.btn-default.btn-lg(type="button") +Admin
+
+.row(ng-if="admins.length > 0")
+  h2
+  .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
+    .row
+      label 当前管理员
+    .row.text-center
+      .btn-group
+      button.btn.btn-lg(ng-repeat="admin in admins" ng-click="removeAdmin(admin)") {{admin}}
+
+form(ng-submit="addAdmin(newAdmin)")
+  .row
+    h2
+    .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
+      .row
+        label 添加管理员
+      .row
+        .col-sm-9.col-xs-8
+          input.form-control(type="text" ng-model="newAdmin" ng-required="true" placeholder="请输入餐厅名称")
+        .col-sm-3.col-xs-4
+          input.btn.btn-danger(type="submit" id="submit" value="添加")
+
 .row
   h2
 .row.text-center
