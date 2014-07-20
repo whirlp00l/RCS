@@ -15,17 +15,17 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-var TableController = {
+module.exports = {
   deleteAll: function (req, res, next) {
     Table.find().done(function (err, tables) {
       if (tables.length == 0) {
-        res.send("No Table");
+        res.send('No Table');
       }
       for (var i = 0 ;i < tables.length; i++) {
         tables[i].destroy(function() {
-          console.log("deleted table" + tables[i].id)
+          console.log('deleted table' + tables[i].id)
           if (i == tables.length - 1) {
-            res.send("Table all deleted");
+            res.send('Table all deleted');
           }
         });
       }
@@ -46,7 +46,7 @@ var TableController = {
       }
 
       if (!restaurant || restaurant.Admins.indexOf(currentUser) == -1) {
-        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+        return res.badRequest('Restaurant name [' + restaurantName + '] is not correct.');
       }
 
       Table.findByRestaurantName(restaurantName).done(function (err, tables){
@@ -54,12 +54,11 @@ var TableController = {
           return res.ServerError(err);
         }
 
-        // socket subscribe
-        var socket = req.socket;
-        if (req.socket) {
-          Table.subscribe(socket);
-          Table.subscribe(socket, tables);
-        }
+        // subscribe the requesting socket to the 'default' context of the tables
+        Table.subscribe(req, tables);
+
+        // subscribe the requesting socket to the 'message' context of the restaurant
+        Restaurant.subscribe(req, restaurant, ['message']);
 
         return res.json(tables);
       });
@@ -67,62 +66,59 @@ var TableController = {
   },
 
   create: function (req, res, next) {
-    var restaurantName = req.param("RestaurantName");
-    var tableName = req.param("TableName");
-    var mapRow = req.param("MapRow");
-    var mapCol = req.param("MapCol");
-    var tableType = req.param("TableType");
+    var currentUser = req.session.user;
+    var restaurantName = req.param('RestaurantName');
+    var tableName = req.param('TableName');
+    var mapRow = req.param('MapRow');
+    var mapCol = req.param('MapCol');
+    var tableType = req.param('TableType');
 
-    if (!restaurantName || !tableName || !tableType
-     || typeof mapRow == "undefined" || typeof mapCol == "undefined") {
+    sails.log.debug('currentUser: ' + currentUser);
+
+    if (!currentUser || !restaurantName || !tableName || !tableType
+     || typeof mapRow == 'undefined' || typeof mapCol == 'undefined') {
       return res.badRequest('Missing required fields.')
     }
 
-    Table.findOne({
-      RestaurantName: restaurantName,
-      TableName: tableName
-    }).done(function (err, table){
+    Restaurant.findOneByRestaurantName(restaurantName).exec(function (err, restaurant) {
       if (err) {
         return res.serverError(err);
       }
 
-      if (typeof table != "undefined") {
-        return res.badRequest("Table [" + table.TableName + "] already existed in Restaurant [" + table.RestaurantName + "]");
-      } else {
-        Table.findOne({
-          RestaurantName: restaurantName,
-          MapRow: mapRow,
-          MapCol: mapCol
-        }).done(function(err, table){
-          if (typeof table != "undefined") {
-            return res.badRequest("Table at map [" + table.MapRow + "," + table.MapCol + "] already existed in Restaurant [" + table.RestaurantName + "]");
-          } else {
-            Table.create({
-              RestaurantName: restaurantName,
-              TableName: tableName,
-              TableType: tableType,
-              MapRow: mapRow,
-              MapCol: mapCol,
-              StatusUpdateAt: new Date()
-            }).done(function(err, table) {
-              Table.publishCreate({
-                id: table.id,
-                RestaurantName: table.RestaurantName,
-                TableName: table.TableName,
-                TableType: table.TableType,
-                Status: table.Status,
-                MapRow: table.MapRow,
-                MapCol: table.MapCol,
-                RequestCount: table.RequestCount,
-                StatusUpdateAt: table.StatusUpdateAt
-              });
-
-              return res.json(table);
-            });
-          }
-        })
+      if (!restaurant || restaurant.Admins.indexOf(currentUser) == -1) {
+        return res.badRequest('Restaurant name [' + restaurantName + '] is not correct.');
       }
-    });
+
+      Table.findOne({
+        RestaurantName: restaurantName,
+        TableName: tableName,
+        MapRow: mapRow,
+        MapCol: mapCol
+      }).exec(function (err, table) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        if (table) {
+          return res.badRequest('Table already existed');
+        }
+
+        Table.create({
+          RestaurantName: restaurantName,
+          TableName: tableName,
+          TableType: tableType,
+          MapRow: mapRow,
+          MapCol: mapCol,
+          StatusUpdateAt: new Date()
+        }).exec(function (err, table) {
+          // publish a message to the restaurant.
+          // every client subscribed to the restaurant will get it.
+          Restaurant.message(restaurant, {newTable:table});
+
+          return res.json(table);
+        });
+      })
+    })
   },
 
   book:  function (req, res, next) {
@@ -135,7 +131,7 @@ var TableController = {
       table.BookDateTime = req.param('BookDateTime');
 
       table.save(function (err) {
-        if (err) console.log("save table err: " + err);
+        if (err) console.log('save table err: ' + err);
 
         Table.publishUpdate(table.id, {
           BookName: table.BookName,
@@ -158,7 +154,7 @@ var TableController = {
       table.BookDateTime = null;
 
       table.save(function (err) {
-        if (err) console.log("save table err: " + err);
+        if (err) console.log('save table err: ' + err);
 
         Table.publishUpdate(table.id, {
           BookName: table.BookName,
@@ -215,7 +211,7 @@ var TableController = {
           oldTable.Token = null;
 
           oldTable.save(function (err) {
-            if (err) console.log("save oldTable err: " + err);
+            if (err) console.log('save oldTable err: ' + err);
 
             saveAndReturn();
           });
@@ -237,7 +233,7 @@ var TableController = {
       table.Token = null;
 
       table.save(function (err) {
-        if (err) console.log("save table err: " + err);
+        if (err) console.log('save table err: ' + err);
 
         Table.publishUpdate(table.id, {
           LinkedTabletId: table.LinkedTabletId,
@@ -258,7 +254,7 @@ var TableController = {
       Request.find({
         RestaurantName: table.RestaurantName,
         TableName: table.TableName,
-        Or: [{Status: "new"}, {Status: "inProgress"}]
+        Or: [{Status: 'new'}, {Status: 'inProgress'}]
       }).done(function (err, requests) {
 
         var resetTable = function () {
@@ -267,7 +263,7 @@ var TableController = {
           table.StatusUpdateAt = new Date();
 
           table.save(function (err) {
-            if (err) console.log("save table err: " + err);
+            if (err) console.log('save table err: ' + err);
 
             Table.publishUpdate(table.id, {
               Status: table.Status,
@@ -286,7 +282,7 @@ var TableController = {
 
         for (var i = 0; i < requests.length; i++) {
           requests[i].Status = 'closed';
-          requests[i].ClosedAt = req.param("ClosedAt");
+          requests[i].ClosedAt = req.param('ClosedAt');
           requests[i].save(function () {
             Request.publishDestroy(requests[i].id);
             if (i == requests.length - 1) {
@@ -306,7 +302,7 @@ var TableController = {
       Request.find({
         RestaurantName: table.RestaurantName,
         TableName: table.TableName,
-        Or: [{Status: "new"}, {Status: "inProgress"}]
+        Or: [{Status: 'new'}, {Status: 'inProgress'}]
       }).done(function (err, requests) {
         var deleteTable = function () {
           table.destroy(function() {
@@ -322,7 +318,7 @@ var TableController = {
 
         for (var i = 0; i < requests.length; i++) {
           requests[i].Status = 'closed';
-          requests[i].ClosedAt = req.param("ClosedAt");
+          requests[i].ClosedAt = req.param('ClosedAt');
           requests[i].save(function () {
             Request.publishDestroy(requests[i].id);
             if (i == requests.length - 1) {
@@ -350,5 +346,3 @@ var TableController = {
   _config: {}
 
 };
-
-module.exports = TableController;

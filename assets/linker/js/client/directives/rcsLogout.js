@@ -3,8 +3,7 @@ angular
   .directive('rcsLogout', ['$state', 'AuthService', 'rcsSocket', function ($state, AuthService, rcsSocket) {
     return {
       restrict: 'A',
-      template: '<span class="glyphicon glyphicon-off">&nbsp;退出登录</span>',
-      
+
       link: function ($scope, $element, $attr) {
         $scope.logout = function () {
           rcsSocket.disconnect();

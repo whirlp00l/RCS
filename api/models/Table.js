@@ -6,8 +6,8 @@
  * @docs    :: http://sailsjs.org/#!documentation/models
  */
 
-var Table = {
-
+module.exports = {
+  autosubscribe: ['destroy', 'update'],
   attributes: {
     RestaurantName: {
       type: 'string',
@@ -30,12 +30,12 @@ var Table = {
     MapRow: {
       type: 'int',
       required: true,
-      notEmpty: true      
+      notEmpty: true
     },
     MapCol: {
       type: 'int',
       required: true,
-      notEmpty: true  
+      notEmpty: true
     },
     Token: {
       type: 'string'
@@ -79,5 +79,3 @@ var Table = {
   //   });
   // }
 };
-
-module.exports = Table;

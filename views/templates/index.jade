@@ -10,4 +10,7 @@ block body
         h4
           span(ng-if="isAuthenticated") {{userEmail}} ({{userRole}})
           span(ng-if="!isAuthenticated") Not Login
+          a(href="" rcs-logout) &nbsp;
+            u Logout
+
     div(ui-view)

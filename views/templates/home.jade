@@ -8,16 +8,17 @@
             ul.dropdown-menu(role="menu")
               li
                 a.font-size-md(href="")
-                  span.glyphicon.glyphicon-pencil &nbsp;编辑桌子 
+                  span.glyphicon.glyphicon-pencil &nbsp;编辑桌子
               li
-                a.font-size-md(href="") 
-                  span.glyphicon.glyphicon-list-alt &nbsp;编辑菜单 
+                a.font-size-md(href="")
+                  span.glyphicon.glyphicon-list-alt &nbsp;编辑菜单
               li.divider
               li(ng-if="'hasOtherRest'=='hasOtherRest'")
-                a.font-size-md(href="" rcs-go-restaurant) 
+                a.font-size-md(href="" rcs-go-restaurant)
                   span.glyphicon.glyphicon-circle-arrow-left &nbsp;返回餐厅选择
               li
                 a.font-size-md(href="" rcs-logout)
+                  span.glyphicon.glyphicon-off &nbsp;退出登录
         .col-xs-10.text-center
           span.full-width.font-size-lg 管理餐厅『{{currentRestaurant}}』
       .row(ng-controller="tableCtrl")

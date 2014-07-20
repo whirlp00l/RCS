@@ -34,9 +34,9 @@ module.exports = {
   },
 
   login: function (req, res) {
-    // if (req.session.user) {
-    //   return res.badRequest('Already logged in as [' + req.session.user + '].');
-    // }
+    if (req.session.user) {
+      return res.badRequest('Already logged in as [' + req.session.user + '].');
+    }
 
     var email = req.body.Email;
     var password = req.body.Password;
