@@ -4,10 +4,9 @@
     "version": "0.0.0",
     "description": "a Sails application",
     "dependencies": {
-        "sails": "0.9.16",
-        "grunt": "0.4.1",
-        "sails-disk": "0.9.16",
-        "ejs": "0.8.4",
+        "sails": "git://github.com/balderdashy/sails.git#v0.10",
+        "sails-disk": "git://github.com/balderdashy/sails-disk.git#v0.10",
+        "grunt": "0.4.2",
         "optimist": "0.3.4",
         "bcrypt": "0.7.8",
         "jade": "1.3.1",

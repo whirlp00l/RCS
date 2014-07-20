@@ -12,9 +12,10 @@ h1 餐厅
         ul.dropdown-menu.full-width(role="menu")
           li(ng-repeat="restaurant in restaurants")
             a(ng-click="selectRestaurant($index)") {{restaurant.RestaurantName}}
-          li.divider
-          li
-            a(ui-sref="newRestaurant") 新建餐厅
+          div(ng-if="isManager()")
+            li.divider
+            li
+              a(ui-sref="newRestaurant") 新建餐厅
     .col-lg-2.col-lg-offset-0.col-xs-4.col-xs-offset-4
       button.btn.btn-danger.full-width(ng-if="currentRestaurant" rcs-go-home) 管理餐厅
     .col-lg-2.col-lg-offset-0.col-xs-4.col-xs-offset-4
