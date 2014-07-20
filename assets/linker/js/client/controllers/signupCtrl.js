@@ -2,7 +2,6 @@ angular
   .module('rcs')
   .controller('signupCtrl', ['$scope', '$state', 'rcsAPI', 'ERROR_MESSAGE',
     function ($scope, $state, rcsAPI, ERROR_MESSAGE) {
-      console.log('signupCtrl');
 
       $scope.role = {
         admin: 'admin',

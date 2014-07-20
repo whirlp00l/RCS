@@ -15,7 +15,7 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-module.exports = {
+var TableController = {
   deleteAll: function (req, res, next) {
     Table.find().done(function (err, tables) {
       if (tables.length == 0) {
@@ -33,18 +33,36 @@ module.exports = {
   },
 
   list: function(req, res, next) {
+    var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
     if (!restaurantName) {
       return res.badRequest('Missing required fields.')
     }
 
-    Table.findByRestaurantName(restaurantName).done(function (err, tables){
-      if (err){
-        return res.ServerError(err);
-      } else {
-        res.json(tables);
+    Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
+      if (err) {
+        return res.serverError(err);
       }
+
+      if (!restaurant || restaurant.Admins.indexOf(currentUser) == -1) {
+        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+      }
+
+      Table.findByRestaurantName(restaurantName).done(function (err, tables){
+        if (err){
+          return res.ServerError(err);
+        }
+
+        // socket subscribe
+        var socket = req.socket;
+        if (req.socket) {
+          Table.subscribe(socket);
+          Table.subscribe(socket, tables);
+        }
+
+        return res.json(tables);
+      });
     });
   },
 
@@ -89,7 +107,7 @@ module.exports = {
             }).done(function(err, table) {
               Table.publishCreate({
                 id: table.id,
-                RestaurantName: table.RestaurantName, 
+                RestaurantName: table.RestaurantName,
                 TableName: table.TableName,
                 TableType: table.TableType,
                 Status: table.Status,
@@ -205,7 +223,7 @@ module.exports = {
           saveAndReturn();
         }
       });
-      
+
     });
   },
 
@@ -231,7 +249,7 @@ module.exports = {
       })
     });
   },
-  
+
   reset: function (req, res, next) {
     Table.findOne({id: req.param('id')}).done(function (err, table) {
       if (err) return res.send(500);
@@ -332,3 +350,5 @@ module.exports = {
   _config: {}
 
 };
+
+module.exports = TableController;

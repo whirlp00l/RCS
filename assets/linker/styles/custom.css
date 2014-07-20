@@ -96,7 +96,7 @@ ul.nav {
   background-image: linear-gradient(45deg, rgba(0, 0, 0, .15) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, .15) 50%, rgba(0, 0, 0, .15) 75%, transparent 75%, transparent);
 }
 
-input.noShow {
+input.no-show {
   position: absolute;
   top: 0px;
   left: 0px;

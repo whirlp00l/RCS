@@ -9,7 +9,8 @@ h1 管理员
       label 当前管理员
     .row.text-center
       .btn-group
-      button.btn.btn-lg(ng-repeat="admin in admins" ng-click="removeAdmin(admin)") {{admin}}
+      button.btn.btn-lg(ng-repeat="admin in admins" ng-click="removeAdmin(admin)")
+        sapn.glyphicon.glyphicon-user {{admin}}
 
 form(ng-submit="addAdmin(newAdmin)")
   .row

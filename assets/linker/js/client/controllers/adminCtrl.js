@@ -2,7 +2,6 @@ angular
   .module('rcs')
   .controller('adminCtrl', ['$scope', '$state', '$stateParams', '$modal', 'admins', 'rcsAPI', 'TEXT',
     function($scope, $state, $stateParams, $modal, admins, rcsAPI, TEXT){
-      console.log('adminCtrl');
 
       if (!$stateParams.restaurantName) {
         return $state.go('restaurant');
@@ -37,7 +36,7 @@ angular
             },
             content: function() {
               return TEXT.removeAdmin.content;
-            }            
+            }
           }
         });
 

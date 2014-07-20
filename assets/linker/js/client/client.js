@@ -2,8 +2,9 @@ angular
   .module('rcs', [
     'ui.router', 'ui.bootstrap'
   ])
-  .config(['$urlRouterProvider', '$stateProvider', 'USER_ROLES',
-    function($urlRouterProvider, $stateProvider, USER_ROLES){
+  .config(['$urlRouterProvider', '$stateProvider', '$logProvider', 'USER_ROLES',
+    function($urlRouterProvider, $stateProvider, $logProvider, USER_ROLES){
+      $logProvider.debugEnabled(true);
       $urlRouterProvider.otherwise('/login');
 
       $stateProvider

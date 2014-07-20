@@ -1,10 +1,10 @@
 angular
   .module('rcs')
-  .controller('tableCtrl', ['$scope', '$http', '$modal', 'rcsSocket',
-    function($scope, $http, $modal, rcsSocket){
-      console.log('tableCtrl');
+  .controller('tableCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket',
+    function($scope, $http, $modal, $log, rcsSocket){
+
       // initial table 2d array
-      $scope.maxTableRow = 10; 
+      $scope.maxTableRow = 10;
       $scope.maxTableCol = 12;
 
       $scope.tables = new Array($scope.maxTableRow);
@@ -13,83 +13,75 @@ angular
       }
 
       var undefinedTable = 'undefined';
-      var resetTableMap = function (clean) {
-        console.log('reset map')
+      var tableData = [];
 
-        if (clean) {
-          cleanTableMap();
-        }
-
-        var tables = rcsSocket.data.tables;
-        for (var i = 0; i < tables.length; i++) {
-          var row = tables[i].MapRow;
-          var col = tables[i].MapCol;
-          $scope.tables[row][col].data = tables[i];
-        }
-
-        $scope.$apply();
-      }
-
-      var cleanTableMap = function () {
+      var updateTableData = function () {
         for (var i = 0; i < $scope.maxTableRow; i++) {
           for (var j = 0; j < $scope.maxTableCol; j++) {
             $scope.tables[i][j] = {
               row: i,
               col: j,
+              current: false,
               data: undefinedTable
             }
           }
         }
+
+        for (var i = 0; i < tableData.length; i++) {
+          var row = tableData[i].MapRow;
+          var col = tableData[i].MapCol;
+          $scope.tables[row][col].data = tableData[i];
+        }
       }
 
-      cleanTableMap();
+      updateTableData();
 
       // listen to event
-      $scope.$on('tables.update', function (event, message) {
-        console.log('tableCtrl: tables length = ' + rcsSocket.data.tables.length);
+      $scope.$on('tables.update', function (event) {
+        $scope.requests = rcsSocket.data.tables;
+        tableData = rcsSocket.data.tables;
+        updateTableData();
 
-        if (message && message.verb == 'create') {
-          var table = message.data;
-          $scope.tables[table.MapRow][table.MapCol].data = table;
-          $scope.$apply();
-        // } else if (message && message.verb == 'update') {
-          // var table = message.data;
-          // if (table.RequestCount) {
-
-          // }
-          // Status
-          // StatusUpdateAt
-          // BookName: table.BookName,
-          // BookCell: table.BookCell,
-          // BookDateTime: table.BookDateTime
-        } else {
-          resetTableMap(!message || message.verb == 'destroy');
-        }
+        $scope.safeApply(function () {
+          $log.debug('tableCtrl: applied tables updated');
+        });
       })
+
+      $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+          if(fn && (typeof(fn) === 'function')) {
+            fn();
+          }
+        } else {
+          this.$apply(fn);
+        }
+      };
 
       // click table
       // add table
-      var addTable = function (row, col) {
+      var addTable = function (table) {
         var modalInstance = $modal.open({
           templateUrl: '/template/modalNewTable',
           controller: 'newTableModalCtrl',
+          size: 'sm',
           resolve: {
             col: function () {
-              return col;
+              return table.col;
             },
             row: function () {
-              return row;
+              return table.row;
+            },
+            restaurantName: function () {
+              return $scope.currentRestaurant;
             }
           }
         });
 
-        modalInstance.result.then(function (tableName) {
-          $http.post('/table/create', {
-            RestaurantName: "KFC",
-            TableName: tableName,
-            MapRow: row,
-            MapCol: col
-          });
+        table.current = true; // TODO: add visualization
+
+        modalInstance.result.then(function () {}, function () {
+          table.current = false;
         });
       }
 
@@ -122,7 +114,7 @@ angular
 
       $scope.clickTable = function (table) {
         if (table.data == undefinedTable) {
-          addTable(table.row, table.col);
+          addTable(table);
         } else {
           viewTable(table.data);
         }
@@ -132,7 +124,7 @@ angular
       $scope.getTableName = function(table) {
         if (table.data != undefinedTable) {
           return table.data.TableName;
-        } 
+        }
 
         return '+'
       }

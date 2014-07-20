@@ -2,7 +2,6 @@ angular
   .module('rcs')
   .controller('restaurantCtrl', ['$scope', '$state', 'AuthService', 'restaurants',
     function($scope, $state, AuthService, restaurants){
-      console.log('restaurantCtrl');
 
       if (restaurants.length == 1 && !AuthService.isManager()) {
         // there is no choice other than go to the home page of that single restaurant

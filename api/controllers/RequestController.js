@@ -66,15 +66,35 @@ module.exports = {
   },
 
   list: function (req, res, next) {
+    var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
-    // TODO: filter on restaurantName
+    if (!currentUser || !restaurantName) {
+      return res.badRequest('Missing required fields.')
+    }
 
-    Request.find(function (err, requests) {
-      if (err) return next(err);
-      if (!Request) return next();
-      res.view({
-        requests: requests
+    Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!restaurant || restaurant.Admins.indexOf(currentUser) == -1) {
+        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+      }
+
+      Request.findByRestaurantName(restaurantName).done(function (err, requests) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        // socket subscribe
+        var socket = req.socket;
+        if (req.socket) {
+          Request.subscribe(socket);
+          Request.subscribe(socket, requests);
+        }
+
+        return res.json(requests);
       });
     });
   },

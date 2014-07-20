@@ -1,66 +1,49 @@
 angular
   .module('rcs')
-  .service('rcsSocket', ['$rootScope', '$state', 'AuthService',
-    function($rootScope, $state, AuthService) {
+  .service('rcsSocket', ['$rootScope', '$state', '$log', 'rcsAPI', 'AuthService',
+    function($rootScope, $state, $log, rcsAPI, AuthService) {
 
       var rcsSocket = this;
-      var configSocket = function() {
+      var configSocket = function(restaurantName) {
         rcsSocket.sailsSocket.on('disconnect', function socketDisconnected() {
-          console.log("Socket client disconnected!");
+          $log.debug("Socket client disconnected!");
           $state.go('login');
-          // rcsSocket.data = {
-          //   tables: [],
-          //   requests: []
-          // };
-          // $rootScope.$broadcast('requests.update');
-          // $rootScope.$broadcast('tables.update');
+          rcsSocket.data = {
+            tables: [],
+            requests: []
+          };
         });
 
         // subscribe
-        rcsSocket.sailsSocket.get('/request', {}, function (requests) {
-          console.log(requests);
+        rcsSocket.sailsSocket.get('/request', {RestaurantName:restaurantName}, function (requests) {
+          $log.debug(requests);
           rcsSocket.data.requests = requests;
           $rootScope.$broadcast('requests.update');
         });
 
-        rcsSocket.sailsSocket.get('/table', {}, function (tables) {
-          console.log(tables);
+        rcsSocket.sailsSocket.get('/table', {RestaurantName:restaurantName}, function (tables) {
+          $log.debug(tables);
           rcsSocket.data.tables = tables;
           $rootScope.$broadcast('tables.update');
         });
 
         // message
         rcsSocket.sailsSocket.on('message', function messageReceived(message) {
-          console.log('New comet message received :: ', message);
-          
+          $log.debug('Socket message: ', message);
+
           switch (message.model) {
             case "request":
-              if (message.verb == "create") {
-                var request = message.data;
-                rcsSocket.data.requests.push(request);
-                // todo: differentiate from update
-                $rootScope.$broadcast('requests.update', message);
-              } else {
-                rcsSocket.sailsSocket.get('/request', {}, function (requests) {
-                  console.log(requests);
-                  rcsSocket.data.requests = requests;
-                  $rootScope.$broadcast('requests.update', message);
-                });
-              }
+              rcsAPI.Request.list(restaurantName).success(function (data) {
+                rcsSocket.data.requests = data;
+                $rootScope.$broadcast('requests.update');
+              });
               break;
             case "table":
-              if (message.verb == "create") {
-                var table = message.data;
-                rcsSocket.data.tables.push(table);
-                $rootScope.$broadcast('tables.update', message);
-              } else {
-                rcsSocket.sailsSocket.get('/table', {}, function (tables) {
-                  console.log(tables);
-                  rcsSocket.data.tables = tables;
-                  $rootScope.$broadcast('tables.update', message);
-                });
-              }
-              break;   
+              rcsAPI.Table.list(restaurantName).success(function (data) {
+                rcsSocket.data.tables = data;
+                $rootScope.$broadcast('tables.update');
+              });
+              break;
           }
         });
       }
@@ -71,11 +54,11 @@ angular
         requests: []
       };
 
-      rcsSocket.connect = function () {
+      rcsSocket.connect = function (restaurantName) {
         // connect
         if (rcsSocket.sailsSocket && rcsSocket.sailsSocket.socket.connected)
         {
-          configSocket();
+          configSocket(restaurantName);
         } else {
           if (!rcsSocket.sailsSocket) {
             rcsSocket.sailsSocket = io.connect();
@@ -85,10 +68,10 @@ angular
 
           // on connect
           rcsSocket.sailsSocket.on('connect', function socketConnected() {
-            console.log("Socket client connected!");
-            configSocket();
+            $log.debug("Socket client connected!");
+            configSocket(restaurantName);
           });
-        }       
+        }
       };
 
       rcsSocket.disconnect = function () {

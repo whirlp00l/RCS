@@ -1,8 +1,7 @@
 angular
   .module('rcs')
-  .controller('headerCtrl', ['$scope', 'SessionService', 'AuthService', 'AUTH_EVENTS', 
+  .controller('headerCtrl', ['$scope', 'SessionService', 'AuthService', 'AUTH_EVENTS',
     function($scope, SessionService, AuthService, AUTH_EVENTS){
-      console.log('headerCtrl');
 
       var update = function () {
         $scope.isAuthenticated = AuthService.isAuthenticated();

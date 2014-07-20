@@ -1,16 +1,15 @@
 angular
   .module('rcs')
-  .service('rcsAPI', ['$http', '$state', 
-    function($http, $state) {
+  .service('rcsAPI', ['$http', '$state', '$log',
+    function($http, $state, $log) {
 
       var rcsAPI = this;
 
       var errorAction = function (data, status) {
-        console.log(data || 'request failed');
         if (status === 400) {
-          alert(data.validationErrors || 400)
+          $log.error(data.validationErrors || 400)
         } else {
-          alert(status);
+          $log.error(data || 'request failed');
         }
       }
 
@@ -81,5 +80,36 @@ angular
             })
             .error(errorAction);
         }
+      },
+
+      rcsAPI.Table = {
+        create: function (restaurantName, tableName, tableType, mapRow, mapCol) {
+          return $http
+            .post('/Table/create', {
+              RestaurantName: restaurantName,
+              TableName: tableName,
+              TableType: tableType,
+              MapRow: mapRow,
+              MapCol: mapCol
+            })
+            .error(errorAction);
+        },
+        list: function (restaurantName) {
+          return $http
+            .post('Table/list', {
+              RestaurantName: restaurantName
+            })
+            .error(errorAction);
+        }
+      },
+
+      rcsAPI.Request = {
+        list: function (restaurantName) {
+          return $http
+            .post('Request/list', {
+              RestaurantName: restaurantName
+            })
+            .error(errorAction);
+        }
       }
-  }]);
+    }]);

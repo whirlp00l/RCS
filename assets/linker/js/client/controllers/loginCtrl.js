@@ -2,9 +2,6 @@ angular
   .module('rcs')
   .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$state',
     function ($scope, $rootScope, AUTH_EVENTS, AuthService, $state) {
-      console.log('loginCtrl');
-      
-      $scope.role = 'N/A';
 
       $scope.credentials = {
         email: '',

@@ -1,14 +1,25 @@
 angular
   .module('rcs')
-  .controller('requestCtrl', ['$scope', '$http', '$modal', 'rcsSocket',
-    function($scope, $http, $modal, rcsSocket) {
-      console.log('requestCtrl');
-      
+  .controller('requestCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket',
+    function($scope, $http, $modal, $log, rcsSocket) {
+
       $scope.$on('requests.update', function (event) {
-        console.log('requestCtrl: requests length = ' + rcsSocket.data.requests.length);
         $scope.requests = rcsSocket.data.requests;
-        $scope.$apply();
+        $scope.safeApply(function () {
+          $log.debug('requestCtrl: applied requests updated');
+        });
       })
+
+      $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+          if(fn && (typeof(fn) === 'function')) {
+            fn();
+          }
+        } else {
+          this.$apply(fn);
+        }
+      };
 
       var importanceBar = 2;
 
@@ -19,7 +30,7 @@ angular
       $scope.importanceHigh = function(request) {
         return request.Importance >= importanceBar;
       };
-      
+
       $scope.closed = function(request) {
         return request.Status == "closed";
       };
