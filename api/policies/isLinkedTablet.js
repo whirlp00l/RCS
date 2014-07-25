@@ -14,12 +14,12 @@ module.exports = function(req, res, next) {
   if (!tableId || !token) {
     return res.forbidden();
   }
-  Table.findOneById(tableId).done(function (err, table) {
+  Table.findOneById(tableId).exec(function (err, table) {
     if (err) {
       return res.serverError(err);
     }
 
-    if (table.Token != token) {
+    if (!table || table.Token != token) {
       return res.forbidden();
     }
 

@@ -11,13 +11,13 @@ module.exports = {
   attributes: {
     RestaurantName: {
       type: 'string',
-      required: true,
-      notEmpty: true
+      // required: true,
+      // notEmpty: true
     },
     TableName: {
       type: 'string',
-      required: true,
-      notEmpty: true
+      // required: true,
+      // notEmpty: true
     },
     Type: {
       type: 'string',
@@ -25,14 +25,17 @@ module.exports = {
       required: true,
       notEmpty: true
     },
+
     PayType: {
       type: 'string',
       in: ['cash', 'card', 'alipay'],
       notEmpty: true
     },
+
     PayAmount: {
       type: 'float'
     },
+
     Status: {
       type: 'string',
       in: ['new', 'inProgress', 'closed'],
@@ -40,12 +43,24 @@ module.exports = {
       notEmpty: true,
       defaultsTo: 'new'
     },
+
     Importance: {
       type: 'int',
       defaultsTo: 0
     },
+
     ClosedAt: {
-      type: 'string'
+      type: 'datetime'
+    },
+
+    Table: {
+      model: 'table',
+      via: 'Requests'
+    },
+
+    Restaurant: {
+      model: 'restaurant',
+      via: 'Requests'
     }
   }
 

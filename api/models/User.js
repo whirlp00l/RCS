@@ -7,7 +7,7 @@
  */
 
 module.exports = {
-  
+
   beforeCreate: function (attrs, next) {
     var bcrypt = require('bcrypt');
     bcrypt.genSalt(10, function(err, salt){
@@ -21,19 +21,36 @@ module.exports = {
   },
 
   attributes: {
-    Email : 'string',
+    Email : {
+      type: 'string',
+      required: true
+      // ,email: true
+    },
+
     Password: {
       type: 'string',
       required: true,
       minLength: 6
     },
+
     Role: {
       type: 'string',
       required: true,
       in: ['admin', 'manager']
     },
 
-     toJSON: function() {
+    ManagedRestaurant: { // One to many
+      collection: 'restaurant',
+      via: 'Manager'
+    },
+
+    AdministeredRestaurant: { // Many to many
+      collection: 'restaurant',
+      via: 'Admins',
+      dominant: true
+    },
+
+    toJSON: function() {
       var obj = this.toObject();
       delete obj.Password;
       return obj;

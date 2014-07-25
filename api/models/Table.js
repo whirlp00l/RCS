@@ -7,60 +7,70 @@
  */
 
 module.exports = {
-  autosubscribe: ['destroy', 'update'],
+  autosubscribe: ['destroy', 'update', 'add:Requests', 'remove:Requests'],
+
   attributes: {
     RestaurantName: {
       type: 'string',
-      required: true,
-      notEmpty: true
+      // required: true,
+      // notEmpty: true
     },
+
     TableName: {
       type: 'string',
       required: true,
       notEmpty: true
     },
-    TableType: {
-      type: 'string'
-    },
+
+    TableType: 'string',
+
     Status: {
       type: 'string',
       in: ['empty', 'ordering', 'ordered', 'paying', 'paid'],
       defaultsTo: 'empty'
     },
+
     MapRow: {
       type: 'int',
       required: true,
       notEmpty: true
     },
+
     MapCol: {
       type: 'int',
       required: true,
       notEmpty: true
     },
-    Token: {
-      type: 'string'
-    },
-    LinkedTabletId: {
-      type: 'string'
-    },
-    LinkTime: {
-      type: 'datetime'
-    },
+
+    Token: 'string',
+
+    LinkedTabletId: 'string',
+
+    LinkTime: 'datetime',
+
     RequestCount: {
       type: 'int',
       defaultsTo: 0
     },
+
     StatusUpdateAt: {
       type: 'datetime'
     },
-    BookName: {
-      type: 'string'
+
+    BookName: 'string',
+
+    BookCell: 'string',
+
+    BookDateTime: 'datetime',
+
+    Restaurant: { // Many to one
+      model: 'restaurant',
+      via: 'Tables'
     },
-    BookCell: {
-      type: 'string'
-    },
-    BookDateTime: {
-      type: 'datetime'
+
+    Requests: { // One to many
+      collection: 'request',
+      via: 'Table'
     }
   },
 

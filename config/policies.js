@@ -37,6 +37,7 @@ module.exports.policies = {
     'deleteAll': true, // test only
 
     'list': 'isAuthenticated',
+    'subscribe': 'isAuthenticated',
     'create': ['isAuthenticated', 'isManager'],
     'addAdmin': ['isAuthenticated', 'isManager'],
     'removeAdmin': ['isAuthenticated', 'isManager'],

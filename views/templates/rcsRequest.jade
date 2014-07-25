@@ -2,5 +2,5 @@ div(ng-class="{'progress progress-striped active':request.Status=='inProgress'}"
   button(role="progressbar", ng-class="{'btn-request-important':importanceHigh(request) , 'btn-request':importanceNormal(request), 'progress-bar':request.Status=='inProgress'}", ng-click="openRequest(request)")
     i.pull-left(ng-class="{'glyphicon glyphicon-usd':request.Type=='pay'}")
     span.pull-left.force-wrap
-      b 『{{request.TableName}}』
+      b 『{{request.Table.TableName}}』
       | {{getPayTypeText(request)}}

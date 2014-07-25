@@ -41,15 +41,15 @@ module.exports.routes = {
     action: 'render'
   },
 
-  'get /table' : {
-    controller: 'table',
-    action: 'list'
-  },
+  // 'get /table' : {
+  //   controller: 'table',
+  //   action: 'list'
+  // },
 
-  'get /request' : {
-    controller: 'request',
-    action: 'list'
-  }
+  // 'get /request' : {
+  //   controller: 'request',
+  //   action: 'list'
+  // }
 
   /*
   // But what if you want your home page to display

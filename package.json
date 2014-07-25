@@ -1,11 +1,11 @@
 {
-    "name": "RcsOnSail",
+    "name": "RCS",
     "private": true,
     "version": "0.0.0",
     "description": "a Sails application",
     "dependencies": {
-        "sails": "git://github.com/balderdashy/sails.git#v0.10",
-        "sails-disk": "git://github.com/balderdashy/sails-disk.git#v0.10",
+        "sails": "0.10.0-rc8",
+        "sails-disk": "~0.10.0",
         "grunt": "0.4.2",
         "optimist": "0.3.4",
         "bcrypt": "0.7.8",

@@ -15,19 +15,40 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
+var hasPermission = function (restaurant, currentUser) {
+  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+
+  if (restaurant.Manager.id == currentUser.id) {
+    return true;
+  }
+
+  var isAdmin = false;
+  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+    if (restaurant.Admins[i].id == currentUser.id) {
+      isAdmin = true;
+      break;
+    }
+  }
+
+  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
+  return isAdmin;
+}
+
 module.exports = {
 
   create: function(req, res){
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
-    if (!currentUser || !restaurantName) {
+    sails.log.debug('Restaurant/create');
+
+    if (!currentUser.Email || !restaurantName) {
       return res.badRequest('Missing required fields.')
     }
 
-    var admins = req.body.Admins;
+    var adminEmails = req.body.Admins;
 
-    Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
+    Restaurant.findOneByRestaurantName(restaurantName).exec(function (err, restaurant){
       if (err) {
         return res.serverError(err);
       }
@@ -36,117 +57,166 @@ module.exports = {
         return res.badRequest('Restaurant name [' + restaurantName + '] has already been used.');
       }
 
-      if (!admins || admins.length == 0) {
-        admins = [currentUser];
-      }
+      // search for users in admin list
+      var managerUserId = currentUser.id;
+      var adminUserIds = [];
 
-      if (admins.indexOf(currentUser) == -1) {
-        admins.push(currentUser);
-      }
-
-      var checkedCount = 0;
-      admins.forEach(function (admin) {
-        User.findOneByEmail(admin).done(function (err, user) {
-          if (typeof user == 'undefined') {
-            return res.badRequest('User [' + admin + '] does not exist');
+      if (!adminEmails) {
+        Restaurant.create({
+          RestaurantName: restaurantName,
+          Manager: managerUserId
+        }).exec(function (err, restaurant){
+          if (err) {
+            return res.serverError(err);
           }
 
-          checkedCount = checkedCount + 1;
-          if (checkedCount == admins.length) {
-            Restaurant.create({
-              RestaurantName: restaurantName,
-              Manager: currentUser,
-              Admins: admins
-            }).done(function (err, restaurant){
-              if (err) {
-                return res.serverError(err);
-              }
-
-              return res.json(restaurant);
-            });
-          }
+          sails.log.debug('Restaurant created. No admin list.')
+          return res.json(restaurant);
         });
-      });
+      } else {
+        adminEmails.forEach(function (adminEmail) {
+          sails.log.debug('search for user ' + adminEmail);
+
+          User.findOneByEmail(adminEmail).exec(function (err, user) {
+            if (err) {
+              return res.serverError(err);
+            }
+
+            if (typeof user == 'undefined') {
+              return res.badRequest('User [' + adminEmail + '] does not exist');
+            }
+
+            adminUserIds.push(user.id);
+            sails.log.debug('Add adminUserId = ' + user.id);
+
+            if (adminUserIds.length == adminEmails.length && managerUserId) {
+              sails.log.debug('Ready to create restaurant...')
+              Restaurant.create({
+                RestaurantName: restaurantName,
+                Manager: managerUserId
+              }).exec(function (err, restaurant){
+                if (err) {
+                  return res.serverError(err);
+                }
+
+                for (var i = adminUserIds.length - 1; i >= 0; i--) {
+                  restaurant.Admins.add(adminUserIds[i]);
+                };
+
+                sails.log.debug('Restaurant created. Updating admin list...')
+                restaurant.save(function (err, restaurant) {
+                  if (err) {
+                    restaurant.destroy();
+                    return res.serverError(err);
+                  }
+
+                  sails.log.debug('Admin list updated.')
+                  return res.json(restaurant);
+                });
+              });
+            }
+          });
+        });
+      }
     });
   },
 
   addAdmin: function (req, res) {
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
-    var admin = req.body.Admin;
+    var adminEmail = req.body.Admin;
 
-    if (!currentUser || !restaurantName || !admin) {
+    if (!currentUser || !restaurantName || !adminEmail) {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.findOne({
-      RestaurantName:restaurantName,
-      Manager:currentUser
-    }).done(function (err, restaurant){
-      if (err) {
-        return res.serverError(err);
-      }
-
-      if (typeof restaurant == 'undefined') {
-        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
-      }
-
-      if (restaurant.Admins.indexOf(admin) != -1) {
-        return res.badRequest('User [' + admin + '] has already been assigned as Admin to Restaurant [' + restaurantName + ']');
-      }
-
-      User.findOneByEmail(admin).done(function (err, user) {
-        if (typeof user == 'undefined') {
-          return res.badRequest('User [' + admin + '] does not exist');
+    Restaurant.findOneByRestaurantName(restaurantName)
+      .populate('Manager')
+      .populate('Admins')
+      .exec(function (err, restaurant){
+        if (err) {
+          return res.serverError(err);
         }
 
-        restaurant.Admins.push(admin);
-        restaurant.save(function (err, restaurant) {
-          if (err) {
-            return res.serverError(err);
+        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
+          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        }
+
+        if (restaurant.Manager.Email == adminEmail) {
+          return res.badRequest('Cannot assign Manager [' + adminEmail + '] as Admin to Restaurant [' + restaurantName + ']');
+        }
+
+        for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+          if (restaurant.Admins[i].Email == adminEmail) {
+            return res.badRequest('User [' + adminEmail + '] has already been assigned as Admin to Restaurant [' + restaurantName + ']');
+          }
+        };
+
+        User.findOneByEmail(adminEmail).exec(function (err, user) {
+          if (typeof user == 'undefined') {
+            return res.badRequest('User [' + adminEmail + '] is invalid');
           }
 
-          return res.json(restaurant);
-        })
-      })
-    });
+          restaurant.Admins.add(user.id);
+          restaurant.save(function (err, restaurant) {
+            if (err) {
+              return res.serverError(err);
+            }
+
+            return res.json(restaurant);
+          });
+        });
+      });
   },
 
   removeAdmin: function (req, res) {
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
-    var admin = req.body.Admin;
+    var adminEmail = req.body.Admin;
 
-    if (!currentUser || !restaurantName || !admin) {
+    if (!currentUser || !restaurantName || !adminEmail) {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.findOne({
-      RestaurantName:restaurantName,
-      Manager:currentUser
-    }).done(function (err, restaurant){
-      if (err) {
-        return res.serverError(err);
-      }
-
-      if (typeof restaurant == 'undefined') {
-        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
-      }
-
-      var index = restaurant.Admins.indexOf(admin);
-      if (index == -1) {
-        return res.badRequest('User [' + admin + '] is not the Admin of Restaurant [' + restaurantName + ']');
-      }
-
-      restaurant.Admins.splice(index, 1);
-      restaurant.save(function (err, restaurant) {
+    Restaurant.findOneByRestaurantName(restaurantName)
+      .populate('Manager')
+      .populate('Admins')
+      .exec(function (err, restaurant){
         if (err) {
           return res.serverError(err);
         }
 
-        return res.json(restaurant);
-      })
-    })
+        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
+          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        }
+
+        var foundAdmin = false;
+        for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+          if (restaurant.Admins[i].Email == adminEmail) {
+            foundAdmin = true;
+            break;
+          }
+        };
+
+        if (!foundAdmin) {
+          return res.badRequest('User [' + adminEmail + '] is not admin of Restaurant [' + restaurantName + ']');
+        }
+
+        User.findOneByEmail(adminEmail).exec(function (err, user) {
+          if (typeof user == 'undefined') {
+            return res.badRequest('User [' + adminEmail + '] is invalid');
+          }
+
+          restaurant.Admins.remove(user.id);
+          restaurant.save(function (err, restaurant) {
+            if (err) {
+              return res.serverError(err);
+            }
+
+            return res.json(restaurant);
+          });
+        });
+      });
   },
 
   listAdmin: function (req, res) {
@@ -157,28 +227,25 @@ module.exports = {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.findOne({
-      RestaurantName:restaurantName,
-      Manager:currentUser
-    }).done(function (err, restaurant){
-      if (err) {
-        return res.serverError(err);
-      }
-
-      if (typeof restaurant == 'undefined') {
-        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
-      }
-
-      var admins = [];
-
-      for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-        if (restaurant.Admins[i] != currentUser) {
-          admins.push(restaurant.Admins[i]);
+    Restaurant.findOneByRestaurantName(restaurantName)
+      .populate('Manager')
+      .populate('Admins')
+      .exec(function (err, restaurant){
+        if (err) {
+          return res.serverError(err);
         }
-      };
 
-      return res.json(admins);
-    })
+        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
+          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        }
+
+        var admins = []
+        for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+          admins.push(restaurant.Admins[i].Email);
+        };
+
+        return res.json(admins);
+      });
   },
 
   list: function (req, res) {
@@ -188,38 +255,58 @@ module.exports = {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.find().done(function (err, restaurants){
-      if (err) {
-        return res.serverError(err);
-      }
+    User.findOneById(currentUser.id).populateAll().exec(function (err, user){
+      var restaurants = [];
 
-      var adminRestaurants = [];
-
-      for (var i = restaurants.length - 1; i >= 0; i--) {
-        if (restaurants[i].Admins.indexOf(currentUser) != -1) {
-          adminRestaurants.push({
-            RestaurantName: restaurants[i].RestaurantName
-          });
-        }
+      for (var i = user.ManagedRestaurant.length - 1; i >= 0; i--) {
+        restaurants.push({
+          RestaurantName: user.ManagedRestaurant[i].RestaurantName,
+          Permission: 'manage'
+        });
       };
 
-      return res.json(adminRestaurants);
+      for (var i = user.AdministeredRestaurant.length - 1; i >= 0; i--) {
+        restaurants.push({
+          RestaurantName: user.AdministeredRestaurant[i].RestaurantName,
+          Permission: 'admin'
+        });
+      };
+
+      return res.json(restaurants);
     });
   },
 
+  subscribe: function (req, res) {
+    if (!req.isSocket) {
+      return res.badRequest('request is not from Socket IO.');
+    }
+
+    var currentUser = req.session.user;
+    var restaurantName = req.body.RestaurantName;
+
+    Restaurant.findOneByRestaurantName(restaurantName)
+      .populate('Manager')
+      .populate('Admins')
+      .exec(function (err, restaurant){
+        if (err) {
+          return res.serverError(err);
+        }
+
+        if (!restaurant || !hasPermission(restaurant, currentUser)) {
+          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        }
+
+        // subscribe the requesting socket to the 'message' context of the restaurant
+        Restaurant.subscribe(req, restaurant, ['message']);
+        sails.log.debug('Socket client [' + req.socket.id + '] has subscribed to Restaurant [' + restaurant.id + '].');
+
+        return res.json({message: 'subscribed'});
+      });
+  },
+
   deleteAll: function (req, res, next) {
-    Restaurant.find().done(function (err, restaurants) {
-      if (restaurants.length == 0) {
-        res.send("No Restaurant");
-      }
-      for (var i = 0 ;i < restaurants.length; i++) {
-        restaurants[i].destroy(function() {
-          console.log("deleted Restaurant " + restaurants[i].RestaurantName)
-          if (i == restaurants.length - 1) {
-            res.send("Restaurant all deleted");
-          }
-        });
-      }
+    Restaurant.destroy({}).exec(function (err) {
+      return res.send('All restaurants deleted.');
     });
   },
 

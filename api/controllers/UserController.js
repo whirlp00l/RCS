@@ -18,24 +18,14 @@
 module.exports = {
 
   deleteAll: function (req, res, next) {
-    User.find().done(function (err, users) {
-      if (users.length == 0) {
-        res.send('No User');
-      }
-      for (var i = 0 ;i < users.length; i++) {
-        users[i].destroy(function() {
-          console.log('deleted User ' + users[i].Email)
-          if (i == users.length - 1) {
-            res.send('User all deleted');
-          }
-        });
-      }
+    User.destroy({}).exec(function (err) {
+      return res.send('All users deleted');
     });
   },
 
   login: function (req, res) {
     if (req.session.user) {
-      return res.badRequest('Already logged in as [' + req.session.user + '].');
+      return res.badRequest('Already logged in as [' + req.session.user.Email + '].');
     }
 
     var email = req.body.Email;
@@ -47,7 +37,7 @@ module.exports = {
 
     var bcrypt = require('bcrypt');
 
-    User.findOneByEmail(req.body.Email).done(function (err, user) {
+    User.findOneByEmail(req.body.Email).exec(function (err, user) {
       if (err) {
         return res.serverError(err);
       }
@@ -58,12 +48,10 @@ module.exports = {
           }
 
           if (match) {
-            req.session.user = user.Email;
-            req.session.userRole = user.Role;
+            req.session.user = user;
             return res.json(user, 200);
           } else {
             req.session.user = null;
-            req.session.userRole = null;
             return res.forbidden();
           }
         });
@@ -76,8 +64,7 @@ module.exports = {
   logout: function(req, res){
     var user = req.session.user;
     req.session.user = null;
-    req.session.userRole = null;
-    res.json({message: 'User ' + user + ' has been logged out'}, 200);
+    res.json({message: 'User ' + user.Email + ' has been logged out'}, 200);
   },
 
   create: function (req, res, next) {
@@ -91,7 +78,7 @@ module.exports = {
 
     var key = req.body.Key;
 
-    User.findOneByEmail(email).done(function (err, user) {
+    User.findOneByEmail(email).exec(function (err, user) {
       if (typeof user != 'undefined') {
         return res.badRequest('User email [' + email + '] has already been registered.');
       }
@@ -107,7 +94,7 @@ module.exports = {
         Email: email,
         Password: password,
         Role: role
-      }).done(function (err, user) {
+      }).exec(function (err, user) {
         if (err) {
           return res.serverError(err);
         }

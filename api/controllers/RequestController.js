@@ -14,10 +14,28 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
+var hasPermission = function (restaurant, currentUser) {
+  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+
+  if (restaurant.Manager.id == currentUser.id) {
+    return true;
+  }
+
+  var isAdmin = false;
+  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+    if (restaurant.Admins[i].id == currentUser.id) {
+      isAdmin = true;
+      break;
+    }
+  }
+
+  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
+  return isAdmin;
+}
 
 module.exports = {
-  mockCreate: function (req, res, next) {
-    Table.find().done(function (err, tables) {
+  mockCreate: function (req, res) {
+    Table.find().exec(function (err, tables) {
       for (var i = 0 ;i < tables.length; i++) {
         var payType = 'cash';
         if (Math.random() > 0.5) {
@@ -29,7 +47,7 @@ module.exports = {
           TableName: tables[i].TableName,
           Type: 'pay',
           PayType: payType
-        }).done(function(err, request) {
+        }).exec(function(err, request) {
           Request.publishCreate({
             id: request.id,
             RestaurantName: request.RestaurantName,
@@ -49,49 +67,34 @@ module.exports = {
     });
   },
 
-  deleteAll: function (req, res, next) {
-    Request.find().done(function (err, requests) {
-      if (requests.length == 0) {
-        res.send('No Request');
-      }
-      for (var i = 0 ;i < requests.length; i++) {
-        requests[i].destroy(function() {
-          console.log('deleted request ' + requests[i].id)
-          if (i == requests.length - 1) {
-            res.send('Request all deleted');
-          }
-        });
-      }
+  deleteAll: function (req, res) {
+    Request.destroy({}).exec(function (err) {
+      return res.send('All requests deleted');
     });
   },
 
-  list: function (req, res, next) {
+  list: function (req, res) {
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
-    if (!currentUser || !restaurantName) {
+    sails.log.debug('Request/list');
+
+    if (!restaurantName) {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.findOneByRestaurantName(restaurantName).done(function (err, restaurant){
+    Restaurant.findOneByRestaurantName(restaurantName).populateAll().exec(function (err, restaurant){
       if (err) {
         return res.serverError(err);
       }
 
-      if (!restaurant || restaurant.Admins.indexOf(currentUser) == -1) {
-        return res.badRequest('Restaurant named [' + restaurantName + '] does not exist.');
+      if (!restaurant || !hasPermission(restaurant, currentUser)) {
+        return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
-      Request.findByRestaurantName(restaurantName).done(function (err, requests) {
+      Request.find({Restaurant: restaurant.id}).populate('Table').exec(function (err, requests) {
         if (err) {
           return res.serverError(err);
-        }
-
-        // socket subscribe
-        var socket = req.socket;
-        if (req.socket) {
-          Request.subscribe(socket);
-          Request.subscribe(socket, requests);
         }
 
         return res.json(requests);
@@ -99,7 +102,7 @@ module.exports = {
     });
   },
 
-  create: function (req, res, next) {
+  create: function (req, res) {
     var tableId = req.body.TableId;
     var type = req.body.Type;
 
@@ -110,118 +113,115 @@ module.exports = {
     var payType = req.body.PayType;
     var payAmount = req.body.PayAmount;
 
-    Table.findOneById(tableId).done(function (err, table) {
+    Table.findOneById(tableId).populate('Requests').exec(function (err, table) {
       if (err) {
         return res.serverError(err);
       }
 
-      if (typeof table == 'undefined') {
+      if (!table) {
         return res.badRequest('Not exist: Table id = ' + tableId);
       }
 
-      Request.findOne({
-        TableName: table.TableName,
-        Type: type,
-        Or: [{Status: 'new'}, {Status: 'inProgress'}]
-      }).done(function (err, request) {
+      var isDupRequest = false;
+      var dupRequest = null;
+      for (var i = table.Requests.length - 1; i >= 0; i--) {
+        dupRequest = table.Requests[i];
+        if (dupRequest.Status != "closed" && dupRequest.Type == type) {
+          isDupRequest = true;
+          break;
+        }
+      };
+
+      if (!isDupRequest) {
+        // create new request
+        sails.log.debug('table.Restaurant = ' + table.Restaurant);
+        var request = {
+          Table: table.id,
+          Restaurant: table.Restaurant,
+          Type: type,
+          PayType: payType,
+          PayAmount: payAmount
+        }
+
+        table.Requests.add(request);
+
+        if (request.Type == 'pay') {
+          table.Status = 'paying';
+          table.StatusUpdateAt = new Date();
+        }
+
+        table.save(function (err, table) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          // publish a message to the restaurant.
+          // every client subscribed to the restaurant will get it.
+          Restaurant.message(table.Restaurant, {
+            newRequest: request,
+            setTable: table
+          });
+
+          return res.json(request);
+        })
+      } else {
+        // increase the priority
+        Request.update(dupRequest.id, {
+          Importance: parseInt(dupRequest.Importance) + 1
+        }).exec(function (err, request) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          // publish a message to the restaurant.
+          // every client subscribed to the restaurant will get it.
+          Restaurant.message(table.Restaurant, {setRequest: request});
+
+          return res.json(request);
+        })
+      }
+    });
+  },
+
+  close: function (req, res) {
+    var requestId = req.param('id');
+
+
+    Request.findOneById(requestId).exec(function (err, request) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!request) {
+        return res.badRequest('Request [' + requestId + '] is invalid.');
+      }
+
+      request.Status = 'closed';
+      request.ClosedAt = new Date();
+
+      request.save(function (err) {
         if (err) {
           return res.serverError(err);
         }
 
-        if (typeof request == 'undefined') {
-          Request.create({
-            RestaurantName: table.RestaurantName,
-            TableName: table.TableName,
-            Type: type,
-            PayType: payType,
-            PayAmount: payAmount
-          }).done(function(err, request) {
-            if (err) {
-              return res.serverError(err);
-            }
+        Table.findOneById(request.Table).populate('Requests').exec(function (err, table) {
 
-            Request.publishCreate({
-              id: request.id,
-              RestaurantName: table.RestaurantName,
-              TableName: table.TableName,
-              Type: request.Type,
-              PayType: request.PayType,
-              PayAmount: request.PayAmount,
-              Status: request.Status,
-              Importance: request.Importance
-            });
-
-            table.RequestCount = parseInt(table.RequestCount) + 1;
-
-            if (request.Type == 'pay') {
-              table.Status = 'paying';
-              table.StatusUpdateAt = new Date();
-            }
-
-            table.save(function (err) {
-              if (err) {
-                return res.serverError(err);
-              }
-
-              Table.publishUpdate(table.id, {
-                RequestCount: table.RequestCount,
-                Status: table.Status,
-                StatusUpdateAt: table.StatusUpdateAt
-              });
-
-              return res.json(request);
-            })
-          });
-        } else {
-          // The same active Request exists, increase the priority
-          request.Importance = parseInt(request.Importance) + 1;
-          request.save(function (err) {
-            if (err) {
-              return res.serverError(err);
-            }
-
-            Request.publishUpdate(request.id, {
-              Importance: request.Importance
-            });
-          })
-
-          return res.json(request);
-        }
-      });
-    });
-  },
-
-  close: function (req, res, next) {
-    Request.findOne({id: req.param('id')}).done(function (err, request) {
-      if (err) return res.send(500);
-      if (!request) return res.send('No request with that id exists!', 404);
-
-      request.Status = 'closed';
-      request.ClosedAt = req.param('ClosedAt');
-
-      request.save(function (err) {
-        if (err) console.log(err);
-
-        Table.findOne({
-          RestaurantName: request.RestaurantName,
-          TableName: request.TableName
-        }).done(function (err, table) {
-          table.RequestCount = parseInt(table.RequestCount) - 1;
           if (request.Type == 'pay') {
             table.Status = 'paid';
             table.StatusUpdateAt = new Date();
           }
 
           table.save(function (err) {
-            if (err) console.log(err);
+            if (err) {
+              return res.serverError(err);
+            }
 
-            Table.publishUpdate(table.id, {
-              RequestCount: table.RequestCount,
-              Status: table.Status,
-              StatusUpdateAt: table.StatusUpdateAt
+            Restaurant.message(table.Restaurant, {
+              setRequest: request,
+              setTable: table
             });
 
-            res.redirect('/request/' + request.id);
+            return res.json(request);
           })
         })
       });

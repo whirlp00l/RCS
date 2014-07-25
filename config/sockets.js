@@ -21,13 +21,12 @@ module.exports.sockets = {
     } else {
       sails.log.debug('socket client authenticated?');
       if (session.user) {
-        User.findOneByEmail(session.user).done(function (err, user){
-          if(err){
+        User.findOneById(session.user.id).exec(function (err, user){
+          if (err) {
             sails.log.debug(err);
             socket.disconnect();
           } else {
-            sails.log.debug('User authenticated:' + user.Email + ', role:' + user.Role);
-            return
+            return sails.log.debug('User authenticated:' + user.Email + ', role:' + user.Role);
           }
         });
       } else {

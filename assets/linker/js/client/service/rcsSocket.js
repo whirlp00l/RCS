@@ -22,10 +22,29 @@ angular
         //   $rootScope.$broadcast('requests.update');
         // });
 
-        rcsSocket.sailsSocket.get('/table', {RestaurantName:restaurantName}, function (tables) {
-          $log.debug(tables);
-          rcsSocket.data.tables = tables;
-          $rootScope.$broadcast('tables.update');
+        // rcsSocket.sailsSocket.get('/table', {RestaurantName:restaurantName}, function (tables) {
+        //   $log.debug(tables);
+        //   rcsSocket.data.tables = tables;
+        //   $rootScope.$broadcast('tables.update');
+        // });
+
+        rcsSocket.sailsSocket.get('/Restaurant/subscribe', {RestaurantName:restaurantName}, function (data) {
+          $log.debug('rcsSocket has subscribed to Restaurant ' + restaurantName);
+          $log.debug(data);
+
+          rcsAPI.Table.list(restaurantName).success(function (tables) {
+            rcsSocket.data.tables = tables;
+            $log.debug('rcsSocket.data.tables:');
+            $log.debug(rcsSocket.data.tables);
+            $rootScope.$broadcast('tables.update');
+          });
+
+          rcsAPI.Request.list(restaurantName).success(function (requests) {
+            rcsSocket.data.requests = requests;
+            $log.debug('rcsSocket.data.requests:');
+            $log.debug(rcsSocket.data.requests);
+            $rootScope.$broadcast('requests.update');
+          })
         });
 
         // listen to model event

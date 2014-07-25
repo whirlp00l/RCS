@@ -67,8 +67,8 @@ angular
         },
         logout: function () {
           return $http
-          .get('User/logout')
-          .error(errorAction);
+            .get('User/logout')
+            .error(errorAction);
         },
         create: function (email, password, role, key) {
           return $http
@@ -99,6 +99,30 @@ angular
             .post('Table/list', {
               RestaurantName: restaurantName
             })
+            .error(errorAction);
+        },
+        delete: function (tableId) {
+          return $http
+            .post('Table/delete/' + tableId)
+            .error(errorAction);
+        },
+        book: function (tableId, bookName, bookCell, bookDateTime) {
+          return $http
+            .post('Table/book/' + tableId, {
+              BookName: bookName,
+              BookCell: bookCell,
+              BookDateTime: bookDateTime
+            })
+            .error(errorAction);
+        },
+        cancelBook: function (tableId) {
+          return $http
+            .post('Table/cancelBook/' + tableId)
+            .error(errorAction);
+        },
+        removeLink: function (tableId) {
+          return $http
+            .post('Table/removeLink/' + tableId)
             .error(errorAction);
         }
       },
