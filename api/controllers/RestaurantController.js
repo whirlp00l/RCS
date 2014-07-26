@@ -304,12 +304,19 @@ module.exports = {
       req.session.subscribedRestaurant = restaurant;
       sails.log.debug('Socket client [' + req.socket.id + '] has subscribed to Restaurant [' + restaurant.RestaurantName + '].');
 
-      Restaurant.message(restaurant, {
-        newTable: restaurant.Tables,
-        newRequest: restaurant.Requests
+      Request.find({Restaurant: restaurant.id}).populate('Table').exec(function (err, requests) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        Restaurant.message(restaurant, {
+          newTable: restaurant.Tables,
+          newRequest: requests
+        });
+
+        return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
       });
 
-      return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
     });
   },
 
