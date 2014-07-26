@@ -284,24 +284,33 @@ module.exports = {
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
-    Restaurant.findOneByRestaurantName(restaurantName)
-      .populate('Manager')
-      .populate('Admins')
-      .exec(function (err, restaurant){
-        if (err) {
-          return res.serverError(err);
-        }
+    Restaurant.findOneByRestaurantName(restaurantName).populateAll().exec(function (err, restaurant){
+      if (err) {
+        return res.serverError(err);
+      }
 
-        if (!restaurant || !hasPermission(restaurant, currentUser)) {
-          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
-        }
+      if (!restaurant || !hasPermission(restaurant, currentUser)) {
+        return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+      }
 
-        // subscribe the requesting socket to the 'message' context of the restaurant
-        Restaurant.subscribe(req, restaurant, ['message']);
-        sails.log.debug('Socket client [' + req.socket.id + '] has subscribed to Restaurant [' + restaurant.id + '].');
+      if (req.session.subscribedRestaurant) {
+        // unsubscribe the requesting socket to the 'message' context of other restaurants
+        Restaurant.unsubscribe(req, req.session.subscribedRestaurant, ['message']);
+        sails.log.debug('Socket client [' + req.socket.id + '] has unsubscribed from Restaurant [' + req.session.subscribedRestaurant.RestaurantName + '].');
+      }
 
-        return res.json({message: 'subscribed'});
+      // subscribe the requesting socket to the 'message' context of the restaurant
+      Restaurant.subscribe(req, restaurant, ['message']);
+      req.session.subscribedRestaurant = restaurant;
+      sails.log.debug('Socket client [' + req.socket.id + '] has subscribed to Restaurant [' + restaurant.RestaurantName + '].');
+
+      Restaurant.message(restaurant, {
+        newTable: restaurant.Tables,
+        newRequest: restaurant.Requests
       });
+
+      return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
+    });
   },
 
   deleteAll: function (req, res, next) {

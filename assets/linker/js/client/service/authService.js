@@ -13,11 +13,16 @@ angular
           });
       };
 
-      authService.logout = function () {
+      authService.logout = function (cb) {
+        if (!authService.isAuthenticated()) {
+          return cb();
+        }
+
         return rcsAPI.User.logout()
           .success(function () {
             SessionService.destroy();
             $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+            cb();
           });
       };
 

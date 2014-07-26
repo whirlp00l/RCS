@@ -198,7 +198,7 @@ module.exports = {
       }
 
       table.destroy(function () {
-        Restaurant.message(table.Restaurant, {removeTable:table});
+        Restaurant.message(table.Restaurant, {removeTableId:table.id});
 
         return res.json(table);
       });

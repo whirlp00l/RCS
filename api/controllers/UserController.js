@@ -24,12 +24,12 @@ module.exports = {
   },
 
   login: function (req, res) {
-    if (req.session.user) {
-      return res.badRequest('Already logged in as [' + req.session.user.Email + '].');
-    }
-
     var email = req.body.Email;
     var password = req.body.Password;
+
+    if (req.session.user && req.session.user.Email != email) {
+      return res.badRequest('Already logged in as [' + req.session.user.Email + '].');
+    }
 
     if (!email || !password) {
       return res.badRequest('Missing required fields.')
