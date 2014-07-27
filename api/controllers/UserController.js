@@ -103,6 +103,15 @@ module.exports = {
     })
   },
 
+  handshake: function(req, res){
+    var user = req.session.user;
+    if (user) {
+      return res.json(user);
+    } else {
+      return res.json();
+    }
+  },
+
   /**
    * Overrides for the settings in `config/controllers.js`
    * (specific to UserController)

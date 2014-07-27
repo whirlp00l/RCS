@@ -7,6 +7,9 @@ angular
 
       var errorAction = function (data, status) {
         $log.error(data || 'request failed');
+        if (status == 403) {
+          $state.go('login');
+        }
       }
 
       // exposing
@@ -74,6 +77,11 @@ angular
               Role: role,
               Key: key
             })
+            .error(errorAction);
+        },
+        handshake: function () {
+          return $http
+            .get('User/handshake')
             .error(errorAction);
         }
       },

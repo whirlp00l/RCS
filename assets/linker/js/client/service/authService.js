@@ -26,6 +26,21 @@ angular
           });
       };
 
+      authService.handshake = function (argument) {
+        return rcsAPI.User.handshake()
+          .success(function (user) {
+            SessionService.destroy();
+            if (user) {
+              // user logged in
+              SessionService.create(user.Email, user.Role);
+              $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+            } else {
+              // no user logged in
+              $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+            }
+          });
+      }
+
       authService.isAuthenticated = function () {
         return !!SessionService.user;
       };

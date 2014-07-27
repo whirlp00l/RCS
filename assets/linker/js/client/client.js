@@ -97,6 +97,9 @@ angular
       });
 
       $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
+        // handshake with server
+        AuthService.handshake();
+
         // track the state the user wants to go to; authorization service needs this
         var authorizedRoles = toState.data.authorizedRoles;
 

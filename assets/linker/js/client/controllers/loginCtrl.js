@@ -3,6 +3,11 @@ angular
   .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$state',
     function ($scope, $rootScope, AUTH_EVENTS, AuthService, $state) {
 
+      // if already logged in
+      if (AuthService.isAuthenticated()) {
+        $state.go('restaurant');
+      }
+
       $scope.credentials = {
         email: '',
         password: ''

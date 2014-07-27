@@ -8,7 +8,8 @@ angular
         return $state.go('home', {restaurantName: restaurants[0].RestaurantName});
       }
 
-      $scope.restaurants = restaurants;
+      $scope.restaurants = [];
+      $scope.restaurants = $scope.restaurants.concat(restaurants);
       $scope.currentRestaurant = restaurants.length == 1 ? restaurants[0].RestaurantName : null;
 
       $scope.status = {
@@ -23,7 +24,11 @@ angular
       $scope.getDrowdownText = function () {
         if ($scope.currentRestaurant)
           return $scope.currentRestaurant;
-        return '餐厅列表'
+
+        if ($scope.restaurants.length == 0)
+          return '无餐厅';
+
+        return '{0} (共{1}家)'.format('餐厅列表', $scope.restaurants.length);
       }
 
       $scope.isManager = function () {

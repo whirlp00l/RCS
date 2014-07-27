@@ -29,7 +29,8 @@ module.exports.policies = {
 
     'logout': 'isAuthenticated',
     'login': true,
-    'create': true
+    'create': true,
+    'handshake': true
   },
 
   'Restaurant':
