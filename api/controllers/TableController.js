@@ -15,8 +15,8 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-var hasPermission = function (restaurantId, req) {
-  sails.log.debug('If request client has permission to ' + restaurantId);
+var isSubscriber = function (restaurantId, req) {
+  sails.log.debug('If request client has subscribed to ' + restaurantId);
   sails.log.debug('req.session.subscribedRestaurant.id = ' + req.session.subscribedRestaurant.id);
 
   var has = false;
@@ -24,8 +24,31 @@ var hasPermission = function (restaurantId, req) {
     has = true;
   }
 
-  sails.log.debug(has ? 'has permission' : 'no permission');
+  sails.log.debug(has ? 'has subscribed' : 'not subscribed');
   return has;
+}
+
+var hasPermission = function (restaurant, currentUser, req) {
+  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+
+  if (restaurant.Manager.id == currentUser.id) {
+    return true;
+  }
+
+  var isAdmin = false;
+  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+    if (restaurant.Admins[i].id == currentUser.id) {
+      isAdmin = true;
+      break;
+    }
+  }
+
+  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
+  if (req) {
+    sails.log.debug('permit subscriber');
+    req.session.subscribedRestaurant = restaurant;
+  }
+  return isAdmin;
 }
 
 var updateTable = function (req, res, tableId, value, cb) {
@@ -38,7 +61,7 @@ var updateTable = function (req, res, tableId, value, cb) {
       return res.serverError(err);
     }
 
-    if (!table || !table.Restaurant || !hasPermission(table.Restaurant, req)) {
+    if (!table || !table.Restaurant || !isSubscriber(table.Restaurant, req)) {
       return res.badRequest('Table [' + tableId + '] is invalid.');
     }
 
@@ -109,7 +132,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant.id, req)) {
+      if (!restaurant || !hasPermission(restaurant, currentUser)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -143,7 +166,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant.id, req)) {
+      if (!restaurant || !isSubscriber(restaurant.id, req)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -168,6 +191,7 @@ module.exports = {
         if (err) {
           return res.serverError(err);
         }
+
         // publish a message to the restaurant.
         // every client subscribed to the restaurant will get it.
         Restaurant.message(restaurant, {newTable:table});
@@ -187,44 +211,29 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!table || !table.Restaurant || !hasPermission(table.Restaurant, req)) {
+      if (!table || !table.Restaurant || !isSubscriber(table.Restaurant, req)) {
         return res.badRequest('Table [' + tableId + '] is invalid.');
       }
 
       table.destroy(function () {
-        Restaurant.message(table.Restaurant, {removeTableId:table.id});
+        Request.destroy({Table: table.id}).exec(function (err, requests) {
+          if (err) {
+            return res.serverError(err);
+          }
 
-        return res.json(table);
+          var requestIds = [];
+          for (var i = requests.length - 1; i >= 0; i--) {
+            requestIds.push(requests[i].id);
+          };
+
+          Restaurant.message(table.Restaurant, {
+            removeTableId:table.id,
+            removeRequestId: requestIds
+          });
+
+          return res.json(table);
+        })
       });
-
-      // Request.find({
-      //   RestaurantName: table.RestaurantName,
-      //   TableName: table.TableName,
-      //   Or: [{Status: 'new'}, {Status: 'inProgress'}]
-      // }).exec(function (err, requests) {
-      //   var deleteTable = function () {
-      //     table.destroy(function() {
-      //       Table.publishDestroy(table.id);
-      //       res.end();
-      //     })
-      //   }
-
-      //   if (requests.length == 0) {
-      //     deleteTable();
-      //     return;
-      //   }
-
-      //   for (var i = 0; i < requests.length; i++) {
-      //     requests[i].Status = 'closed';
-      //     requests[i].ClosedAt = req.param('ClosedAt');
-      //     requests[i].save(function () {
-      //       Request.publishDestroy(requests[i].id);
-      //       if (i == requests.length - 1) {
-      //         deleteTable();
-      //       }
-      //     })
-      //   }
-      // });
     });
   },
 
@@ -257,11 +266,12 @@ module.exports = {
     });
   },
 
-  link:  function (req, res, next) {
+  link: function (req, res) {
     var tableId = req.param('id');
     var tabletId = req.body.LinkedTabletId;
+    var currentUser = req.session.user;
 
-    if (!tabletId) {
+    if (!tabletId || !tableId || !currentUser) {
       return res.badRequest('Missing required fields.')
     }
 
@@ -270,12 +280,32 @@ module.exports = {
         return res.badRequest('Tablet [' + tabletId + '] has already been linked to Table [' + linkedTable.TableName + '].');
       }
 
-      updateTable(req, res, tableId, {
-        LinkedTabletId: tabletId,
-        LinkTime: new Date(),
-        Token: require('node-uuid').v4()
-      }, function (table) {
-        return res.json(table);
+      Table.findOneById(tableId).exec(function (err, table) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        if (!table) {
+          return res.badRequest('Table [' + tableId + '] is invalid.');
+        }
+
+        Restaurant.findOneById(table.Restaurant).populateAll().exec(function (err, restaurant) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          if (!restaurant || !hasPermission(restaurant, currentUser, req)) {
+            return res.badRequest('Table [' + tableId + '] is invalid.');
+          }
+
+          updateTable(req, res, tableId, {
+            LinkedTabletId: tabletId,
+            LinkTime: new Date(),
+            Token: require('node-uuid').v4()
+          }, function (table) {
+            return res.json(table);
+          });
+        });
       });
     });
   },
@@ -291,58 +321,30 @@ module.exports = {
   },
 
   reset: function (req, res) {
-    updateTable(req, res, req.param('id'), {
-      Status: 'empty',
-      StatusUpdateAt: new Date()
-    }, function (table) {
-      return res.json(table);
-    });
+    var tableId = req.param('id');
 
-    // Table.findOne({id: req.param('id')}).exec(function (err, table) {
-    //   if (err) return res.send(500);
-    //   if (!table) return res.send('No table with id=' + req.param('id') + ' exists!', 404);
+    Request.findOne({
+      Table: tableId,
+      Or: [
+        {Status: 'new'},
+        {Status: 'inProgress'}
+      ]
+    }).exec(function (err, request) {
+      if (err) {
+        return res.serverError(err);
+      }
 
-    //   Request.find({
-    //     RestaurantName: table.RestaurantName,
-    //     TableName: table.TableName,
-    //     Or: [{Status: 'new'}, {Status: 'inProgress'}]
-    //   }).exec(function (err, requests) {
+      if (request) {
+        return res.badRequest('Cannot reset table [' + tableId + ']. There is unclosed request [' + request.id + ']');
+      }
 
-    //     var resetTable = function () {
-    //       table.RequestCount = 0;
-    //       table.Status = 'empty';
-    //       table.StatusUpdateAt = new Date();
-
-    //       table.save(function (err) {
-    //         if (err) console.log('save table err: ' + err);
-
-    //         Table.publishUpdate(table.id, {
-    //           Status: table.Status,
-    //           StatusUpdateAt: table.StatusUpdateAt,
-    //           RequestCount: table.RequestCount
-    //         });
-
-    //         res.redirect('/table/' + table.id);
-    //       })
-    //     }
-
-    //     if (requests.length == 0) {
-    //       resetTable();
-    //       return;
-    //     }
-
-    //     for (var i = 0; i < requests.length; i++) {
-    //       requests[i].Status = 'closed';
-    //       requests[i].ClosedAt = req.param('ClosedAt');
-    //       requests[i].save(function () {
-    //         Request.publishDestroy(requests[i].id);
-    //         if (i == requests.length - 1) {
-    //           resetTable();
-    //         }
-    //       })
-    //     }
-    //   });
-    // });
+      updateTable(req, res, tableId, {
+        Status: 'empty',
+        StatusUpdateAt: new Date()
+      }, function (table) {
+        return res.json(table);
+      });
+    })
   },
 
   /**

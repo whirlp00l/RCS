@@ -99,6 +99,25 @@ angular
                   $rootScope.$broadcast('tables.update');
                 }
 
+                // handle remove-request
+                if (data.removeRequestId) {
+                  if (!angular.isArray(data.removeRequestId)) {
+                    data.removeRequestId = [data.removeRequestId];
+                  }
+
+                  var removedCount = 0;
+                  for (var i = rcsSocket.data.requests.length - 1; i >= 0; i--) {
+                    if (data.removeRequestId.indexOf(rcsSocket.data.requests[i].id) != -1) {
+                      rcsSocket.data.requests.splice(i, 1);
+                      if (++removedCount == data.removeRequestId.length) {
+                        break;
+                      }
+                    }
+                  };
+
+                  $rootScope.$broadcast('requests.update');
+                }
+
                 // handle set-table
                 if (data.setTable) {
                   if (!angular.isArray(data.setTable)) {

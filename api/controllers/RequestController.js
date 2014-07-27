@@ -14,8 +14,8 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
-var hasPermission = function (restaurantId, req) {
-  sails.log.debug('If request client has permission to ' + restaurantId);
+var isSubscriber = function (restaurantId, req) {
+  sails.log.debug('If request client has subscribed to ' + restaurantId);
   sails.log.debug('req.session.subscribedRestaurant.id = ' + req.session.subscribedRestaurant.id);
 
   var has = false;
@@ -23,44 +23,30 @@ var hasPermission = function (restaurantId, req) {
     has = true;
   }
 
-  sails.log.debug(has ? 'has permission' : 'no permission');
+  sails.log.debug(has ? 'has subscribed' : 'not subscribed');
   return has;
 }
 
+var hasPermission = function (restaurant, currentUser) {
+  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+
+  if (restaurant.Manager.id == currentUser.id) {
+    return true;
+  }
+
+  var isAdmin = false;
+  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
+    if (restaurant.Admins[i].id == currentUser.id) {
+      isAdmin = true;
+      break;
+    }
+  }
+
+  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
+  return isAdmin;
+}
+
 module.exports = {
-  mockCreate: function (req, res) {
-    Table.find().exec(function (err, tables) {
-      for (var i = 0 ;i < tables.length; i++) {
-        var payType = 'cash';
-        if (Math.random() > 0.5) {
-          payType = 'card';
-        }
-
-        Request.create({
-          RestaurantName: 'KFC',
-          TableName: tables[i].TableName,
-          Type: 'pay',
-          PayType: payType
-        }).exec(function(err, request) {
-          Request.publishCreate({
-            id: request.id,
-            RestaurantName: request.RestaurantName,
-            TableName: request.TableName,
-            Type: request.Type,
-            PayType: request.PayType,
-            Status: request.Status,
-            Importance: request.Importance
-          });
-
-          console.log('create request ' + request.id);
-          if (i == tables.length - 1) {
-            res.redirect('/request/');
-          }
-        });
-      }
-    });
-  },
-
   deleteAll: function (req, res) {
     Request.destroy({}).exec(function (err) {
       return res.send('All requests deleted');
@@ -81,7 +67,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant.id, req)) {
+      if (!restaurant || !hasPermission(restaurant, req.session.user)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -188,7 +174,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!request || !request.Restaurant || !hasPermission(request.Restaurant, req)) {
+      if (!request || !request.Restaurant || !isSubscriber(request.Restaurant, req)) {
         return res.badRequest('Request [' + requestId + '] is invalid.');
       }
 
@@ -216,7 +202,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!request || !request.Restaurant || !hasPermission(request.Restaurant, req)) {
+      if (!request || !request.Restaurant || !isSubscriber(request.Restaurant, req)) {
         return res.badRequest('Request [' + requestId + '] is invalid.');
       }
 
