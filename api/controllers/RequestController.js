@@ -14,23 +14,17 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
-var hasPermission = function (restaurant, currentUser) {
-  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+var hasPermission = function (restaurantId, req) {
+  sails.log.debug('If request client has permission to ' + restaurantId);
+  sails.log.debug('req.session.subscribedRestaurant.id = ' + req.session.subscribedRestaurant.id);
 
-  if (restaurant.Manager.id == currentUser.id) {
-    return true;
+  var has = false;
+  if (req.session.subscribedRestaurant && req.session.subscribedRestaurant.id == restaurantId) {
+    has = true;
   }
 
-  var isAdmin = false;
-  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-    if (restaurant.Admins[i].id == currentUser.id) {
-      isAdmin = true;
-      break;
-    }
-  }
-
-  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
-  return isAdmin;
+  sails.log.debug(has ? 'has permission' : 'no permission');
+  return has;
 }
 
 module.exports = {
@@ -74,7 +68,6 @@ module.exports = {
   },
 
   list: function (req, res) {
-    var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
 
     sails.log.debug('Request/list');
@@ -88,7 +81,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant, currentUser)) {
+      if (!restaurant || !hasPermission(restaurant.id, req)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -134,36 +127,40 @@ module.exports = {
 
       if (!isDupRequest) {
         // create new request
-        sails.log.debug('table.Restaurant = ' + table.Restaurant);
-        var request = {
+        Request.create({
           Table: table.id,
           Restaurant: table.Restaurant,
           Type: type,
           PayType: payType,
           PayAmount: payAmount
-        }
-
-        table.Requests.add(request);
-
-        if (request.Type == 'pay') {
-          table.Status = 'paying';
-          table.StatusUpdateAt = new Date();
-        }
-
-        table.save(function (err, table) {
-          if (err) {
-            return res.serverError(err);
+        }).exec(function (err, request) {
+          table.Requests.add(request.id);
+          if (request.Type == 'pay') {
+            table.Status = 'paying';
+            table.StatusUpdateAt = new Date();
           }
 
-          // publish a message to the restaurant.
-          // every client subscribed to the restaurant will get it.
-          Restaurant.message(table.Restaurant, {
-            newRequest: request,
-            setTable: table
-          });
+          table.save(function (err, table) {
+            if (err) {
+              return res.serverError(err);
+            }
 
-          return res.json(request);
-        })
+            Request.findOneById(request.id).populate('Table').exec(function (err, request) {
+              if (err) {
+                return res.serverError(err);
+              }
+
+              // publish a message to the restaurant.
+              // every client subscribed to the restaurant will get it.
+              Restaurant.message(table.Restaurant, {
+                newRequest: request,
+                setTable: table
+              });
+
+              return res.json(request);
+            });
+          });
+        });
       } else {
         // increase the priority
         Request.update(dupRequest.id, {
@@ -183,16 +180,43 @@ module.exports = {
     });
   },
 
-  close: function (req, res) {
+  start: function (req, res) {
     var requestId = req.param('id');
 
+    Request.findOneById(requestId).populate('Table').exec(function (err, request) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!request || !request.Restaurant || !hasPermission(request.Restaurant, req)) {
+        return res.badRequest('Request [' + requestId + '] is invalid.');
+      }
+
+      request.Status = 'inProgress';
+
+      request.save(function (err) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        Restaurant.message(request.Restaurant, {
+          setRequest: request
+        });
+
+        return res.json(request);
+      });
+    });
+  },
+
+  close: function (req, res) {
+    var requestId = req.param('id');
 
     Request.findOneById(requestId).exec(function (err, request) {
       if (err) {
         return res.serverError(err);
       }
 
-      if (!request) {
+      if (!request || !request.Restaurant || !hasPermission(request.Restaurant, req)) {
         return res.badRequest('Request [' + requestId + '] is invalid.');
       }
 

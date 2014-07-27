@@ -6,11 +6,7 @@ angular
       var rcsAPI = this;
 
       var errorAction = function (data, status) {
-        if (status === 400) {
-          $log.error(data.validationErrors || 400)
-        } else {
-          $log.error(data || 'request failed');
-        }
+        $log.error(data || 'request failed');
       }
 
       // exposing
@@ -106,6 +102,11 @@ angular
             .post('Table/delete/' + tableId)
             .error(errorAction);
         },
+        reset: function (tableId) {
+          return $http
+            .post('Table/reset/' + tableId)
+            .error(errorAction);
+        },
         book: function (tableId, bookName, bookCell, bookDateTime) {
           return $http
             .post('Table/book/' + tableId, {
@@ -133,6 +134,16 @@ angular
             .post('Request/list', {
               RestaurantName: restaurantName
             })
+            .error(errorAction);
+        },
+        start: function (requestId) {
+          return $http
+            .get('Request/start/' + requestId)
+            .error(errorAction);
+        },
+        close: function (requestId) {
+          return $http
+            .get('Request/close/' + requestId)
             .error(errorAction);
         }
       }

@@ -15,23 +15,17 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-var hasPermission = function (restaurant, currentUser) {
-  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
+var hasPermission = function (restaurantId, req) {
+  sails.log.debug('If request client has permission to ' + restaurantId);
+  sails.log.debug('req.session.subscribedRestaurant.id = ' + req.session.subscribedRestaurant.id);
 
-  if (restaurant.Manager.id == currentUser.id) {
-    return true;
+  var has = false;
+  if (req.session.subscribedRestaurant && req.session.subscribedRestaurant.id == restaurantId) {
+    has = true;
   }
 
-  var isAdmin = false;
-  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-    if (restaurant.Admins[i].id == currentUser.id) {
-      isAdmin = true;
-      break;
-    }
-  }
-
-  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
-  return isAdmin;
+  sails.log.debug(has ? 'has permission' : 'no permission');
+  return has;
 }
 
 var updateTable = function (req, res, tableId, value, cb) {
@@ -39,12 +33,12 @@ var updateTable = function (req, res, tableId, value, cb) {
     return res.badRequest('Missing required fields.');
   }
 
-  Table.findOneById(tableId).populateAll().exec(function (err, table) {
+  Table.findOneById(tableId).exec(function (err, table) {
     if (err) {
       return res.serverError(err);
     }
 
-    if (!table || !table.Restaurant || hasPermission(table.Restaurant, req.session.user)) {
+    if (!table || !table.Restaurant || !hasPermission(table.Restaurant, req)) {
       return res.badRequest('Table [' + tableId + '] is invalid.');
     }
 
@@ -115,7 +109,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant, currentUser)) {
+      if (!restaurant || !hasPermission(restaurant.id, req)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -149,7 +143,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant, currentUser)) {
+      if (!restaurant || !hasPermission(restaurant.id, req)) {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
@@ -188,12 +182,12 @@ module.exports = {
     var currentUser = req.session.user;
     var tableId = req.param('id');
 
-    Table.findOneById(tableId).populateAll().exec(function (err, table) {
+    Table.findOneById(tableId).exec(function (err, table) {
       if (err) {
         return res.serverError(err);
       }
 
-      if (!table || !table.Restaurant || hasPermission(table.Restaurant, currentUser)) {
+      if (!table || !table.Restaurant || !hasPermission(table.Restaurant, req)) {
         return res.badRequest('Table [' + tableId + '] is invalid.');
       }
 

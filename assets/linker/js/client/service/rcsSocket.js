@@ -34,14 +34,23 @@ angular
       }
 
       var listen = function() {
-        // listen to 'disconnect'
-        rcsSocket.sailsSocket.on('disconnect', function () {
-          disconnectAndLogout();
-        });
-
-        // listen to 'message'
         if (!rcsSocket.sailsSocket.alreadyListening) {
           rcsSocket.sailsSocket.alreadyListening = true;
+
+          // listen to 'disconnect'
+          rcsSocket.sailsSocket.on('disconnect', function () {
+            disconnectAndLogout();
+          });
+
+          // listen to 'init'
+          rcsSocket.sailsSocket.on('init', function (msg) {
+            rcsSocket.data.tables = msg.table;
+            $rootScope.$broadcast('tables.update');
+            rcsSocket.data.requests = msg.request;
+            $rootScope.$broadcast('requests.update');
+          });
+
+          // listen to 'message'
 
           rcsSocket.sailsSocket.on('restaurant', function (msg) {
             $log.debug('rcsSocket: received message');
