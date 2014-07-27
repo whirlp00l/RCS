@@ -1,6 +1,6 @@
-div(ng-class="{'progress progress-striped active':request.Status=='inProgress'}", style="height: 40px; width: 100%;")
-  button(role="progressbar", ng-class="{'btn-request-important':importanceHigh(request) , 'btn-request':importanceNormal(request), 'progress-bar':request.Status=='inProgress'}", ng-click="openRequest(request)")
+div(ng-class="{'progress progress-striped active':isInProgress()}" style="height: 40px;")
+  button(role="progressbar" ng-class="{'btn-request-important':importanceHigh(), 'btn-request':importanceNormal(), 'progress-bar':isInProgress()}")
     i.pull-left(ng-class="{'glyphicon glyphicon-usd':request.Type=='pay'}")
     span.pull-left.force-wrap
-      b 『{{request.Table.TableName}}』
-      | {{getPayTypeText(request)}}
+      b {{request.Table.TableName}}
+      | {{getRequestText()}}

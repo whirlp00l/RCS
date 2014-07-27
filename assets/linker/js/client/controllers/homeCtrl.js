@@ -11,11 +11,15 @@
 
       rcsSocket.connect($scope.currentRestaurant);
 
-      // $scope.connect = function (argument) {
-      //   rcsSocket.connect();
-      // };
-
-      // $scope.disconnect = function (argument) {
-      //   rcsSocket.disconnect();
-      // }
+      // used in Ctrl inherited from homeCtrl
+      $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+          if(fn && (typeof(fn) === 'function')) {
+            fn();
+          }
+        } else {
+          this.$apply(fn);
+        }
+      }
     }]);

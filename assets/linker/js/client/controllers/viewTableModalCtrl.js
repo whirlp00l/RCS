@@ -1,8 +1,8 @@
 angular
   .module('rcs')
-  .controller('viewTableModalCtrl', ['$scope', '$http', '$modalInstance', 'tableData', 'tableTypeText', 'tableStatusText',
-    function($scope, $http, $modalInstance, tableData, tableTypeText, tableStatusText){
-      
+  .controller('viewTableModalCtrl', ['$scope', '$log', '$modalInstance', 'rcsAPI', 'tableData', 'tableTypeText', 'tableStatusText',
+    function($scope, $log, $modalInstance, rcsAPI, tableData, tableTypeText, tableStatusText){
+
       $scope.data = {
         table: tableData,
         tableType: tableTypeText,
@@ -13,7 +13,7 @@ angular
         newBookDate: new Date(),
         newBookTime: new Date()
       };
-      
+
       $scope.state = {
         isCollapsed: true
       };
@@ -60,39 +60,39 @@ angular
         ));
 
         // console.log('booking time:' +bookDateTime);
-
-        $http.post('/table/book/' + $scope.data.table.id, {
-            BookName: $scope.data.newBookName,
-            BookCell: $scope.data.newBookCell,
-            BookDateTime: bookDateTime
-          }).success(function(data) {
-            $scope.data.table = data;
-            $scope.state.isCollapsed = true;
-            console.log('booked:' + $scope.getBookingInfo());
-          });
+        rcsAPI.Table.book(
+          $scope.data.table.id,
+          $scope.data.newBookName,
+          $scope.data.newBookCell,
+          bookDateTime
+        ).success(function(data) {
+          $scope.data.table = data;
+          $scope.state.isCollapsed = true;
+          $log.debug('booked:' + $scope.getBookingInfo());
+        });
       }
 
       $scope.cancelBooking = function() {
-        $http.get('/table/cancelBook/' + $scope.data.table.id).success(function(data) {
-            $scope.data.table = data;
+        rcsAPI.Table.cancelBook($scope.data.table.id).success(function(data) {
+          $scope.data.table = data;
         });
       }
 
       $scope.removeLinking = function() {
-        $http.get('/table/removeLink/' + $scope.data.table.id).success(function(data) {
-            $scope.data.table = data;
-        }); 
+        rcsAPI.Table.removeLink($scope.data.table.id).success(function(data) {
+          $scope.data.table = data;
+        });
       }
 
       $scope.resetTable = function() {
-        $http.get('/table/reset/' + $scope.data.table.id).success(function(data) {
-            $modalInstance.dismiss('cancel');
+        rcsAPI.Table.reset($scope.data.table.id).success(function(data) {
+          $scope.data.table = data;
         });
       }
 
       $scope.deleteTable = function() {
-        $http.get('/table/delete/' + $scope.data.table.id).success(function(data) {
-            $modalInstance.dismiss('cancel');
+        rcsAPI.Table.delete($scope.data.table.id).success(function(data) {
+          $modalInstance.dismiss('delete');
         });
       }
 

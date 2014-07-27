@@ -8,15 +8,15 @@
     br
     | 预订信息: {{getBookingInfo()}}
 .modal-footer
-  button.btn.btn-success(ng-click="resetTable()") 翻桌
-  button.btn.btn-success(ng-click="cancelBooking()") 取消预订
-  button.btn.btn-success(ng-click="removeLinking()") 移除关联
-  button.btn.btn-warning(ng-click="deleteTable()") 删除餐桌
-  button.btn.btn-danger(ng-click="cancel()") 关闭
+  button.btn.btn-danger(ng-click="resetTable()") 翻桌
+  button.btn.btn-danger(ng-click="cancelBooking()") 取消预订
+  button.btn.btn-danger(ng-click="removeLinking()") 移除关联
+  button.btn.btn-danger(ng-click="deleteTable()") 删除餐桌
+  button.btn.btn-default(ng-click="cancel()") 关闭
 .modal-header
   h3.modal-title(ng-class="{hidden:state.isCollapsed == true}")
     | 新建预订
-  button.btn.btn-default(ng-click="state.isCollapsed = !state.isCollapsed" ng-class="{hidden:state.isCollapsed == false}") 
+  button.btn.btn-danger(ng-click="state.isCollapsed = !state.isCollapsed" ng-class="{hidden:state.isCollapsed == false}")
     h3 新建预订
 .modal-body(collapse="state.isCollapsed")
   form(ng-submit="newBooking()")
@@ -36,5 +36,5 @@
         timepicker(ng-model="data.newBookTime" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-required="true")
     input.noShow(type="submit" id="submit" value="提交")
 .modal-footer(collapse="state.isCollapsed")
-  button.btn.btn-success(ng-click="newBooking()") 确定
-  button.btn.btn-danger(ng-click="state.isCollapsed = true") 取消
+  button.btn.btn-danger(ng-click="newBooking()") 确定
+  button.btn.btn-default(ng-click="state.isCollapsed = true") 取消

@@ -1,5 +1,4 @@
 .text-center.rcs-table(
-  ng-click="clickTable(table)"
   ng-class="{'rcs-table-none':getTableStatus(table)=='', 'rcs-table-empty':getTableStatus(table)=='empty', 'rcs-table-paying':getTableStatus(table)=='paying', 'rcs-table-paid':getTableStatus(table)=='paid', 'rcs-table-with-request':ifHasRequest(table)==true,'rcs-table-with-book':ifHasBook(table)==true}"
   tooltip-placement="right"
   tooltip-popup-delay="200"

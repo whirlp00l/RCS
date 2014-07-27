@@ -1,0 +1,16 @@
+.background-color-default(ng-controller="requestListCtrl" style="height: 620px;")
+  tabset.background-color-default(justified="true")
+    tab
+      tab-heading
+        i.glyphicon.glyphicon-bell 当前
+      p
+        br
+      .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10 track by $index")
+        div(rcs-request)
+    tab
+      tab-heading
+        i.glyphicon.glyphicon-time 历史
+      p
+        br
+      .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
+        div(rcs-request)

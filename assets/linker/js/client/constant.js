@@ -21,4 +21,14 @@ angular
       title: '移除管理员: ',
       content: '移除后，该用户将无法继续管理餐厅',
     }
-  });;
+  })
+  .constant('REQUEST_STATUS', {
+    inProgress: 'inProgress',
+    new: 'new',
+    closed: 'closed'
+  })
+  .constant('REQUEST_TYPE', {
+    call: 'call',
+    pay: 'pay',
+    water: 'water'
+  });

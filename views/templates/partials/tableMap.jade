@@ -1,0 +1,4 @@
+.row(ng-controller="tableMapCtrl")
+  .row.row-rcs-table(ng-repeat="tableRow in tables track by $index")
+    .col-rcs-table(ng-repeat="table in tableRow", ng-class="{'col-xs-2':maxTableCol==6, 'col-xs-1':maxTableCol==12}")
+      div(rcs-table)
