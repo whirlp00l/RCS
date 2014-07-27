@@ -16,3 +16,13 @@ form(ng-submit="login(credentials)")
   h2
   a(ui-sref="signup")
     u 注册新用户
+
+.row.text-center
+  h2
+  .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+    button.btn.btn-default.full-width(ng-click="login({email:'admin1', password:'adm123'})") admin1
+    button.btn.btn-default.full-width(ng-click="login({email:'admin2', password:'adm123'})") admin2
+.row.text-center
+  h2
+  .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+    button.btn.btn-success.full-width(ng-click="login({email:'manager1', password:'mgr123'})") manager1
