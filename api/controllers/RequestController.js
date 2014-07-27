@@ -71,7 +71,7 @@ module.exports = {
         return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
       }
 
-      Request.find({Restaurant: restaurant.id}).populate('Table').exec(function (err, requests) {
+      Request.find({Restaurant: restaurant.id}).populate('Tables').exec(function (err, requests) {
         if (err) {
           return res.serverError(err);
         }
@@ -156,12 +156,18 @@ module.exports = {
             return res.serverError(err);
           }
 
-          // publish a message to the restaurant.
-          // every client subscribed to the restaurant will get it.
-          Restaurant.message(table.Restaurant, {setRequest: request});
+          Request.findOneById(dupRequest.id).populate('Table').exec(function (err, request) {
+            if (err) {
+              return res.serverError(err);
+            }
 
-          return res.json(request);
-        })
+            // publish a message to the restaurant.
+            // every client subscribed to the restaurant will get it.
+            Restaurant.message(table.Restaurant, {setRequest: request});
+
+            return res.json(request);
+          });
+        });
       }
     });
   },

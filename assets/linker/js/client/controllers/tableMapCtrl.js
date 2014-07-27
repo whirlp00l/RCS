@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .controller('tableMapCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket',
-    function($scope, $http, $modal, $log, rcsSocket){
+  .controller('tableMapCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket', 'RCS_EVENTS',
+    function($scope, $http, $modal, $log, rcsSocket, RCS_EVENTS){
 
       // initial table 2d array
       $scope.maxTableRow = 10;
@@ -37,13 +37,30 @@ angular
       updateTableData();
 
       // listen to event
-      $scope.$on('tables.update', function (event) {
+      $scope.$on(RCS_EVENTS.tablesUpdate, function (event) {
         $scope.requests = rcsSocket.data.tables;
         tableData = rcsSocket.data.tables;
         updateTableData();
 
         $scope.safeApply(function () {
-          $log.debug('tableCtrl: applied tables updated');
+          $log.debug('tableMapCtrl: applied tables updated');
         });
       })
+
+      $scope.editMode = false;
+
+      $scope.$on(RCS_EVENTS.editModeOn, function (event) {
+        $scope.editMode = true;
+        $scope.safeApply(function () {
+          $log.debug('tableMapCtrl: get into edit mode');
+        });
+      });
+
+      $scope.$on(RCS_EVENTS.editModeOff, function (event) {
+        $scope.editMode = false;
+        $scope.safeApply(function () {
+          $log.debug('tableMapCtrl: get out of edit mode');
+        });
+      });
+
     }]);

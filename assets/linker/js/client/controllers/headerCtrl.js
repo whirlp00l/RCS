@@ -18,4 +18,6 @@ angular
       $scope.$on(AUTH_EVENTS.logoutSuccess, function (event) {
         update();
       })
+
+      $scope.versionText = 'v0.1';
     }]);

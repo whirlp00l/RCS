@@ -3,14 +3,5 @@ extends ../layout
 block body
   //- div(style="height:5px")
   .container(ng-app="rcs")
-    .row(ng-controller="headerCtrl")
-      .col-xs-6.text-left
-        h4 RCS
-      .col-xs-6.text-right
-        h4
-          span(ng-if="isAuthenticated") {{userEmail}} ({{userRole}})
-          span(ng-if="!isAuthenticated") Not Login
-          a(href="" rcs-logout) &nbsp;
-            u Logout
-
+    include partials/header
     div(ui-view)

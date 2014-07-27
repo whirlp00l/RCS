@@ -1,7 +1,14 @@
-.text-center.rcs-table(
-  ng-class="{'rcs-table-none':getTableStatus(table)=='', 'rcs-table-empty':getTableStatus(table)=='empty', 'rcs-table-paying':getTableStatus(table)=='paying', 'rcs-table-paid':getTableStatus(table)=='paid', 'rcs-table-with-request':ifHasRequest(table)==true,'rcs-table-with-book':ifHasBook(table)==true}"
-  tooltip-placement="right"
-  tooltip-popup-delay="200"
-  tooltip-html-unsafe="{{getTooltip(table)}}")
-  b
-  | {{getTableName(table)}}
+div(ng-if="editMode==false")
+  .text-center.rcs-table(
+    ng-class="{'rcs-table-border':getTableStatus()!=null, 'rcs-table-none':!getTableStatus(), 'rcs-table-empty':getTableStatus()=='empty', 'rcs-table-paying':getTableStatus()=='paying', 'rcs-table-paid':getTableStatus()=='paid', 'rcs-table-with-request':ifHasRequest()==true,'rcs-table-with-book':ifHasBook()==true}"
+    tooltip-placement="right"
+    tooltip-popup-delay="200"
+    tooltip-html-unsafe="{{getTooltip(table)}}")
+    b {{getTableName()}}
+
+div(ng-if="editMode==true")
+  .text-center.rcs-table(
+    ng-class="{'rcs-table-border':true, 'rcs-table-none':ifNothing()==true, 'rcs-table-empty':ifNothing()==false}")
+    b
+      span(ng-if="ifNothing()==false") {{getTableName()}}
+      span.glyphicon.glyphicon-plus(ng-if="ifNothing()==true")

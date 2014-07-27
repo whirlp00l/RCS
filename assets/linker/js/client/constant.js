@@ -8,6 +8,12 @@ angular
     notAuthenticated: 'auth-not-authenticated',
     notAuthorized: 'auth-not-authorized'
   })
+  .constant('RCS_EVENTS', {
+    editModeOn: 'edit-mode-on',
+    editModeOff: 'edit-mode-off',
+    tablesUpdate: 'tables-update',
+    requestsUpdate: 'requests-update',
+  })
   .constant('USER_ROLES', {
     any: '*',
     manager: 'manager',

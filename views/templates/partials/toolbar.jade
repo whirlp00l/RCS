@@ -5,10 +5,10 @@
         span.glyphicon.glyphicon-cog.color-darkred
       ul.dropdown-menu(role="menu")
         li
-          a.font-size-md(href="")
-            span.glyphicon.glyphicon-pencil &nbsp;编辑桌子
+          a.font-size-md(rcs-toggle-edit href="")
+            span.glyphicon.glyphicon-pencil &nbsp;{{rcsToggleEdit.text}}
         li
-          a.font-size-md(href="")
+          a.font-size-md(ng-hide="true")
             span.glyphicon.glyphicon-list-alt &nbsp;编辑菜单
         li.divider
         li(ng-if="'hasOtherRest'=='hasOtherRest'")

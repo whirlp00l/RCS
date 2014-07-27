@@ -1,3 +1,7 @@
+html *
+{
+   font-family: "Microsoft YaHei", Helvetica, Arial, sans-serif;
+}
 
 .force-wrap {
  word-wrap: break-word;
@@ -69,4 +73,8 @@ input.no-show {
 
 .full-width {
   width: 100%;
+}
+
+.no-border {
+  border-style: none;
 }

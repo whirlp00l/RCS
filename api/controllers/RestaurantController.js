@@ -309,19 +309,25 @@ module.exports = {
           return res.serverError(err);
         }
 
-        // send restaurant data to the new subscriber via socket
-        var socketId = sails.sockets.id(req.socket);
-        sails.sockets.emit(socketId, 'init', {
-          table: restaurant.Tables,
-          request: requests
+        Table.find({Restaurant: restaurant.id}).populate('Requests').exec(function (err, tables) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          // send restaurant data to the new subscriber via socket
+          var socketId = sails.sockets.id(req.socket);
+          sails.sockets.emit(socketId, 'init', {
+            table: tables,
+            request: requests
+          });
+
+          // notify other subscribers for new comer
+          Restaurant.message(restaurant, {
+            newSubscriber: currentUser.Email
+          }, req);
+
+          return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
         });
-
-        // notify other subscribers for new comer
-        Restaurant.message(restaurant, {
-          newSubscriber: currentUser.Email
-        }, req);
-
-        return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
       });
 
     });

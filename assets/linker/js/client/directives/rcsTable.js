@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .directive('rcsTable', ['$modal', 'rcsAPI',
-    function ($modal, rcsAPI) {
+  .directive('rcsTable', ['$modal', 'rcsAPI', 'REQUEST_STATUS',
+    function ($modal, rcsAPI, REQUEST_STATUS) {
       return {
         restrict: 'A',
         templateUrl: '/template/rcsTable',
@@ -47,34 +47,39 @@ angular
                 },
                 tableStatusText: function () {
                   return $scope.getTableStatusText(tableData);
+                },
+                editMode: function () {
+                  return $scope.editMode;
                 }
               }
             });
           }
 
           $scope.clickTable = function () {
-            if ($scope.table.data == $scope.undefinedTable) {
-              addTable($scope.table);
+            if ($scope.ifNothing()) {
+              if ($scope.editMode == true) {
+                addTable($scope.table);
+              }
             } else {
               viewTable($scope.table.data);
             }
           }
 
           // show table
-          $scope.getTableName = function(table) {
-            if (table.data != $scope.undefinedTable) {
-              return table.data.TableName;
+          $scope.getTableName = function() {
+            if ($scope.ifNothing()) {
+              return null;
             }
 
-            return '+'
+            return $scope.table.data.TableName;
           }
 
-          $scope.getTableStatus = function(table) {
-            if (table.data == $scope.undefinedTable) {
-              return '';
+          $scope.getTableStatus = function() {
+            if ($scope.ifNothing()) {
+              return null;
             }
 
-            return table.data.Status;
+            return $scope.table.data.Status;
           }
 
           $scope.getTableTypeText = function(tableData) {
@@ -140,35 +145,53 @@ angular
           }
 
           // check table
-          $scope.ifHasRequest = function (table) {
-            if (table.data != $scope.undefinedTable && parseInt(table.data.RequestCount) != 0) {
-              return true;
+          $scope.ifNothing = function () {
+            return $scope.table.data == $scope.undefinedTable;
+          }
+
+          $scope.ifHasRequest = function () {
+            if ($scope.ifNothing()) {
+              return false;
             }
+
+            var tableData = $scope.table.data;
+            if (!tableData.Requests) {
+              return false;
+            }
+
+            for (var i = tableData.Requests.length - 1; i >= 0; i--) {
+              if (tableData.Requests[i].Status != REQUEST_STATUS.closed) {
+                return true;
+              }
+            };
+
             return false;
           }
 
-          $scope.ifHasBook = function (table) {
-            if (table.data == $scope.undefinedTable) {
+          $scope.ifHasBook = function () {
+            if ($scope.ifNothing()) {
               return false;
             }
 
-            if (!table.data.BookDateTime || table.data.BookDateTime == '') {
+            var tableData = $scope.table.data;
+            if (!tableData.BookDateTime || tableData.BookDateTime == '') {
               return false;
             }
 
-            if ((new Date() - new Date(table.data.BookDateTime)) > 30*60*1000) {
+            if ((new Date() - new Date(tableData.BookDateTime)) > 30*60*1000) {
               return false;
             }
 
             return true;
           }
 
-          $scope.ifHasLink = function (table) {
-            if (table.data == $scope.undefinedTable) {
+          $scope.ifHasLink = function () {
+            if ($scope.ifNothing()) {
               return false;
             }
 
-            return (table.data.LinkTime && table.data.LinkTime != null);
+            var tableData = $scope.table.data;
+            return (tableData.LinkTime && tableData.LinkTime != null);
           }
 
           $element.bind('click', $scope.clickTable);

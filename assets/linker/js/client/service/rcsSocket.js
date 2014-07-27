@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .service('rcsSocket', ['$rootScope', '$state', '$log', 'rcsAPI', 'AuthService',
-    function($rootScope, $state, $log, rcsAPI, AuthService) {
+  .service('rcsSocket', ['$rootScope', '$state', '$log', 'rcsAPI', 'AuthService', 'RCS_EVENTS',
+    function($rootScope, $state, $log, rcsAPI, AuthService, RCS_EVENTS) {
 
       var rcsSocket = this;
 
@@ -45,9 +45,9 @@ angular
           // listen to 'init'
           rcsSocket.sailsSocket.on('init', function (msg) {
             rcsSocket.data.tables = msg.table;
-            $rootScope.$broadcast('tables.update');
+            $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
             rcsSocket.data.requests = msg.request;
-            $rootScope.$broadcast('requests.update');
+            $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
           });
 
           // listen to 'message'
@@ -67,7 +67,7 @@ angular
                   }
 
                   rcsSocket.data.tables = rcsSocket.data.tables.concat(data.newTable);
-                  $rootScope.$broadcast('tables.update');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
                 }
 
                 // handle new-request
@@ -77,7 +77,7 @@ angular
                   }
 
                   rcsSocket.data.requests = rcsSocket.data.requests.concat(data.newRequest);
-                  $rootScope.$broadcast('requests.update');
+                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
                 }
 
                 // handle remove-table
@@ -96,7 +96,7 @@ angular
                     }
                   };
 
-                  $rootScope.$broadcast('tables.update');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
                 }
 
                 // handle remove-request
@@ -115,7 +115,7 @@ angular
                     }
                   };
 
-                  $rootScope.$broadcast('requests.update');
+                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
                 }
 
                 // handle set-table
@@ -135,7 +135,7 @@ angular
                     }
                   }
 
-                  $rootScope.$broadcast('tables.update');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
                 }
 
                 // handle set-request
@@ -155,7 +155,7 @@ angular
                     }
                   }
 
-                  $rootScope.$broadcast('tables.update');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
                 }
 
                 break;

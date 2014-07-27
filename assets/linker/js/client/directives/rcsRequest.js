@@ -7,7 +7,7 @@ angular
         templateUrl: '/template/rcsRequest',
 
         link: function ($scope, $element, $attr) {
-          var importanceBar = 2;
+          var importanceBar = 1;
 
           var closeRequest = function () {
             if ($scope.request.Type == REQUEST_TYPE.pay) {
@@ -39,6 +39,8 @@ angular
           var viewRequest = function () {
             var modalTemplate = '/template/modalViewRequest';
           }
+
+          $scope.requestType = REQUEST_TYPE;
 
           $scope.importanceNormal = function() {
             return $scope.request.Importance < importanceBar;
@@ -81,9 +83,10 @@ angular
                   case 'alipay':
                     return '支付宝';
                 }
-                break;
-              default:
-                return $scope.request.Type;
+              case REQUEST_TYPE.call:
+                return '呼叫服务';
+              case REQUEST_TYPE.water:
+                return '加水';
             }
           }
 

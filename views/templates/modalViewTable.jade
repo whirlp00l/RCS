@@ -1,40 +1,53 @@
 .modal-header
-  h3.modal-title 餐桌详情 『{{data.table.TableName}}』 (类型：{{data.tableType}})
-.modal-body
+  h4
+    a.glyphicon.glyphicon-remove.pull-right(ng-click="cancel()")
+  h3.modal-title <b>{{data.table.TableName}}</b> 餐桌详情
+    span(ng-if="editMode==true") &nbsp;(编辑模式)
+.modal-body(collapse="!state.isCollapsed")
   div
-    | 当前状态: {{data.tableStatus}} (更新时间： {{data.tableStatusUpdateAt}})
-    br
-    | 关联信息: {{getLinkingInfo()}}
-    br
-    | 预订信息: {{getBookingInfo()}}
-.modal-footer
-  button.btn.btn-danger(ng-click="resetTable()") 翻桌
-  button.btn.btn-danger(ng-click="cancelBooking()") 取消预订
-  button.btn.btn-danger(ng-click="removeLinking()") 移除关联
+    pre 餐桌类型: <b>{{data.tableType}}</b>
+    pre 当前状态: <b>{{data.tableStatus}}</b> (更新时间： {{getStatusUpdateTime()}})
+      a.pull-right(ng-if="editMode==false" ng-click="resetTable()" href="")
+        b 重置
+    pre 请求信息: <b>{{getRequestInfo()}}</b>
+    pre 关联信息: <b>{{getLinkingInfo()}}</b>
+      span(ng-show="isLinked") &nbsp;(关联时间： {{getLinkingTime()}})
+      a.pull-right(ng-if="editMode==false" ng-show="isLinked()" ng-click="removeLinking()" href="")
+        b 移除关联
+    pre 预订信息: <b>{{getBookingInfo()}}</b>
+      a.pull-right(ng-if="editMode==false" ng-show="isBooked()==true" ng-click="cancelBooking()" href="")
+        b 取消预订
+      a.pull-right(ng-if="editMode==false" ng-show="isBooked()==false" ng-click="state.isCollapsed = !state.isCollapsed" href="")
+        b 新建预订
+.modal-footer(ng-if="editMode==true" collapse="!state.isCollapsed")
   button.btn.btn-danger(ng-click="deleteTable()") 删除餐桌
-  button.btn.btn-default(ng-click="cancel()") 关闭
-.modal-header
-  h3.modal-title(ng-class="{hidden:state.isCollapsed == true}")
+
+.modal-header(ng-class="{hidden:state.isCollapsed == true}")
+  h4
+    a.glyphicon.glyphicon-minus.pull-right(ng-click="state.isCollapsed = true")
+  h3.modal-title
     | 新建预订
-  button.btn.btn-danger(ng-click="state.isCollapsed = !state.isCollapsed" ng-class="{hidden:state.isCollapsed == false}")
-    h3 新建预订
 .modal-body(collapse="state.isCollapsed")
   form(ng-submit="newBooking()")
     .row
       .col-md-6
-        | 姓名:
-        input.form-control(type="text" ng-model="data.newBookName" ng-required="true")
+        pre 顾客姓名
+          input.form-control(type="text" ng-model="data.newBookName" ng-required="true")
       .col-md-6
-        | 手机:
-        input.form-control(type="text" ng-model="data.newBookCell" ng-required="true")
+        pre 顾客手机
+          input.form-control(type="text" ng-model="data.newBookCell" ng-required="true")
     .row
-      | 预订时间
+      .col-md-6
+        pre 预定日期
+          input.form-control(value="{{getDateFormat(data.newBookDate)}}" readonly ng-required="true")
+      .col-md-6
+        pre 预定时间
+          input.form-control(value="{{getTimeFormat(data.newBookTime)}}" readonly ng-required="true")
     .row
       .col-md-6
         datepicker.well.well-sm(ng-model="data.newBookDate" min-date="minDate" show-weeks="false" ng-required="true")
       .col-md-6
         timepicker(ng-model="data.newBookTime" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-required="true")
-    input.noShow(type="submit" id="submit" value="提交")
+    input.no-show(type="submit" id="submit")
 .modal-footer(collapse="state.isCollapsed")
-  button.btn.btn-danger(ng-click="newBooking()") 确定
-  button.btn.btn-default(ng-click="state.isCollapsed = true") 取消
+  button.btn.btn-danger(ng-click="newBooking()") 确认预订

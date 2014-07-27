@@ -1,14 +1,15 @@
-@-webkit-keyframes blink { 
-  50% { 
+@-webkit-keyframes blink {
+  50% {
     border-color: rgba(255, 255, 255, 0.6);
   }
 }
-@keyframes blink { 
-  50% { 
+@keyframes blink {
+  50% {
     border-color: rgba(255, 255, 255, 0.6);
   }
 }
 
+/*map*/
 .row-rcs-table {
   margin: 0px, 0px, 0px, 0px;
 }
@@ -18,24 +19,28 @@
   padding-right: 0px;
 }
 
+/*cell*/
 .rcs-table {
+  /*layout*/
   background-color: #000;
   height: 60px;
+  width: 100%;
   line-height: 60px;
   text-align: center;
-  width: 100%;
-  border: 5px solid #FFF;
   color: #000;
-  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
   font-size: 16px;
+}
+
+.rcs-table-border {
+  /*border*/
+  border: 5px solid #FFF;
   transition : border 500ms ease-out;
-  -webkit-transition : border 500ms ease-out; 
+  -webkit-transition : border 500ms ease-out;
   -moz-transition : border 500ms ease-out;
   -o-transition : border 500ms ease-out;
 }
-
-.rcs-table:hover {
-  border: 5px solid rgba(0, 0, 0, 0.7);
+.rcs-table-border:hover {
+  border: 5px solid rgba(100, 94, 85, 0.7);
 }
 
 .rcs-table-none{

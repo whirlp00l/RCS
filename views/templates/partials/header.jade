@@ -1,0 +1,9 @@
+.row(ng-controller="headerCtrl")
+  .col-xs-6.text-left
+    h4 RCS {{versionText}}
+  .col-xs-6.text-right
+    h4
+      span(ng-show="isAuthenticated") 已登陆: {{userEmail}}
+      span(ng-show="!isAuthenticated") 未登录
+      a(ng-show="isAuthenticated" rcs-logout href="") &nbsp;
+        u 退出登陆
