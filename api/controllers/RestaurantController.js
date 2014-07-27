@@ -61,7 +61,7 @@ module.exports = {
       var managerUserId = currentUser.id;
       var adminUserIds = [];
 
-      if (!adminEmails) {
+      if (!adminEmails || adminEmails.length == 0) {
         Restaurant.create({
           RestaurantName: restaurantName,
           Manager: managerUserId
