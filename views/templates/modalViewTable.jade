@@ -11,7 +11,7 @@
         b 重置
     pre 请求信息: <b>{{getRequestInfo()}}</b>
     pre 关联信息: <b>{{getLinkingInfo()}}</b>
-      span(ng-show="isLinked") &nbsp;(关联时间： {{getLinkingTime()}})
+      span(ng-show="isLinked()") &nbsp;(关联时间： {{getLinkingTime()}})
       a.pull-right(ng-if="editMode==false" ng-show="isLinked()" ng-click="removeLinking()" href="")
         b 移除关联
     pre 预订信息: <b>{{getBookingInfo()}}</b>
