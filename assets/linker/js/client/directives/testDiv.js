@@ -73,5 +73,20 @@ angular
         };
       }
     }
-  });
-  
+  })
+  .directive('ig', function() {
+    return {
+      restrict: 'E',
+      replace: true,
+      scope: {
+        fid: '@',
+        title: '@',
+        type: '@',
+        description: '=description'
+      },
+      template: '<div class="material-input-group">' +
+                  '<label for="{{fid}}">{{title}}</label>' +
+                  '<input id="{{fid}}" type="{{type}}" ng-model="description">' +
+                '</div>'
+    }
+  });;

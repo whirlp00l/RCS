@@ -3,26 +3,32 @@ h1 登录
   h2 请登录餐厅管理系统
 
 form(ng-submit="login(credentials)")
-  .row.text-center
+  .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
-      input.form-control(type="text" ng-model="credentials.email" ng-required="true" placeholder="请输入用户邮箱")
-  .row.text-center
+      .material-input-group.material-input-group-theme-red
+        label.full-width(for="0") 用户邮箱
+        input.full-width(id="0" type="text" ng-model="credentials.email" ng-required="true")
+  .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
-      input.form-control(type="password" ng-model="credentials.password" ng-required="true" placeholder="请输入密码")
-  .row.text-center
+      .material-input-group.material-input-group-theme-red
+        label.full-width(for="1") 密码
+        input.full-width(id="1" type="password" ng-model="credentials.password" ng-required="true")
+  .row
     h2
-    input.btn.btn-danger(type="submit" id="submit" value="登录")
+    .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+      input.material-button.material-button-raised.material-theme-red.full-width(type="submit" id="submit" value="登录" style="height:3em")
 .row.text-center
   h2
   a(ui-sref="signup")
     u 注册新用户
 
-.row.text-center
-  h2
-  .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
-    button.btn.btn-default.full-width(ng-click="login({email:'admin1', password:'adm123'})") admin1
-    button.btn.btn-default.full-width(ng-click="login({email:'admin2', password:'adm123'})") admin2
-.row.text-center
-  h2
-  .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
-    button.btn.btn-success.full-width(ng-click="login({email:'manager1', password:'mgr123'})") manager1
+div(ng-if="debug==true")
+  .row.text-center
+    h2
+    .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+      button.btn.btn-default.full-width(ng-click="login({email:'admin1', password:'adm123'})") admin1
+      button.btn.btn-default.full-width(ng-click="login({email:'admin2', password:'adm123'})") admin2
+  .row.text-center
+    h2
+    .col-lg-2.col-lg-offset-5.col-xs-4.col-xs-offset-4
+      button.btn.btn-success.full-width(ng-click="login({email:'manager1', password:'mgr123'})") manager1
