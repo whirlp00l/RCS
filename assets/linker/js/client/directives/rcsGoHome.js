@@ -3,10 +3,13 @@ angular
   .directive('rcsGoHome', ['$state', function ($state) {
     return {
       restrict: 'A',
+      scope: {
+        restaurant: '@'
+      },
       link: function ($scope, $element, $attr) {
         $scope.goHome = function () {
-          if ($scope.currentRestaurant) {
-            $state.go('home', {restaurantName: $scope.currentRestaurant});
+          if ($scope.restaurant) {
+            $state.go('home', {restaurantName: $scope.restaurant});
           }
         }
 

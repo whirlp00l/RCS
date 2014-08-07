@@ -1,16 +1,22 @@
 .modal-header
   h3.modal-title 新建餐桌 位置: [{{row+1}},{{col+1}}]
 
-.modal-body
-  form(ng-submit="calcel()")
+form(ng-submit="create(data.tableName, data.tableType)")
+  .modal-body
     .row
-      label 餐桌名称:
-      input.form-control(type="text" ng-model="data.tableName" ng-required="true")
+      .col-xs-12
+        .material-input-group.material-input-group-theme-red
+          label.full-width(for="0") 餐桌名称
+          input.full-width(id="0" type="text" ng-model="data.tableName" ng-required="true")
     .row
-      label 餐桌类型:
-      input.form-control(type="text" ng-model="data.tableType" ng-required="true")
+      h2
+      .col-xs-4(ng-repeat="type in tableTypes")
+        input(ng-if="$index==0" rcs-radio type="radio" name="tableType" value="{{type}}" ng-model="data.tableType" ng-required="true" checked)
+        input(ng-if="$index!=0" rcs-radio type="radio" name="tableType" value="{{type}}" ng-model="data.tableType" ng-required="true")
+        | {{type}}
+  .modal-footer
     .row
-      input.btn.btn-danger.no-show(type="submit" id="submit" value="")
-.modal-footer
-    button.btn.btn-danger(ng-click="create(data.tableName, data.tableType)") 创建
-    button.btn.btn-default(ng-click="cancel()") 取消
+      .col-xs-8
+        input.material-button.material-button-raised.material-theme-red.full-width(type="submit" id="submit" value="创建")
+      .col-xs-4
+        button.material-button.material-button-raised.full-width(ng-click="cancel()") 取消

@@ -172,7 +172,7 @@ module.exports = {
 
       var tables = restaurant.Tables;
       for (var i = tables.length - 1; i >= 0; i--) {
-        if (tables[i].TableNameName == tableName) {
+        if (tables[i].TableName == tableName) {
           return res.badRequest('Table [' + tableName + '] already existed');
         }
         if (tables[i].MapRow == mapRow && tables[i].MapCol == mapCol) {

@@ -4,5 +4,8 @@
 .modal-body(ng-if="content")
   | {{content}}
 .modal-footer
-  button.btn.btn-danger(ng-click="confirm()") 确认移除
-  button.btn.btn-default(ng-click="cancel()") 取消
+  .row
+    .col-xs-6
+      button.material-button.material-button-raised.material-theme-red.full-width(ng-click="confirm()") 确认移除
+    .col-xs-6
+      button.material-button.material-button-raised.full-width(ng-click="cancel()") 取消

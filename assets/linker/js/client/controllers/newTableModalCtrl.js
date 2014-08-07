@@ -2,16 +2,22 @@ angular
   .module('rcs')
   .controller('newTableModalCtrl', ['$scope', '$http', '$modalInstance', 'rcsAPI', 'row', 'col', 'restaurantName',
     function($scope, $http, $modalInstance, rcsAPI, row, col, restaurantName){
+      $scope.tableTypes = [
+        '普通', '大桌', '包间'
+      ]
+
       $scope.row = row;
       $scope.col = col;
 
       $scope.data = {
         tableName: '',
-        tableType: ''
+        tableType: $scope.tableTypes[0]
       };
 
+      var cancelled = false;
+
       $scope.create = function (tableName, tableType) {
-        if(!tableName || !tableType) {
+        if(!tableName || !tableType || cancelled) {
           return;
         }
 
@@ -29,6 +35,7 @@ angular
       };
 
       $scope.cancel = function () {
+        cancelled = true;
         $modalInstance.dismiss('cancel');
       };
     }]);

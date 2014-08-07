@@ -11,7 +11,7 @@
         b 重置
     pre 请求信息: <b>{{getRequestInfo()}}</b>
     pre 关联信息: <b>{{getLinkingInfo()}}</b>
-      span(ng-show="isLinked") &nbsp;(关联时间： {{getLinkingTime()}})
+      span(ng-show="isLinked()") &nbsp;(关联时间： {{getLinkingTime()}})
       a.pull-right(ng-if="editMode==false" ng-show="isLinked()" ng-click="removeLinking()" href="")
         b 移除关联
     pre 预订信息: <b>{{getBookingInfo()}}</b>
@@ -20,34 +20,36 @@
       a.pull-right(ng-if="editMode==false" ng-show="isBooked()==false" ng-click="state.isCollapsed = !state.isCollapsed" href="")
         b 新建预订
 .modal-footer(ng-if="editMode==true" collapse="!state.isCollapsed")
-  button.btn.btn-danger(ng-click="deleteTable()") 删除餐桌
+  button.material-button.material-button-raised.material-theme-red.full-width(ng-click="deleteTable()") 删除餐桌
 
 .modal-header(ng-class="{hidden:state.isCollapsed == true}")
   h4
     a.glyphicon.glyphicon-minus.pull-right(ng-click="state.isCollapsed = true")
   h3.modal-title
     | 新建预订
-.modal-body(collapse="state.isCollapsed")
-  form(ng-submit="newBooking()")
+form(ng-submit="newBooking()")
+  .modal-body(collapse="state.isCollapsed")
     .row
-      .col-md-6
+      .col-xs-6
         pre 顾客姓名
           input.form-control(type="text" ng-model="data.newBookName" ng-required="true")
-      .col-md-6
+      .col-xs-6
         pre 顾客手机
           input.form-control(type="text" ng-model="data.newBookCell" ng-required="true")
     .row
-      .col-md-6
+      .col-xs-6
         pre 预定日期
           input.form-control(value="{{getDateFormat(data.newBookDate)}}" readonly ng-required="true")
-      .col-md-6
+      .col-xs-6
         pre 预定时间
           input.form-control(value="{{getTimeFormat(data.newBookTime)}}" readonly ng-required="true")
     .row
-      .col-md-6
-        datepicker.well.well-sm(ng-model="data.newBookDate" min-date="minDate" show-weeks="false" ng-required="true")
-      .col-md-6
+      .col-xs-6
+        div.full-width(ui-date ng-model="data.newBookDate" ng-required="true")
+        //- datepicker.well.well-sm.full-width(ng-model="data.newBookDate" min-date="minDate" show-weeks="false" ng-required="true")
+      .col-xs-6
         timepicker(ng-model="data.newBookTime" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-required="true")
     input.no-show(type="submit" id="submit")
-.modal-footer(collapse="state.isCollapsed")
-  button.btn.btn-danger(ng-click="newBooking()") 确认预订
+  .modal-footer(collapse="state.isCollapsed")
+    input.material-button.material-button-raised.material-theme-red.full-width(type="submit" id="submit" value="确认预订")
+  //- button.btn.btn-danger(ng-click="newBooking()") 确认预订

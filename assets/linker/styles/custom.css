@@ -78,3 +78,14 @@ input.no-show {
 .no-border {
   border-style: none;
 }
+
+.material-button {
+  height: 3em;
+}
+
+.material-button-fab.rcs-icon {
+  width: 60px;
+  height: 60px;
+  position: static;
+  display: block;
+}

@@ -6,5 +6,8 @@
   b {{request.PayAmount}}
   span 元
 .modal-footer
-  button.btn.btn-danger(ng-click="closeRequest()") 已付款，关闭请求
-  button.btn.btn-default(ng-click="dismiss()") 取消
+  .row
+    .col-xs-6
+      button.material-button.material-button-raised.material-theme-red.full-width(ng-click="closeRequest()") 已付款，关闭请求
+    .col-xs-6
+      button.material-button.material-button-raised.full-width(ng-click="dismiss()") 取消

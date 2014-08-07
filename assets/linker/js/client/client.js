@@ -1,6 +1,6 @@
 angular
   .module('rcs', [
-    'ui.router', 'ui.bootstrap', 'ngMaterial'
+    'ui.router', 'ui.bootstrap', 'ngMaterial', 'ui.date'
   ])
   .config(['$urlRouterProvider', '$stateProvider', '$logProvider', 'USER_ROLES',
     function($urlRouterProvider, $stateProvider, $logProvider, USER_ROLES){

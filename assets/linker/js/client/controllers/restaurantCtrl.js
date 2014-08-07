@@ -35,5 +35,9 @@ angular
         return AuthService.isManager();
       }
 
+      $scope.canManage = function (restaurant) {
+        return restaurant.Permission == 'manage';
+      }
+
     }
   ])

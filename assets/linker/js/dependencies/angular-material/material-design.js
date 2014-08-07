@@ -4,19 +4,37 @@
  */
 (function(){
 angular.module('ngMaterial', [ 'ng', 'ngAnimate', 'material.services', "material.components.backdrop","material.components.button","material.components.card","material.components.checkbox","material.components.content","material.components.dialog","material.components.form","material.components.icon","material.components.list","material.components.radioButton","material.components.scrollHeader","material.components.sidenav","material.components.slider","material.components.tabs","material.components.toast","material.components.toolbar","material.components.whiteframe"]);
+/**
+ * @ngdoc module
+ * @name material.components.animate
+ * @description
+ *
+ * Ink and Popup Effects
+ */
 angular.module('material.animations', ['ngAnimateStylers', 'ngAnimateSequence', 'ngAnimate', 'material.services'])
-       .service('materialEffects', [ '$animateSequence', '$ripple', '$rootElement', '$position', '$$rAF', MaterialEffects])
-       .directive('materialRipple', ['materialEffects', '$interpolate', '$throttle', MaterialRippleDirective]);
+       .service('$materialEffects', [ '$animateSequence', '$ripple', '$rootElement', '$position', '$$rAF', MaterialEffects])
+       .directive('materialRipple', ['$materialEffects', '$interpolate', '$throttle', MaterialRippleDirective]);
 
 /**
- * This service provides animation features for various Material Design effects:
+ * @ngdoc service
+ * @name $materialEffects
+ * @module material.components.animate
  *
- *  1) ink stretchBars,
- *  2) ink ripples,
- *  3) popIn animations
- *  4) popOuts animations
+ * @description
+ * The `$materialEffects` service provides a simple API for various
+ * Material Design effects:
  *
- * @constructor
+ * 1) to animate ink bars and ripple effects, and
+ * 2) to perform popup open/close effects on any DOM element.
+ *
+ * @returns A `$materialEffects` object with the following properties:
+ * - `{function(canvas,options)}` `inkRipple` - Renders ripple ink
+ * waves on the specified canvas
+ * - `{function(element,styles,duration)}` `inkBar` - starts ink bar
+ * animation on specified DOM element
+ * - `{function(element,parentElement,clickElement)}` `popIn` - animated show of element overlayed on parent element
+ * - `{function(element,parentElement)}` `popOut` - animated close of popup overlay
+ *
  */
 function MaterialEffects($animateSequence, $ripple, $rootElement, $position, $$rAF) {
 
@@ -75,19 +93,18 @@ function MaterialEffects($animateSequence, $ripple, $rootElement, $position, $$r
       startPos = endPos;
     }
 
-    // TODO once ngAnimateSequence bugs are fixed, this can be switched to use that
     element.css({
       '-webkit-transform': translateString(startPos.left, startPos.top, 0) + ' scale(0.2)',
       opacity: 0
     });
+    
+    // TODO once ngAnimateSequence bugs are fixed, this can be switched to use that
     $$rAF(function() {
-      element.addClass('dialog-changing');
-      $$rAF(function() {
-        element.css({
-          '-webkit-transform': translateString(endPos.left, endPos.top, 0) + ' scale(1.0)',
-          opacity: 1
-        });
+      element.css({
+        '-webkit-transform': '',
+        opacity: ''
       });
+      element.addClass('active');
     });
   }
 
@@ -98,18 +115,10 @@ function MaterialEffects($animateSequence, $ripple, $rootElement, $position, $$r
   function popOut(element, parentElement) {
     var endPos = $position.positionElements(parentElement, element, 'bottom-center');
 
-    endPos.top -= element.prop('offsetHeight') / 2;
-
-    var runner = $animateSequence({ styler: styler })
-      .addClass('dialog-changing')
-      .then(function() {
-        element.css({
-          '-webkit-transform': translateString(endPos.left, endPos.top, 0) + ' scale(0.5)',
-          opacity: 0
-        });
-      });
-
-    return runner.run(element);
+    element.addClass('dialog-changing').css({
+      '-webkit-transform': translateString(endPos.left, endPos.top, 0) + ' scale(0.5)',
+      opacity: 0
+    });
   }
 
 
@@ -119,7 +128,7 @@ function MaterialEffects($animateSequence, $ripple, $rootElement, $position, $$r
 
 
   function translateString(x, y, z) {
-    return 'translate3d(' + x + 'px,' + y + 'px,' + z + 'px)';
+    return 'translate3d(' + Math.floor(x) + 'px,' + Math.floor(y) + 'px,' + Math.floor(z) + 'px)';
   }
 
 
@@ -145,9 +154,29 @@ function MaterialEffects($animateSequence, $ripple, $rootElement, $position, $$r
 }
 
 /**
- *  <material-ripple /> Directive
+ * @ngdoc directive
+ * @name materialRipple
+ * @module material.components.animate
+ *
+ * @restrict E
+ *
+ * @description
+ * The `<material-ripple/>` directive implements the Material Design ripple ink effects within a specified
+ * parent container.
+ *
+ * @param {string=} start Indicates where the wave ripples should originate in the parent container area.
+ * 'center' will force the ripples to always originate in the horizontal and vertical.
+ * @param {number=} initial-opacity Value indicates the initial opacity of each ripple wave
+ * @param {number=} opacity-decay-velocity Value indicates the speed at which each wave will fade out
+ *
+ * @usage
+ * ```
+ * <hljs lang="html">
+ *   <material-ripple initial-opacity="0.9" opacity-decay-velocity="0.89"></material-ripple>
+ * </hljs>
+ * ```
  */
-function MaterialRippleDirective(materialEffects, $interpolate, $throttle) {
+function MaterialRippleDirective($materialEffects, $interpolate, $throttle) {
   return {
     restrict: 'E',
     compile: compileWithCanvas
@@ -181,7 +210,7 @@ function MaterialRippleDirective(materialEffects, $interpolate, $throttle) {
           parent = element.parent(),
           makeRipple = $throttle({
             start : function() {
-              ripple = ripple || materialEffects.inkRipple( element[0], options );
+              ripple = ripple || $materialEffects.inkRipple( element[0], options );
               watchMouse = watchMouse || buildMouseWatcher(parent, makeRipple);
 
               // Ripples start with left mouseDowns (or taps)
@@ -225,17 +254,20 @@ function MaterialRippleDirective(materialEffects, $interpolate, $throttle) {
       // **********************************************************
 
       /**
-       * If the ripple canvas been removed from the DOM, then
-       * remove the `mousedown` listener
+       * If the ripple canvas been removed from the DOM, then remove the `mousedown` listener.
+       * If the ripple parent is disabled, then simply ignore the mousedown event.
        *
        * @returns {*|boolean}
        */
       function effectAllowed() {
         var allowed = isInkEnabled( element.scope() ) && angular.isDefined( element.parent()[0] );
+        var isDisabled = allowed ? !!element.parent().attr('disabled') : true;
+
         if ( !allowed ) {
           parent.off('mousedown', makeRipple);
         }
-        return allowed;
+
+        return !isDisabled;
 
 
         /**
@@ -331,6 +363,12 @@ angular.module('material.animations')
  */
   .service('$ripple', ['$$rAF', function($$rAF) {
 
+    var now = Date.now;
+
+    if (window.performance && performance.now) {
+      now = performance.now.bind(performance);
+    }
+
     /**
      * Unlike angular.extend() will always overwrites destination,
      * mixin() only overwrites the destination if it is undefined; so
@@ -357,12 +395,6 @@ angular.module('material.animations')
 
     return (function(){
 
-      var now = Date.now;
-
-      if (window.performance && performance.now) {
-        now = performance.now.bind(performance);
-      }
-
       /**
        *  Ripple creates a `paper-ripple` which is a visual effect that other quantum paper elements can
        *  use to simulate a rippling effect emanating from the point of contact.  The
@@ -370,19 +402,17 @@ angular.module('material.animations')
        */
       function Ripple(canvas, options) {
 
-        var defaults = {
-          onComplete: angular.noop,   // Completion hander/callback
-          initialOpacity: 0.6,       // The initial default opacity set on the wave.
-          opacityDecayVelocity: 1.7, // How fast (opacity per second) the wave fades out.
-          backgroundFill: true,
-          pixelDensity: 1
-        };
-
         this.canvas = canvas;
         this.waves = [];
         this.cAF = undefined;
 
-        return angular.extend(this, mixin(options || { }, defaults));
+        return angular.extend(this, mixin(options || { }, {
+          onComplete: angular.noop,   // Completion hander/callback
+          initialOpacity: 0.6,        // The initial default opacity set on the wave.
+          opacityDecayVelocity: 1.7,  // How fast (opacity per second) the wave fades out.
+          backgroundFill: true,
+          pixelDensity: 1
+        }));
       }
 
       /**
@@ -395,29 +425,14 @@ angular.module('material.animations')
          */
         createAt : function (startAt) {
           var canvas = this.adjustBounds(this.canvas);
-          var wave = createWave(canvas);
-
           var width = canvas.width / this.pixelDensity;
           var height = canvas.height / this.pixelDensity;
+          var recenter = this.canvas.classList.contains("recenteringTouch");
 
           // Auto center ripple if startAt is not defined...
           startAt = startAt || { x: Math.round(width / 2), y: Math.round(height / 2) };
 
-          wave.isMouseDown = true;
-          wave.mouseDownStart = now();
-          wave.mouseUpStart = 0.0;
-          wave.tDown = 0.0;
-          wave.tUp = 0.0;
-          wave.startPosition = startAt;
-          wave.containerSize = Math.max(width, height);
-          wave.maxRadius = distanceFromPointToFurthestCorner(wave.startPosition, {w: width, h: height}) * 0.75;
-
-          if (this.canvas.classList.contains("recenteringTouch")) {
-            wave.endPosition = {x: width / 2, y: height / 2};
-            wave.slideDistance = dist(wave.startPosition, wave.endPosition);
-          }
-
-          this.waves.push(wave);
+          this.waves.push( createWave(canvas, width, height, startAt, recenter ) );
           this.cancelled = false;
 
           this.animate();
@@ -673,20 +688,28 @@ angular.module('material.animations')
     }
 
     /**
-     *
+     *  Wave is created on mouseDown
      */
-    function createWave(elem) {
-      var elementStyle = window.getComputedStyle(elem);
-
+    function createWave(elem, width, height, startAt, recenter ) {
       var wave = {
-        waveColor: elementStyle.color,
-        maxRadius: 0,
-        isMouseDown: false,
-        mouseDownStart: 0.0,
-        mouseUpStart: 0.0,
-        tDown: 0,
-        tUp: 0
+        startPosition : startAt,
+        containerSize : Math.max(width, height),
+        waveColor: window.getComputedStyle(elem).color,
+        maxRadius : distanceFromPointToFurthestCorner(startAt, {w: width, h: height}) * 0.75,
+
+        isMouseDown : true,
+        mouseDownStart : now(),
+        mouseUpStart : 0.0,
+
+        tDown : 0.0,
+        tUp : 0.0
       };
+
+      if ( recenter ) {
+        wave.endPosition = {x: width / 2, y: height / 2};
+        wave.slideDistance = dist(wave.startPosition, wave.endPosition);
+      }
+
       return wave;
     }
 
@@ -789,9 +812,25 @@ angular.module('material.animations')
 
 
 
-
+/**
+ * @ngdoc module
+ * @name material.components.backdrop
+ * @description
+ * Backdrop is a masking layer used behind modal elements
+ *
+ */
 angular.module('material.components.backdrop', [])
 
+/**
+ * @ngdoc service
+ * @name $materialBackdrop
+ * @module material.components.backdrop
+ * @description
+ * Backdrop service to popup an masking layer overlaying the specified target element
+ * or fallback $rootElement.
+ *
+ *  @param {integer=} selected Index of the active/selected tab
+ */
 .service('$materialBackdrop', [
   '$materialPopup',
   '$timeout',
@@ -801,16 +840,14 @@ angular.module('material.components.backdrop', [])
 
 function MaterialBackdropService($materialPopup, $timeout, $rootElement) {
 
-  return showBackdrop;
-
-  function showBackdrop(options, clickFn) {
+  return function showBackdrop(options, clickFn) {
     var appendTo = options.appendTo || $rootElement;
     var opaque = options.opaque;
 
     return $materialPopup({
       template: '<material-backdrop class="ng-enter">',
-      appendTo: options.appendTo
-    }).then(function(backdrop) {
+      appendTo: appendTo
+    }).then( function(backdrop) {
       clickFn && backdrop.element.on('click', function(ev) {
         $timeout(function() {
           clickFn(ev);
@@ -820,20 +857,93 @@ function MaterialBackdropService($materialPopup, $timeout, $rootElement) {
 
       return backdrop;
     });
-  }
+  };
 }
 
 /**
- * @ngdoc overview
- * @name material.components.button
- *
+ * @ngdoc module
+ * @name material.components.buttons
  * @description
- * Button components.
+ *
+ * Button
  */
-angular.module('material.components.button', []);
+angular.module('material.components.button', [])
+  .directive('materialButton', MaterialButtonDirective);
 
 /**
- * @ngdoc overview
+ * @ngdoc directive
+ * @name materialButton
+ * @order 0
+ *
+ * @restrict E
+ *
+ * @description
+ * `<material-button type="" disabled noink>` is a button directive with optional ink ripples (default enabled).
+ *
+ * @param {boolean=} noink Flag indicates use of ripple ink effects
+ * @param {boolean=} disabled Flag indicates if the tab is disabled: not selectable with no ink effects
+ * @param {string=} type Optional attribute to specific button types (useful for forms); such as 'submit', etc.
+ *
+ * @usage
+ * <hljs lang="html">
+ *  <material-button>Button</material-button>
+ *  <br/>
+ *  <material-button noink class="material-button-colored">
+ *    Button (noInk)
+ *  </material-button>
+ *  <br/>
+ *  <material-button disabled class="material-button-colored">
+ *    Colored (disabled)
+ *  </material-button>
+ * </hljs>
+ */
+function MaterialButtonDirective() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    template: '<material-ripple start="center" initial-opacity="0.25" opacity-decay-velocity="0.75"></material-ripple>',
+    link: function(scope, element, attr, ctrl, transclude) {
+      var noInk = angular.isDefined(attr.noink);
+
+      // Put the content of the <material-button> inside after the ripple
+      transclude(scope, function(clone) {
+        element.append(clone);
+      });
+
+      configureInk(noInk);
+      configureButton(attr.type);
+
+      /**
+       * If the inkRipple is disabled, then remove the ripple area....
+       * NOTE: <material-ripple/> directive replaces itself with `<canvas.material-ink-ripple />` element
+       * @param isDisabled
+       */
+      function configureInk(isDisabled) {
+        if ( isDisabled ) {
+          element.find('canvas').remove();
+        }
+      }
+
+      /**
+       * If a type attribute is specified, dynamically insert a <button> element.
+       * This is vital to allow <material-button> to be used as form buttons
+       * @param type
+       */
+      function configureButton(type) {
+        if (type) {
+          var innerButton = angular.element('<button>')
+                .attr('type', type)
+                .addClass('material-inner-button');
+          element.append(innerButton);
+        }
+      }
+    }
+  };
+
+}
+
+/**
+ * @ngdoc module
  * @name material.components.card
  *
  * @description
@@ -928,7 +1038,7 @@ function materialCheckboxDirective() {
 
 
 /**
- * @ngdoc overview
+ * @ngdoc module
  * @name material.components.content
  *
  * @description
@@ -972,6 +1082,10 @@ function materialContentDirective() {
   }
 }
 
+/**
+ * @ngdoc module
+ * @name material.components.dialog
+ */
 angular.module('material.components.dialog', ['material.services.popup'])
   .directive('materialDialog', [
     MaterialDialogDirective
@@ -980,13 +1094,52 @@ angular.module('material.components.dialog', ['material.services.popup'])
    * @ngdoc service
    * @name $materialDialog
    * @module material.components.dialog
+   * @kind optionFunction
+   *
+   * @description
+   *
+   * The $materialDialog service opens a dialog over top of the app. 
+   *
+   * See the overview page for an example.
+   *
+   * The `$materialDialog` service can be used as a function, which when called will open a
+   * dialog. Note: the dialog is always given an isolate scope.
+   *
+   * It takes one parameter, `options`, which is an object with the following parameters:
+   *
+   * @returns {function} `hideDialog` - A function which, when called, will hide the dialog.
+   *
+   * @param {string=} templateUrl The url of a template that will be used as the content
+   * of the dialog. Restrictions: the template must have an outer `material-dialog` element. 
+   * Inside, use an element with class `dialog-content` for the dialog's content, and use
+   * an element with class `dialog-actions` for the dialog's actions.
+   * @param {string=} template Same as templateUrl, except this is an actual template string.
+   * @param {DOMClickEvent=} targetEvent A click's event object. When passed in as an option, 
+   * the location of the click will be used as the starting point for the opening animation
+   * of the the dialog.
+   * @param {boolean=} hasBackdrop Whether there should be an opaque backdrop behind the dialog.
+   *   Default true.
+   * @param {boolean=} clickOutsideToClose Whether the user can click outside the dialog to
+   *   close it. Default true.
+   * @param {boolean=} escapeToClose Whether the user can press escape to close the dialog.
+   *   Default true.
+   * @param {string=} controller The controller to associate with the dialog. The controller
+   * will be injected with the local `$hideDialog`, which is a method used to hide the dialog.
+   * @param {object=} locals An object containing key/value pairs. The keys will be used as names
+   * of values to inject into the controller. For example, `locals: {three: 3}` would inject
+   * `three` into the controller, with the value 3.
+   * @param {element=} appendTo The element to append the dialog to. Defaults to appending
+   *   to the root element of the application.
+   * @param {object=} resolve Similar to locals, except it takes promises as values, and the
+   * dialog will not open until all of the promises resolve.
+   * @param {string=} controllerAs An alias to assign the controller to on the scope.
    */
   .factory('$materialDialog', [
     '$timeout',
     '$materialPopup',
     '$rootElement',
     '$materialBackdrop',
-    'materialEffects',
+    '$materialEffects',
     MaterialDialogService
   ]);
 
@@ -996,7 +1149,7 @@ function MaterialDialogDirective() {
   };
 }
 
-function MaterialDialogService($timeout, $materialPopup, $rootElement, $materialBackdrop, materialEffects) {
+function MaterialDialogService($timeout, $materialPopup, $rootElement, $materialBackdrop, $materialEffects) {
   var recentDialog;
 
   return showDialog;
@@ -1012,9 +1165,15 @@ function MaterialDialogService($timeout, $materialPopup, $rootElement, $material
       clickOutsideToClose: true, // should have a clickable backdrop to close
       escapeToClose: true,
       // targetEvent: used to find the location to start the dialog from
-      targetEvent: null
+      targetEvent: null,
+      transformTemplate: function(template) {
+        return '<div class="material-dialog-container">' + template + '</div>';
+      },
       // Also supports all options from $materialPopup
     }, options || {});
+
+    // Incase the user provides a raw dom element, always wrap it in jqLite
+    options.appendTo = angular.element(options.appendTo); 
 
     var backdropInstance;
 
@@ -1031,22 +1190,29 @@ function MaterialDialogService($timeout, $materialPopup, $rootElement, $material
         if (options.escapeToClose) {
           $rootElement.on('keyup', onRootElementKeyup);
         }
-        if (options.hasBackdrop || options.clickOutsideToClose) {
+
+        if (options.hasBackdrop) {
           backdropInstance = $materialBackdrop({
             appendTo: options.appendTo,
             opaque: options.hasBackdrop
-          }, clickOutsideToClose ? destroyDialog : angular.noop);
+          });
           backdropInstance.then(function(drop) {
             drop.enter();
           });
         }
+
+        if (options.clickOutsideToClose) {
+          dialog.element.on('click', dialogClickOutside);
+        }
       });
 
-      materialEffects.popIn(
+      var popInTarget = options.targetEvent && options.targetEvent.target && 
+        angular.element(options.targetEvent.target);
+
+      $materialEffects.popIn(
         dialog.element,
         options.appendTo,
-        options.targetEvent && options.targetEvent.target && 
-          angular.element(options.targetEvent.target)
+        popInTarget
       );
 
       return destroyDialog;
@@ -1060,14 +1226,23 @@ function MaterialDialogService($timeout, $materialPopup, $rootElement, $material
         if (options.escapeToClose) {
           $rootElement.off('keyup', onRootElementKeyup);
         }
-        materialEffects.popOut(dialog.element, $rootElement);
+        if (options.clickOutsideToClose) {
+          dialog.element.off('click', dialogClickOutside);
+        }
+        $materialEffects.popOut(dialog.element, $rootElement);
 
-        // TODO once the done method from the popOut function & ngAnimateStyler works,
-        // remove this timeout
+        // TODO(ajoslin): use element.animate() and ngAnimateStyler instead of
+        // this $timeout.
         $timeout(dialog.destroy, 200);
       }
       function onRootElementKeyup(e) {
         if (e.keyCode == 27) {
+          $timeout(destroyDialog);
+        }
+      }
+      function dialogClickOutside(e) {
+        // If we click the flex container outside the backdrop
+        if (e.target === dialog.element[0]) {
           $timeout(destroyDialog);
         }
       }
@@ -1077,8 +1252,21 @@ function MaterialDialogService($timeout, $materialPopup, $rootElement, $material
   }
 }
 
+/**
+ * @ngdoc module
+ * @name material.components.form
+ * @description
+ * Form
+ */
 angular.module('material.components.form', [])
 
+/**
+ * @ngdoc directive
+ * @name materialInputGroup
+ * @module material.components.form
+ * @description
+ * Material Input Group
+ */
 .directive('materialInputGroup', [materialInputGroupDirective]);
 
 function materialInputGroupDirective() {
@@ -1118,9 +1306,23 @@ function materialInputGroupDirective() {
   };
 }
 
+/**
+ * @ngdoc module
+ * @name material.components.icon
+ * @description
+ * Icon
+ */
 angular.module('material.components.icon', [])
   .directive('materialIcon', [ materialIconDirective ]);
 
+/**
+ * @ngdoc directive
+ * @name materialIcon
+ * @module material.components.icon
+ * @restrict E
+ * @description
+ * Icon
+ */
 function materialIconDirective() {
   return {
     restrict: 'E',
@@ -1134,6 +1336,12 @@ function materialIconDirective() {
   };
 }
 
+/**
+ * @ngdoc module
+ * @name material.components.list
+ * @description
+ * List module
+ */
 angular.module('material.components.list', [])
 
 .directive('materialList', [materialListDirective])
@@ -1141,27 +1349,12 @@ angular.module('material.components.list', [])
 
 /**
  * @ngdoc directive
- * @name material.components.list.directive:material-list
+ * @name materialList
+ * @module material.components.list
  * @restrict E
  *
  * @description
  * materialList is a list container for material-items
- * @example
- * <material-list>
-    <material-item>
-      <div class="material-tile-left">
-      </div>
-      <div class="material-tile-content">
-        <h2>Title</h2>
-        <h3>Subtitle</h3>
-        <p>
-          Content
-        </p>
-      </div>
-      <div class="material-tile-right">
-      </div>
-    </material-item>
- * </material-list>
  */
 function materialListDirective() {
   return {
@@ -1173,9 +1366,9 @@ function materialListDirective() {
 
 /**
  * @ngdoc directive
- * @name material.components.list.directive:material-item
+ * @name materialItem
+ * @module material.components.list
  * @restrict E
- *
  * @description
  * materialItem is a list item
  */
@@ -1342,7 +1535,7 @@ function materialRadioGroupDirective() {
 }
 
 /**
- * @ngdoc overview
+ * @ngdoc module
  * @name material.components.scrollHeader
  *
  * @description
@@ -1353,6 +1546,14 @@ angular.module('material.components.scrollHeader', [
   'material.services.registry'
 ])
 
+/**
+ * @ngdoc directive
+ * @name scrollHeader
+ * @module material.components.scrollHeader
+ * @restrict A
+ * @description
+ * Scrollable header
+ */
 .directive('scrollHeader', [ '$materialContent', '$timeout', materialScrollHeader ]);
 
 function materialScrollHeader($materialContent, $timeout) {
@@ -1419,7 +1620,7 @@ function materialScrollHeader($materialContent, $timeout) {
 }
 
 /**
- * @ngdoc overview
+ * @ngdoc module
  * @name material.components.sidenav
  *
  * @description
@@ -1441,8 +1642,9 @@ angular.module('material.components.sidenav', [
   .directive('materialSidenav', [ materialSidenavDirective ]);
   
 /**
- * @ngdoc controller
- * @name material.components.sidenav.controller:$materialSidenavController
+ * @ngdoc object
+ * @name materialSidenavController
+ * @module material.components.sidenav
  *
  * @description
  * The controller for materialSidenav components.
@@ -1522,7 +1724,8 @@ function materialSidenavController($scope, $element, $attrs, $timeout,
 
 /**
  * @ngdoc service
- * @name material.components.sidenav:$materialSidenav
+ * @name $materialSidenav
+ * @module material.components.sidenav
  *
  * @description
  * $materialSidenav makes it easy to interact with multiple sidenavs
@@ -1582,6 +1785,7 @@ function materialSidenavService($materialComponentRegistry) {
 /**
  * @ngdoc directive
  * @name materialSidenav
+ * @module material.components.sidenav
  * @restrict E
  *
  * @description
@@ -1707,43 +1911,72 @@ function materialSliderDirective($window) {
 }
 
 
+/**
+ * @ngdoc module
+ * @name material.components.tabs
+ * @description
+ *
+ * Tabs
+ */
 angular.module('material.components.tabs', ['material.utils', 'material.animations', 'material.services'])
-  .controller('materialTabsController', [ '$iterator', '$scope', TabsController])
-  .directive('materialTabs', [ '$compile', 'materialEffects', TabsDirective ])
-  .directive('materialTab', [ '$attrBind', '$compile', '$timeout', TabDirective  ]);
+  .controller('materialTabsController', [ '$scope', '$attrs', '$materialComponentRegistry', '$timeout', TabsController ])
+  .directive('materialTabs', [ '$compile', '$timeout', '$materialEffects', TabsDirective ])
+  .directive('materialTab', [ '$attrBind', TabDirective  ]);
 
 /**
  * @ngdoc directive
  * @name materialTabs
  * @module material.components.tabs
+ * @order 0
  *
  * @restrict E
  *
  * @description
- * materialTabs is the outer directive and container for the tabs functionality
+ * The `<material-tabs>` tag identifies the outer directive and serves as the container for the tabs functionality; specified
+ * using nested `<material-tab>` markup tags. The `<material-tab>` directive is used to specify a tab label for the **header button**
+ * and optional tab view content that should be associated with each tab button.
+ *
+ * Any markup (other than **`<material-tab>`** tags) will be transcluded into the tab header area BEFORE the tab buttons.
+ *
+ * Additional Features:
+ *
+ * - Content can include any markup.
+ * - If a tab is disabled while active/selected, then the next tab will be auto-selected.
+ * - If the currently active tab is the last tab, then the next tab will be the first tab in the list.
  *
  * @param {integer=} selected Index of the active/selected tab
- * @param {boolean}  noink Flag indicates use of RippleInk effects
- * @param {boolean}  nobar Flag indicates use of InkBar effects
- * @param {boolean}  nostretch Flag indicates use of elastic animation for inkBar width and position changes
- * @param {string}   align-tabs Attribute to indicate position of tab buttons: bottom or top; default is `top`
+ * @param {boolean=} noink Flag indicates use of ripple ink effects
+ * @param {boolean=} nobar Flag indicates use of ink bar effects
+ * @param {boolean=} nostretch Flag indicates use of elastic animation for inkBar width and position changes
+ * @param {string=}  align-tabs Attribute to indicate position of tab buttons: bottom or top; default is `top`
  *
- * @example
- <example module="material.components.tabs">
- <file name="index.html">
- <h3>Static Tabs: </h3>
- <p>No ink effect and no sliding bar. Tab #1 is active and #2 is disabled.</p>
- <material-tabs selected="0" noink nobar nostretch>
- <material-tab>ITEM ONE</material-tab>
- <material-tab disabled="true" title="ITEM TWO"></material-tab>
- <material-tab>ITEM THREE</material-tab>
- </material-tabs>
- </file>
- </example>
+ * @usage
+ * <hljs lang="html">
+ * <material-tabs selected="selectedIndex" >
+ *   <img ng-src="/img/angular.png" class="centered">
+ *
+ *   <material-tab
+ *      ng-repeat="tab in tabs | orderBy:predicate:reversed"
+ *      on-select="onTabSelected(tab)"
+ *      on-deselect="announceDeselected(tab)"
+ *      disabled="tab.disabled" >
+ *
+ *       <material-tab-label>
+ *           {{tab.title}}
+ *           <img src="/img/removeTab.png"
+ *                ng-click="removeTab(tab)"
+ *                class="delete" >
+ *       </material-tab-label>
+ *
+ *       {{tab.content}}
+ *
+ *   </material-tab>
+ *
+ * </material-tabs>
+ * </hljs>
  *
  */
-
-function TabsDirective($compile, materialEffects) {
+function TabsDirective($compile, $timeout, $materialEffects) {
 
   return {
     restrict: 'E',
@@ -1755,13 +1988,12 @@ function TabsDirective($compile, materialEffects) {
     },
 
     compile: compileTabsFn,
-    controller: [ '$scope', '$iterator', '$attrs', '$materialComponentRegistry', '$timeout', TabsController ],
+    controller: [ '$scope', '$attrs', '$materialComponentRegistry', '$timeout', TabsController ],
 
     template:
       '<div class="tabs-header">' +
       '  <div class="tabs-header-items"></div>' +
-      '  <shadow></shadow>' +
-      '  <material-ink-bar></material-ink-bar>'  +
+      '  <material-ink-bar></material-ink-bar>' +
       '</div>'+
       '<div class="tabs-content ng-hide"></div>'
 
@@ -1802,13 +2034,19 @@ function TabsDirective($compile, materialEffects) {
 
       },
       post: function tabsPostLink(scope, element, attrs, tabsController, $transclude) {
+        var  cache = {
+          length: 0,
+          contains: function (tab) {
+            return !angular.isUndefined(cache[tab.$id]);
+          }
+        };
 
-        alignTabButtons();
         transcludeHeaderItems();
         transcludeContentItems();
 
         configureInk();
 
+        alignTabButtons();
         selectDefaultTab();
 
         // **********************************************************
@@ -1842,10 +2080,12 @@ function TabsDirective($compile, materialEffects) {
            * @param skipAnimation
            */
           function updateInkBar(tab, skipAnimation) {
+            if ( tabsController.$$tabs().length < 2 ) return;
+
             if ( angular.isDefined(tab) && angular.isDefined(inkBar) ) {
 
               var tabNode = tab[0];
-              var width = ( tabsController.$$tabs().length > 1 ) ? tabNode.offsetWidth : 0;
+              var width = tabNode.offsetWidth;
               var styles = {
                 left : tabNode.offsetLeft +'px',
                 width : width +'px' ,
@@ -1855,7 +2095,7 @@ function TabsDirective($compile, materialEffects) {
               if( !!skipAnimation ) {
                 inkBar.css(styles);
               } else {
-                materialEffects.inkBar(inkBar, styles);
+                $materialEffects.inkBar(inkBar, styles);
               }
             }
 
@@ -1869,12 +2109,25 @@ function TabsDirective($compile, materialEffects) {
          */
         function alignTabButtons() {
           var align  = attrs['tabsAlign'] || "top";
-          var content = findNode('.tabs-content', element);
+          var container = findNode('.tabs-content', element);
 
           if ( align == "bottom") {
-            element.prepend(content);
+            element.prepend(container);
           }
         }
+
+        /**
+         * If an initial tab selection has not been specified, then
+         * select the first tab by default
+         */
+        function selectDefaultTab() {
+          var tabs = tabsController.$$tabs();
+
+          if ( tabs.length && angular.isUndefined(scope.$selIndex)) {
+            tabsController.select(tabs[0]);
+          }
+        }
+
 
         /**
          * Transclude the materialTab items into the tabsHeaderItems container
@@ -1898,62 +2151,87 @@ function TabsDirective($compile, materialEffects) {
           });
         }
 
-        /**
-         * If an initial tab selection has not been specified, then
-         * select the first tab by default
-         */
-        function selectDefaultTab() {
-          var tabs = tabsController.$$tabs();
-
-          if ( tabs.length && angular.isUndefined(scope.$selIndex)) {
-            tabsController.select(tabs[0]);
-          }
-        }
 
         /**
          * Transclude the materialTab view/body contents into materialView containers; which
          * are stored in the tabsContent area...
          */
         function transcludeContentItems() {
-          var cache = {
-              length: 0,
-              contains: function (tab) {
-                return !angular.isUndefined(cache[tab.$id]);
-              }
-            },
-            cntr = findNode('.tabs-content', element),
-            materialViewTmpl = '<div class="material-view" ng-show="active"></div>';
+          var cntr = findNode('.tabs-content', element),
+              materialViewTmpl = '<div class="material-view" ng-show="active"></div>';
 
           scope.$watch(getTabsHash, function buildContentItems() {
             var tabs = tabsController.$$tabs(notInCache),
-              views = tabs.map(extractViews);
+              views = tabs.map(extractContent);
 
             // At least 1 tab must have valid content to build; otherwise
             // we hide/remove the tabs-content container...
 
             if (views.some(notEmpty)) {
-              angular.forEach(views, function (elements, j) {
+              angular.forEach(views, function (content, j) {
 
                 var tab = tabs[j++],
                   materialView = $compile(materialViewTmpl)(tab);
 
-                if (elements) {
-                  // If transcluded content is not undefined then add all nodes to the materialView
-                  angular.forEach(elements, function (node) {
+                // Allow dynamic $digest() disconnect/reconnect of tab content's scope
+
+                enableDisconnect(tab, content.scope);
+
+                // Do we have content DOM nodes ?
+                // If transcluded content is not undefined then add all nodes to the materialView
+
+                if (content.nodes) {
+                  angular.forEach(content.nodes, function (node) {
                     materialView.append(node);
                   });
                 }
 
                 cntr.append(materialView);
-                addToCache(cache, { scope: tab, element: materialView });
+                addToCache(cache, { tab:tab, element: materialView });
 
               });
             }
 
-            // Hide or Show the container for the materialView(s)
+            // Add class to hide or show the container for the materialView(s)
             angular.bind(cntr, cache.length ? cntr.removeClass : cntr.addClass)('ng-hide');
 
           });
+
+          /**
+           * Allow tabs to disconnect or reconnect their content from the $digest() processes
+           * when unselected or selected (respectively).
+           *
+           * @param content Special content scope which is a direct child of a `tab` scope
+           */
+          function enableDisconnect(tab,  content) {
+            if ( !content ) return;
+
+            var selectedFn = angular.bind(tab, tab.selected),
+                deselectedFn = angular.bind(tab, tab.deselected);
+
+            addDigestConnector(content);
+
+            // 1) Tail-hook deselected()
+            tab.deselected = function() {
+              deselectedFn();
+              tab.$$postDigest(function(){
+                content.$disconnect();
+              });
+            };
+
+             // 2) Head-hook selected()
+            tab.selected = function() {
+              content.$reconnect();
+              selectedFn();
+            };
+
+            // Immediate disconnect all non-actives
+            if ( !tab.active ) {
+              tab.$$postDigest(function(){
+                content.$disconnect();
+              });
+            }
+          }
 
           /**
            * Add tab scope/DOM node to the cache and configure
@@ -1962,15 +2240,16 @@ function TabsDirective($compile, materialEffects) {
            * @param item
            */
           function addToCache(cache, item) {
+            var scope = item.tab;
 
-            cache[ item.scope.$id ] = item;
+            cache[ scope.$id ] = item;
             cache.length = cache.length + 1;
 
             // When the tab is removed, remove its associated material-view Node...
-            item.scope.$on("$destroy", function () {
+            scope.$on("$destroy", function () {
               angular.element(item.element).remove();
 
-              delete cache[ item.scope.$id];
+              delete cache[ scope.$id];
               cache.length = cache.length - 1;
             });
           }
@@ -1979,8 +2258,23 @@ function TabsDirective($compile, materialEffects) {
             return tabsController.$$hash;
           }
 
-          function extractViews(tab) {
-            return hasContent(tab) ? tab.content : undefined;
+          /**
+           * Special function to extract transient data regarding transcluded
+           * tab content. Data includes dynamic lookup of bound scope for the transcluded content.
+           *
+           * @see TabDirective::updateTabContent()
+           *
+           * @param tab
+           * @returns {{nodes: *, scope: *}}
+           */
+          function extractContent(tab) {
+            var content = hasContent(tab) ? tab.content : undefined;
+            var scope   = (content && content.length) ? angular.element(content[0]).scope() : null;
+
+            // release immediately...
+            delete tab.content;
+
+            return { nodes:content, scope:scope };
           }
 
           function hasContent(tab) {
@@ -2009,26 +2303,56 @@ function TabsDirective($compile, materialEffects) {
 }
 
 /**
- /**
  * @ngdoc directive
  * @name materialTab
  * @module material.components.tabs
+ * @order 1
  *
  * @restrict E
  *
- * @param {string=} onSelect A function expression to call when the tab is selected.
- * @param {string=} onDeselect A function expression to call when the tab is deselected.
- * @param {boolean=} active A binding, telling whether or not this tab is selected.
- * @param {boolean=} disabled A binding, telling whether or not this tab is disabled.
- * @param {string=} title The visible heading, or title, of the tab. Set HTML headings with {@link ui.bootstrap.tabs.directive:tabHeading tabHeading}.
- *
  * @description
- * Creates a tab with a heading and (optional) content. Must be placed within a {@link material.components.tabs.directive:materialTabs materialTabs}.
+ * `<material-tab>` is the nested directive used [within `<material-tabs>`] to specify each tab with a **label** and optional *view content*
  *
- * @example
+ * If the `label` attribute is not specified, then an optional `<material-tab-label>` tag can be used to specified more
+ * complex tab header markup. If neither the **label** nor the **material-tab-label** are specified, then the nested
+ * markup of the `<material-tab>` is used as the tab header markup.
+ *
+ * If a tab **label** has been identified, then any **non-**`<material-tab-label>` markup
+ * will be considered tab content and will be transcluded to the internal `<div class="tabs-content">` container.
+ *
+ * This container is used by the TabsController to show/hide the active tab's content view. This synchronization is
+ * automatically managed by the internal TabsController whenever the tab selection changes. Selection changes can
+ * be initiated via data binding changes, programmatic invocation, or user gestures.
+ *
+ * @param {string=} label Optional attribute to specify a simple string as the tab label
+ * @param {boolean=}  active Flag indicates if the tab is currently selected; normally the `<material-tabs selected="">`; attribute is used instead.
+ * @param {boolean=}  disabled Flag indicates if the tab is disabled: not selectable with no ink effects
+ * @param {expression=} deselected Expression to be evaluated after the tab has been de-selected.
+ * @param {expression=} selected Expression to be evaluated after the tab has been selected.
+ *
+ *
+ * @usage
+ *
+ * <hljs lang="html">
+ * <material-tab label="" disabled="" selected="" deselected="" >
+ *   <h3>My Tab content</h3>
+ * </material-tab>
+ *
+ * <material-tab >
+ *   <material-tab-label>
+ *     <h3>My Tab content</h3>
+ *   </material-tab-label>
+ *   <p>
+ *     Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
+ *     totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae
+ *     dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
+ *     sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+ *   </p>
+ * </material-tab>
+ * </hljs>
  *
  */
-function TabDirective($attrBind, $compile, $timeout) {
+function TabDirective( $attrBind ) {
   var noop = angular.noop;
 
   return {
@@ -2080,17 +2404,12 @@ function TabDirective($attrBind, $compile, $timeout) {
     // **********************************************************
 
     /**
-     * If materialTabs `noInk` is true, then remove the materialInkBar feature
-     * By default, the materialInkBar tag is auto injected; @see line 255
+     * If materialTabs `noInk` is true, then remove the ripple area....
+     * NOTE: <material-ripple/> directive replaces itself with `<canvas.material-ink-ripple />` element
      */
     function configureEffects() {
       if ( tabsController.noink ) {
-
-        // Since <material-ripple/> directive replaces itself with `<div.material-ink-ripple />` element
-        var elRipple = angular.element(element[0].querySelector('.material-ink-ripple'));
-        if (elRipple) {
-          elRipple.remove();
-        }
+        element.find('canvas').remove();
       }
     }
 
@@ -2117,25 +2436,32 @@ function TabDirective($attrBind, $compile, $timeout) {
      * and used by TabsController to inject into the `tabs-content` container.
      */
     function updateTabContent(scope) {
-      var cntr = angular.element(element[0].querySelector('material-tab-label'));
+      var tab = scope;
 
       // Check to override label attribute with the content of the <material-tab-header> node,
       // If a materialTabHeader is not specified, then the node will be considered
       // a <material-view> content element...
+      $transclude(function ( contents ) {
 
-      $transclude(function (contents) {
-        scope.content = [ ];
+        // Transient references...
+        tab.content = [ ];
 
         angular.forEach(contents, function (node) {
+
           if (!isNodeEmpty(node)) {
             if (isNodeType(node, 'material-tab-label')) {
               // Simulate use of `label` attribute
-              scope.label = node.childNodes;
+
+              tab.label = node.childNodes;
 
             } else {
-
+              // Transient references...
+              //
               // Attach to scope for future transclusion into materialView(s)
-              scope.content.push(node);
+              // We need the bound scope for the content elements; which is NOT
+              // the scope of tab or material-view container...
+
+              tab.content.push(node);
             }
           }
         });
@@ -2145,10 +2471,14 @@ function TabDirective($attrBind, $compile, $timeout) {
       // Prepare to assign the materialTabButton content
       // Use the label attribute or fallback to TabHeader content
 
+      var cntr = angular.element(element[0].querySelector('material-tab-label'));
+
       if (angular.isDefined(scope.label)) {
         // The `label` attribute is the default source
 
         cntr.append(scope.label);
+
+        delete scope.label;
 
       } else {
 
@@ -2167,20 +2497,21 @@ function TabDirective($attrBind, $compile, $timeout) {
 }
 
 /**
- * @ngdoc controller
+ * @ngdoc object
  * @name materialTabsController
  * @module material.components.tabs
+ * @description Controller used within `<material-tabs>` to manage tab selection and iteration
  *
  * @private
- *
  */
-function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $timeout) {
-  var list = $iterator([], true),
+function TabsController($scope, $attrs, $materialComponentRegistry, $timeout ) {
+  var list = iterator([], true),
+    componentID = "tabs" + $scope.$id,
     elements = { },
     selected = null,
     self = this;
 
-  $materialComponentRegistry.register(self, $attrs.componentId || "tabs");
+  $materialComponentRegistry.register( self, $attrs.componentId || componentID );
 
   // Methods used by <material-tab> and children
 
@@ -2247,6 +2578,8 @@ function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $
    * @param tab
    */
   function selectTab(tab) {
+    if ( tab == selected ) return;
+
     var activate = makeActivator(true),
       deactivate = makeActivator(false);
 
@@ -2327,7 +2660,7 @@ function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $
   function removeTab(tab) {
     if (list.contains(tab)) {
 
-      selectTab(selected = list.next(tab, isEnabled));
+      selectTab( list.next(tab, isEnabled) );
       list.remove(tab);
 
       // another tab was removed, make sure to update ink bar
@@ -2346,7 +2679,7 @@ function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $
    * @returns {*} Tab
    */
   function selectNext() {
-    return selectTab(selected = list.next(selected, isEnabled));
+    return selectTab(list.next(selected, isEnabled));
   }
 
   /**
@@ -2354,7 +2687,7 @@ function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $
    * @returns {*} Tab
    */
   function selectPrevious() {
-    return selectTab(selected = list.previous(selected, isEnabled));
+    return selectTab(list.previous(selected, isEnabled));
   }
 
   /**
@@ -2375,27 +2708,28 @@ function TabsController($scope, $iterator, $attrs, $materialComponentRegistry, $
    * @param active
    */
   function makeActivator(active) {
+
     return function updateState(tab) {
       if (tab && (active != tab.active)) {
         tab.active = active;
 
-//        Disable ripples when tab is active/selected
-//        tab.inkEnabled = !active;
-
-        tab.inkEnabled = true;
-
         if (active) {
           selected = tab;
+
           tab.selected();
+
         } else {
           if (selected == tab) {
             selected = null;
           }
+
           tab.deselected();
+
         }
         return tab;
       }
       return null;
+
 
     }
   }
@@ -2452,6 +2786,12 @@ var isNodeEmpty = function (node) {
 };
 
 
+/**
+ * @ngdoc module
+ * @name material.components.toast
+ * @description
+ * Toast
+ */
 angular.module('material.components.toast', ['material.services.popup'])
   .directive('materialToast', [
     QpToastDirective
@@ -2784,7 +3124,7 @@ function PopupFactory($materialCompiler, $animate, $rootScope, $rootElement) {
 
   function createPopup(options) {
     var appendTo = options.appendTo || $rootElement;
-    var scope = (options.scope || $rootScope).$new();
+    var scope = (options.scope || $rootScope).$new(true);
 
     return $materialCompiler.compile(options).then(function(compileData) {
       var self;
@@ -2992,7 +3332,7 @@ angular.module('material.services.throttle', [ 'ng' ])
    *       parent = element.parent(),
    *       makeRipple = $throttle({
    *         start : function() {
-   *           ripple = ripple || materialEffects.inkRipple( element[0], options );
+   *           ripple = ripple || $materialEffects.inkRipple( element[0], options );
    *           watchMouse = watchMouse || buildMouseWatcher(parent, makeRipple);
    *           // Ripples start with mouseDow (or taps)
    *           parent.on('mousedown', makeRipple);
@@ -3357,27 +3697,15 @@ function AttrsBinder($parse, $interpolate) {
   };
 }
 
-angular.module('material.utils')
-  .service('$iterator', IteratorFactory);
-
 /**
- * $iterator Service Class
+ * iterator is a list facade to easily support iteration and accessors
+ *
+ * @param items Array list which this iterator will enumerate
+ * @param reloop Boolean enables iterator to consider the list as an endless reloop
  */
+function iterator(items, reloop) {
 
-function IteratorFactory() {
-
-  return function (items, loop) {
-    return new List(items, loop);
-  };
-
-  /**
-   * List facade to easily support iteration and accessors
-   * @param items Array list which this iterator will enumerate
-   * @param loop Boolean enables iterator to consider the list as an endless loop
-   * @constructor
-   */
-  function List(items, loop) {
-    loop = !!loop;
+    reloop = !!reloop;
 
     var _items = items || [ ];
 
@@ -3541,7 +3869,7 @@ function IteratorFactory() {
       if (contains(it)) {
         var index = indexOf(it) + 1,
           found = inRange(index) ? _items[ index ] :
-            loop ? first() : null,
+            reloop ? first() : null,
           skip = found && validate && !validate(found);
 
         return skip ? next(found) : found;
@@ -3560,7 +3888,7 @@ function IteratorFactory() {
       if (contains(it)) {
         var index = indexOf(it) - 1,
           found = inRange(index) ? _items[ index ] :
-            loop ? last() : null,
+            reloop ? last() : null,
           skip = found && validate && !validate(found);
 
         return skip ? previous(found) : found;
@@ -3585,11 +3913,74 @@ function IteratorFactory() {
       return _items.length ? _items[_items.length - 1] : null;
     }
 
-  }
-
 }
 
 
 
+
+/**
+ *  This function() provides scope-relative features to disconnect and reconnect to the $digest() processes
+ *  NOTE: this is essentially a reversible $destroy() for scopes.
+ *
+ *  Detaching the scope would mean:
+ *
+ *    Detaching the scope from the scope's current parent so that watchers no
+ *    longer fire when the scope's current parent's $digest is called
+ *
+ *  On re-attaching to a DOM element (as a child):
+ *
+ *    It would be attached as he child scope of the DOM element. This is useful
+ *    for optimizations such as not running watchers on hidden DOM (that could be detached).
+ *
+ *  @see https://github.com/angular/angular.js/issues/5301
+ *
+ */
+function addDigestConnector (scope) {
+  var disconnect = function () {
+    if (this.$root === this) {
+      return; // we can't disconnect the root node;
+    }
+    var parent = this.$parent;
+    this.$$disconnected = true;
+    // See Scope.$destroy
+    if (parent.$$childHead === this) {
+      parent.$$childHead = this.$$nextSibling;
+    }
+    if (parent.$$childTail === this) {
+      parent.$$childTail = this.$$prevSibling;
+    }
+    if (this.$$prevSibling) {
+      this.$$prevSibling.$$nextSibling = this.$$nextSibling;
+    }
+    if (this.$$nextSibling) {
+      this.$$nextSibling.$$prevSibling = this.$$prevSibling;
+    }
+    this.$$nextSibling = this.$$prevSibling = null;
+  };
+  var reconnect = function () {
+    if (this.$root === this) {
+      return; // we can't disconnect the root node;
+    }
+    var child = this;
+    if (!child.$$disconnected) {
+      return;
+    }
+    var parent = child.$parent;
+    child.$$disconnected = false;
+    // See Scope.$new for this logic...
+    child.$$prevSibling = parent.$$childTail;
+    if (parent.$$childHead) {
+      parent.$$childTail.$$nextSibling = child;
+      parent.$$childTail = child;
+    } else {
+      parent.$$childHead = parent.$$childTail = child;
+    }
+  };
+
+  scope.$disconnect = angular.bind( scope, disconnect );
+  scope.$reconnect  = angular.bind( scope, reconnect );
+
+  return scope;
+}
 
 })();
