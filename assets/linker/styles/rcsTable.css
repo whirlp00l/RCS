@@ -1,4 +1,4 @@
-@-webkit-keyframes blink {
+/*@-webkit-keyframes blink {
   50% {
     border-color: rgba(255, 255, 255, 0.6);
   }
@@ -7,20 +7,10 @@
   50% {
     border-color: rgba(255, 255, 255, 0.6);
   }
-}
-
-/*map*/
-.row-rcs-table {
-  margin: 0px, 0px, 0px, 0px;
-}
-
-.col-rcs-table {
-  padding: 2px;
-}
+}*/
 
 /*cell*/
 .rcs-table {
-  /*layout*/
   height: 60px;
   width: 100%;
   text-align: center;
@@ -29,16 +19,21 @@
   -webkit-box-sizing:border-box;
 }
 
-/*.rcs-table-border {
+.rcs-table-cursor {
+  cursor: pointer;
+}
+
+.rcs-table-border {
   border: 5px solid #fff;
-  transition : border 500ms ease-out;
+  /*transition : border 500ms ease-out;
   -webkit-transition : border 500ms ease-out;
   -moz-transition : border 500ms ease-out;
-  -o-transition : border 500ms ease-out;
+  -o-transition : border 500ms ease-out;*/
 }
+
 .rcs-table-border:hover {
   border: 5px solid rgba(100, 94, 85, 0.7);
-}*/
+}
 
 .rcs-table-none{
   background-color: transparent;
@@ -85,8 +80,10 @@
 
 .rcs-table > .rcs-table-mark {
   position: absolute;
-  height: 0;
-  font-size: 30px;
+  height: 60px;
+  line-height: 60px;
+  font-size: 16px;
+  left: 1%;
   width: 100%;
 }
 

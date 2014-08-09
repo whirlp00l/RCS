@@ -1,4 +1,5 @@
 -var useModeClass = "{"
+-useModeClass += "'rcs-table-cursor':isNothing()==false,"
 -useModeClass += "'rcs-table-none':isNothing()==true,"
 -useModeClass += "'rcs-table-empty':isEmpty()==true,"
 -useModeClass += "'rcs-table-serving':isServing()==true,"
@@ -7,19 +8,26 @@
 -useModeClass += "'rcs-table-with-book':isBooked()==true,"
 -useModeClass += "}"
 
-div.text-unselectable(ng-show="editMode==false")
+-var editModeClass = "{"
+-editModeClass += "'rcs-table-cursor':true,"
+-editModeClass += "'rcs-table-border':isNothing()==true,"
+-editModeClass += "'rcs-table-none':isNothing()==true,"
+-editModeClass += "'rcs-table-empty':isNothing()==false"
+-editModeClass += "}"
+
+div.text-unselectable
   .rcs-table(
+    ng-show="editMode==false"
     ng-class=useModeClass
     tooltip-placement="right"
     tooltip-popup-delay="100"
     tooltip-html-unsafe="{{getTooltip(table)}}")
-    .rcs-table-mark(ng-show="ifHasRequest()==true") .
-    .rcs-table-mark(ng-show="ifHasRequest()!=true") &nbsp;
+    .rcs-table-mark(ng-show="ifHasRequest()==true").glyphicon.glyphicon-bell
+      //- span
     .rcs-table-text {{getTableName()}}
-
-div(ng-show="editMode==true")
-  .text-center.rcs-table.text-unselectable(
-    ng-class="{'rcs-table-border':true, 'rcs-table-none':isNothing()==true, 'rcs-table-empty':isNothing()==false}")
-    b
-      span(ng-show="isNothing()==false") {{getTableName()}}
-      span.glyphicon.glyphicon-plus(ng-show="isNothing()==true")
+  .rcs-table(
+    ng-show="editMode==true"
+    ng-class=editModeClass)
+    .rcs-table-mark(ng-show="isNothing()==true")
+      span.glyphicon.glyphicon-plus
+    .rcs-table-text(ng-show="isNothing()==false") {{getTableName()}}
