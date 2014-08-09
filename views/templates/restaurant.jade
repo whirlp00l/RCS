@@ -2,8 +2,9 @@ h1 餐厅
   .row.text-center
     h2 选择餐厅
 .row.text-center
-  a(ng-if="isManager()" ui-sref="newRestaurant")
+  a(ng-if="isManager()==true" ui-sref="newRestaurant")
     u 新建餐厅
+  span(ng-if="isManager()==false && restaurants.length==0") 未找到可管理餐厅，请联系<b>餐厅经理</b>申请管理员权限
 .row
   .col-lg-4.col-lg-offset-4.col-xs-6.col-xs-offset-3
     material-list

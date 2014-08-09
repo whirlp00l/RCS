@@ -24,17 +24,12 @@ form(ng-submit="signup(info.email, info.pwd, info.pwdConfirm, info.selectedRole,
       label 用户类型
   .row
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
-      //- material-radio-group
-        material-radio-button
-          input(type='radio' name='group2' value='1' ng-model='data.group2')
-          | 管理员
-        material-radio-button
-          input(type='radio' name='group2' value='2' ng-model='data.group2')
-          | 餐厅经理
-      .btn-group.full-width
-        label.btn.btn-default(ng-model="info.selectedRole", btn-radio="role.admin") 管理员
-        label.btn.btn-default(ng-model="info.selectedRole", btn-radio="role.manager") 餐厅经理
-  .row(ng-if="info.selectedRole==role.manager")
+      .row
+        .col-xs-12(ng-repeat="role in roles")
+          input(ng-if="$index==0" rcs-radio type="radio" name="userRole" value="{{role.value}}" ng-model="info.selectedRole" ng-required="true" checked)
+          input(ng-if="$index!=0" rcs-radio type="radio" name="userRole" value="{{role.value}}" ng-model="info.selectedRole" ng-required="true")
+          | {{role.name}}
+  .row(ng-if="info.selectedRole=='manager'")
     h4
     .col-lg-4.col-lg-offset-4.col-xs-8.col-xs-offset-2
       .material-input-group.material-input-group-theme-red
