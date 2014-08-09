@@ -16,7 +16,7 @@ angular
       rcsAPI.Restaurant = {
         list: function () {
           return $http
-            .get('Restaurant/list')
+            .post('Restaurant/list')
             .error(errorAction);
         },
         create: function (restaurantName, admins) {
@@ -66,7 +66,7 @@ angular
         },
         logout: function () {
           return $http
-            .get('User/logout')
+            .post('User/logout')
             .error(errorAction);
         },
         create: function (email, password, role, key) {
@@ -81,7 +81,7 @@ angular
         },
         handshake: function () {
           return $http
-            .get('User/handshake')
+            .post('User/handshake')
             .error(errorAction);
         }
       },
@@ -146,12 +146,12 @@ angular
         },
         start: function (requestId) {
           return $http
-            .get('Request/start/' + requestId)
+            .post('Request/start/' + requestId)
             .error(errorAction);
         },
         close: function (requestId) {
           return $http
-            .get('Request/close/' + requestId)
+            .post('Request/close/' + requestId)
             .error(errorAction);
         }
       }
