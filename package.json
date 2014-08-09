@@ -5,7 +5,7 @@
     "description": "a Sails application",
     "dependencies": {
         "sails": "0.10.0-rc8",
-        "sails-disk": "~0.10.0",
+        "sails-disk": "0.10.1",
         "grunt": "0.4.2",
         "optimist": "0.3.4",
         "bcrypt": "0.7.8",
