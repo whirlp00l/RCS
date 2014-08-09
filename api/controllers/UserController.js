@@ -106,9 +106,10 @@ module.exports = {
   },
 
   handshake: function(req, res){
-    sails.log.debug('User/handshake: req.session.user = ' + req.session.user.Email);
+    sails.log.debug('User/handshake: req.session.user = ' + req.session.user);
     var user = req.session.user;
     if (user) {
+      sails.log.debug('User/handshake: req.session.user = ' + req.session.user.Email);
       return res.json(user);
     } else {
       return res.json();
