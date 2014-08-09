@@ -1,12 +1,12 @@
 .modal-header
   h4
     a.glyphicon.glyphicon-remove.pull-right(ng-click="cancel()")
-  h3.modal-title <b>{{data.table.TableName}}</b> 餐桌详情
+  h3.modal-title <b>{{table.TableName}}</b> 餐桌详情
     span(ng-if="editMode==true") &nbsp;(编辑模式)
 .modal-body(collapse="!state.isCollapsed")
   div
-    pre 餐桌类型: <b>{{data.tableType}}</b>
-    pre 当前状态: <b>{{data.tableStatus}}</b> (更新时间： {{getStatusUpdateTime()}})
+    pre 餐桌类型: <b>{{tableData.TableType}}</b>
+    pre 当前状态: <b>{{getTableStatusText()}}</b> (更新时间： {{getStatusUpdateTime()}})
       a.pull-right(ng-if="editMode==false" ng-click="resetTable()" href="")
         b 重置
     pre 请求信息: <b>{{getRequestInfo()}}</b>
@@ -31,24 +31,28 @@ form(ng-submit="newBooking()")
   .modal-body(collapse="state.isCollapsed")
     .row
       .col-xs-6
-        pre 顾客姓名
-          input.form-control(type="text" ng-model="data.newBookName" ng-required="true")
+        .material-input-group.material-input-group-theme-red
+          label.full-width(for="0") 顾客姓名
+          input.full-width(id="0" type="text" ng-model="booking.newBookName" ng-required="true")
       .col-xs-6
-        pre 顾客手机
-          input.form-control(type="text" ng-model="data.newBookCell" ng-required="true")
-    .row
+        .material-input-group.material-input-group-theme-red
+          label.full-width(for="1") 顾客联系方式
+          input.full-width(id="1" type="text" ng-model="booking.newBookCell" ng-required="true")
+    //- .row
       .col-xs-6
         pre 预定日期
-          input.form-control(value="{{getDateFormat(data.newBookDate)}}" readonly ng-required="true")
+          input.form-control(value="{{getDateFormat(booking.newBookDate)}}" readonly ng-required="true")
       .col-xs-6
         pre 预定时间
-          input.form-control(value="{{getTimeFormat(data.newBookTime)}}" readonly ng-required="true")
+          input.form-control(value="{{getTimeFormat(booking.newBookTime)}}" readonly ng-required="true")
     .row
       .col-xs-6
-        div.full-width(ui-date ng-model="data.newBookDate" ng-required="true")
-        //- datepicker.well.well-sm.full-width(ng-model="data.newBookDate" min-date="minDate" show-weeks="false" ng-required="true")
+        label.material-color-red 预定日期
+        //- div.full-width(ui-date ng-model="booking.newBookDate" ng-required="true")
+        datepicker.well.well-sm.customized(ng-model="booking.newBookDate" min-date="minDate" show-weeks="false" ng-required="true")
       .col-xs-6
-        timepicker(ng-model="data.newBookTime" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-required="true")
+        label.material-color-red 预定时间
+        timepicker.customized(ng-model="booking.newBookTime" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-required="true")
     input.no-show(type="submit" id="submit")
   .modal-footer(collapse="state.isCollapsed")
     input.material-button.material-button-raised.material-theme-red.full-width(type="submit" id="submit" value="确认预订")

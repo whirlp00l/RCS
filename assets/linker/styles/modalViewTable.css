@@ -1,0 +1,23 @@
+.customized .btn-link {
+  color: #db4437;
+}
+
+.customized .btn-info {
+  background: #db4437;
+  color: #fff;
+  border-color: #db4437;
+}
+
+.customized .text-info {
+  font-style: italic
+}
+
+.customized .btn-info .text-info {
+  color: #fff;
+}
+
+.well.customized {
+  background-image: none;
+  background: transparent;
+  border: none;
+}

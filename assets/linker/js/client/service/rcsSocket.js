@@ -44,6 +44,9 @@ angular
 
           // listen to 'init'
           rcsSocket.sailsSocket.on('init', function (msg) {
+            $log.debug('rcsSocket: received message');
+            $log.debug(msg);
+
             rcsSocket.data.tables = msg.table;
             $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
             rcsSocket.data.requests = msg.request;

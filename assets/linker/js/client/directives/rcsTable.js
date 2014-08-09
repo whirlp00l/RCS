@@ -39,24 +39,20 @@ angular
               templateUrl: '/template/modalViewTable',
               controller: 'viewTableModalCtrl',
               resolve: {
-                tableData: function () {
-                  return tableData;
-                },
-                tableTypeText: function () {
-                  return $scope.getTableTypeText(tableData);
-                },
-                tableStatusText: function () {
-                  return $scope.getTableStatusText(tableData);
-                },
-                editMode: function () {
-                  return $scope.editMode;
+                param: function () {
+                  return {
+                    tableData: tableData,
+                    editMode: $scope.editMode,
+                    getTableStatusText: getTableStatusText,
+                    isBooked: isBooked
+                  };
                 }
               }
             });
           }
 
           $scope.clickTable = function () {
-            if ($scope.ifNothing()) {
+            if ($scope.isNothing()) {
               if ($scope.editMode == true) {
                 addTable($scope.table);
               }
@@ -67,7 +63,7 @@ angular
 
           // show table
           $scope.getTableName = function() {
-            if ($scope.ifNothing()) {
+            if ($scope.isNothing()) {
               return null;
             }
 
@@ -75,22 +71,14 @@ angular
           }
 
           $scope.getTableStatus = function() {
-            if ($scope.ifNothing()) {
+            if ($scope.isNothing()) {
               return null;
             }
 
             return $scope.table.data.Status;
           }
 
-          $scope.getTableTypeText = function(tableData) {
-            if (!tableData.TableType || tableData.TableType == '') {
-              return "未指定";
-            }
-
-            return tableData.TableType;
-          }
-
-          $scope.getTableStatusText = function(tableData) {
+          var getTableStatusText = function(tableData) {
             switch (tableData.Status) {
               case 'empty':
                 return '空桌';
@@ -117,7 +105,7 @@ angular
             }
 
             var bookingInfo = '';
-            if ($scope.ifHasBook(table)) {
+            if ($scope.isBooked(table)) {
               bookingInfo = (
                 '<div class="rcs-table-tooltip">' +
                   '预订: {0} {1}' +
@@ -129,8 +117,8 @@ angular
             }
 
             var linkInfo = '<div class="rcs-table-tooltip"><i class="{0}"></i>{1}</div>'.format(
-                $scope.ifHasLink(table) ? 'glyphicon glyphicon-ok' :'glyphicon glyphicon-remove',
-                $scope.ifHasLink(table) ? '已关联' :'未关联'
+                $scope.isLinked(table) ? 'glyphicon glyphicon-ok' :'glyphicon glyphicon-remove',
+                $scope.isLinked(table) ? '已关联' :'未关联'
             );
 
             return (
@@ -138,19 +126,19 @@ angular
                 '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
               '</div>'
             ).format(
-              $scope.getTableTypeText(table.data),
-              $scope.getTableStatusText(table.data),
+              table.data.TableType,
+              getTableStatusText(table.data),
               $scope.getTableUpdateDurationMin(table.data)
             ) + bookingInfo + linkInfo;
           }
 
           // check table
-          $scope.ifNothing = function () {
-            return $scope.table.data == $scope.undefinedTable;
+          $scope.isNothing = function () {
+            return $scope.table.data === $scope.undefinedTable;
           }
 
           $scope.ifHasRequest = function () {
-            if ($scope.ifNothing()) {
+            if ($scope.isNothing()) {
               return false;
             }
 
@@ -168,12 +156,11 @@ angular
             return false;
           }
 
-          $scope.ifHasBook = function () {
-            if ($scope.ifNothing()) {
+          var isBooked = function (tableData, emptyTableDataValue) {
+            if (!emptyTableDataValue && tableData === emptyTableDataValue) {
               return false;
             }
 
-            var tableData = $scope.table.data;
             if (!tableData.BookDateTime || tableData.BookDateTime == '') {
               return false;
             }
@@ -185,13 +172,32 @@ angular
             return true;
           }
 
-          $scope.ifHasLink = function () {
-            if ($scope.ifNothing()) {
+          $scope.isBooked = function () {
+            return isBooked($scope.table.data, $scope.undefinedTable);
+          }
+
+          $scope.isLinked = function () {
+            if ($scope.isNothing()) {
               return false;
             }
 
             var tableData = $scope.table.data;
             return (tableData.LinkTime && tableData.LinkTime != null);
+          }
+
+          $scope.isEmpty = function () {
+            if ($scope.getTableStatus() != 'empty') return false;
+            return true;
+          }
+
+          $scope.isServing = function () {
+            if ($scope.getTableStatus() == null) return false;
+            return !$scope.isEmpty() && !$scope.isPaid();
+          }
+
+          $scope.isPaid = function () {
+            if ($scope.getTableStatus() != 'paid') return false;
+            return true;
           }
 
           $element.bind('click', $scope.clickTable);

@@ -1,14 +1,25 @@
-div(ng-show="editMode==false")
-  .text-center.rcs-table(
-    ng-class="{'rcs-table-border':getTableStatus()!=null, 'rcs-table-none':!getTableStatus(), 'rcs-table-empty':getTableStatus()=='empty', 'rcs-table-paying':getTableStatus()=='paying', 'rcs-table-paid':getTableStatus()=='paid', 'rcs-table-with-request':ifHasRequest()==true,'rcs-table-with-book':ifHasBook()==true}"
+-var useModeClass = "{"
+-useModeClass += "'rcs-table-none':isNothing()==true,"
+-useModeClass += "'rcs-table-empty':isEmpty()==true,"
+-useModeClass += "'rcs-table-serving':isServing()==true,"
+-useModeClass += "'rcs-table-paid':isPaid()==true,"
+-useModeClass += "'rcs-table-with-request':ifHasRequest()==true,"
+-useModeClass += "'rcs-table-with-book':isBooked()==true,"
+-useModeClass += "}"
+
+div.text-unselectable(ng-show="editMode==false")
+  .rcs-table(
+    ng-class=useModeClass
     tooltip-placement="right"
-    tooltip-popup-delay="200"
+    tooltip-popup-delay="100"
     tooltip-html-unsafe="{{getTooltip(table)}}")
-    b {{getTableName()}}
+    .rcs-table-mark(ng-show="ifHasRequest()==true") .
+    .rcs-table-mark(ng-show="ifHasRequest()!=true") &nbsp;
+    .rcs-table-text {{getTableName()}}
 
 div(ng-show="editMode==true")
-  .text-center.rcs-table(
-    ng-class="{'rcs-table-border':true, 'rcs-table-none':ifNothing()==true, 'rcs-table-empty':ifNothing()==false}")
+  .text-center.rcs-table.text-unselectable(
+    ng-class="{'rcs-table-border':true, 'rcs-table-none':isNothing()==true, 'rcs-table-empty':isNothing()==false}")
     b
-      span(ng-show="ifNothing()==false") {{getTableName()}}
-      span.glyphicon.glyphicon-plus(ng-show="ifNothing()==true")
+      span(ng-show="isNothing()==false") {{getTableName()}}
+      span.glyphicon.glyphicon-plus(ng-show="isNothing()==true")

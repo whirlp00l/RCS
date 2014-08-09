@@ -1,8 +1,8 @@
 ﻿angular
   .module('rcs')
-  .controller('homeCtrl', ['$scope', 'rcsSocket', '$state', '$stateParams',
-    function($scope, rcsSocket, $state, $stateParams){
-
+  .controller('homeCtrl', ['$scope', 'rcsSocket', '$state', '$stateParams', '$window',
+    function($scope, rcsSocket, $state, $stateParams, $window){
+      $window.innerHeight = 500;
       if (!$stateParams.restaurantName) {
         return $state.go('restaurant');
       }

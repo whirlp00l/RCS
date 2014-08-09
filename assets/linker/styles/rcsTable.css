@@ -15,25 +15,22 @@
 }
 
 .col-rcs-table {
-  padding-left: 0px;
-  padding-right: 0px;
+  padding: 2px;
 }
 
 /*cell*/
 .rcs-table {
   /*layout*/
-  background-color: #000;
   height: 60px;
   width: 100%;
-  line-height: 60px;
   text-align: center;
-  color: #000;
-  font-size: 16px;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
 }
 
-.rcs-table-border {
-  /*border*/
-  border: 5px solid #FFF;
+/*.rcs-table-border {
+  border: 5px solid #fff;
   transition : border 500ms ease-out;
   -webkit-transition : border 500ms ease-out;
   -moz-transition : border 500ms ease-out;
@@ -41,35 +38,35 @@
 }
 .rcs-table-border:hover {
   border: 5px solid rgba(100, 94, 85, 0.7);
-}
+}*/
 
 .rcs-table-none{
   background-color: transparent;
 }
 
 .rcs-table-empty{
-  background-color: #645E55;
-  color: #FFF;
+  background-color: #e4e0d8;
+  color: #000;
 }
 
-.rcs-table-paying{
-  background-color: #CC0000;
-  color: #FFF;
+.rcs-table-serving{
+  background-color: #8a1717;
+  color: #fff;
 }
 
 .rcs-table-paid{
-  background-color: #8A1717;
-  color: #FFF;
+  background-color: #cba353;
+  color: #fff;
 }
 
-.rcs-table-with-request {
+/*.rcs-table-with-request {
   border: 5px dashed rgba(255, 0, 0, 0.9);
   animation: blink .25s step-end infinite alternate;
   -webkit-animation: blink .25s step-end infinite alternate;
-}
+}*/
 
 .rcs-table-with-book {
-  border: 8px solid rgba(0, 0, 0, 0.9);
+  border-top: 8px solid #93b0ba;
 }
 
 .rcs-table-tooltip {
@@ -84,4 +81,19 @@
 
 .tooltip * {
   opacity: 0.9;
+}
+
+.rcs-table > .rcs-table-mark {
+  position: absolute;
+  height: 0;
+  font-size: 30px;
+  width: 100%;
+}
+
+.rcs-table > .rcs-table-text {
+  position: absolute;
+  font-size: 16px;
+  top: 40px;
+  height: 0;
+  width: 100%;
 }
