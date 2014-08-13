@@ -42,7 +42,9 @@ module.exports.policies = {
     'create': ['isAuthenticated', 'isManager'],
     'addAdmin': ['isAuthenticated', 'isManager'],
     'removeAdmin': ['isAuthenticated', 'isManager'],
-    'listAdmin': ['isAuthenticated', 'isManager']
+    'listAdmin': ['isAuthenticated', 'isManager'],
+    'checkMenuVersion': ['isAuthenticated', 'hasRestaurantPermission'],
+    'listMenu': ['isAuthenticated', 'hasRestaurantPermission']
   },
 
   'Table':
@@ -59,6 +61,11 @@ module.exports.policies = {
 
     'deleteAll': true // test only
   },
+
+  'MenuItem':
+  {
+    '*': ['isAuthenticated', 'hasRestaurantPermission']
+  }
 
   /*
   // Here's an example of adding some policies to a controller

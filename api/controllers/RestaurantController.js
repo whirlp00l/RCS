@@ -260,6 +260,7 @@ module.exports = {
 
       for (var i = user.ManagedRestaurant.length - 1; i >= 0; i--) {
         restaurants.push({
+          id: user.ManagedRestaurant[i].id,
           RestaurantName: user.ManagedRestaurant[i].RestaurantName,
           Permission: 'manage'
         });
@@ -267,6 +268,7 @@ module.exports = {
 
       for (var i = user.AdministeredRestaurant.length - 1; i >= 0; i--) {
         restaurants.push({
+          id: user.AdministeredRestaurant[i].id,
           RestaurantName: user.AdministeredRestaurant[i].RestaurantName,
           Permission: 'admin'
         });
@@ -331,6 +333,39 @@ module.exports = {
       });
 
     });
+  },
+
+  checkMenuVersion: function (req, res) {
+    var restaurantId = req.body.RestaurantId;
+
+    Restaurant.findOneById(restaurantId).exec(function (err, restaurant) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!restaurant) {
+        return res.badRequest('RestaurantId [' + restaurantId + '] is invalid');
+      }
+
+      return res.json({
+        MenuVersion: restaurant.MenuVersion
+      });
+    })
+  },
+
+  listMenu: function (req, res) {
+    var restaurantId = req.body.RestaurantId;
+
+    Restaurant.findOneById(restaurantId).populate('Menu').exec(function (err, restaurant) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      return res.json({
+        MenuVersion: restaurant.MenuVersion,
+        Menu: restaurant.Menu
+      });
+    })
   },
 
   deleteAll: function (req, res, next) {

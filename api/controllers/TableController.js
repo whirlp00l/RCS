@@ -303,7 +303,11 @@ module.exports = {
             LinkTime: new Date(),
             Token: require('node-uuid').v4()
           }, function (table) {
-            return res.json(table);
+            return res.json({
+              id: table.id,
+              Token: table.Token,
+              LinkedTabletId: table.LinkedTabletId
+            });
           });
         });
       });

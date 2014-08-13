@@ -38,6 +38,13 @@ module.exports = {
     Requests: { // One to many
       collection: 'request',
       via: 'Restaurant'
-    }
+    },
+
+    Menu: { // One to many
+      collection: 'menuItem',
+      via: 'Restaurant'
+    },
+
+    MenuVersion: 'int'
   }
 };
