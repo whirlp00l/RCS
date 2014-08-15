@@ -7,13 +7,20 @@
 
 module.exports = {
 
+  deleteAll: function (req, res) {
+    MenuItem.destroy({}).exec(function (err) {
+      return res.send('All MenuItem deleted');
+    });
+  },
+
   create: function (req, res) {
     var name = req.body.Name;
+    var type = req.body.Type;
     var price = req.body.Price;
     var premiumPrice = req.body.PremiumPrice;
     var restaurantId = req.body.RestaurantId;
 
-    if (!name || !restaurantId || typeof price == 'undefined') {
+    if (!name || !type || !restaurantId || typeof price == 'undefined') {
       return res.badRequest('Missing required fields.');
     }
 
@@ -31,6 +38,7 @@ module.exports = {
 
       MenuItem.create({
         Name: name,
+        Type: type,
         Price: price,
         PremiumPrice: premiumPrice,
         Restaurant: restaurantId
@@ -44,6 +52,7 @@ module.exports = {
             MenuItem: {
               id: menuItem.id,
               Name: menuItem.Name,
+              Type: menuItem.Type,
               Price: menuItem.Price,
               PremiumPrice: menuItem.PremiumPrice
             },
@@ -72,12 +81,12 @@ module.exports = {
         return res.badRequest('MenuItem id [' + menuItemId + '] is invalid');
       }
 
-      var name = req.body.Name;
+      var type = req.body.Type;
       var price = req.body.Price;
       var premiumPrice = req.body.PremiumPrice;
 
-      if (typeof name != 'undefined') {
-        menuItem.Name = name;
+      if (typeof type != 'undefined') {
+        menuItem.Type = type;
       }
 
       if (typeof price != 'undefined') {
@@ -98,6 +107,7 @@ module.exports = {
             MenuItem: {
               id: menuItem.id,
               Name: menuItem.Name,
+              Type: menuItem.Type,
               Price: menuItem.Price,
               PremiumPrice: menuItem.PremiumPrice
             },

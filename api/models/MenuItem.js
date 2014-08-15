@@ -14,6 +14,12 @@ module.exports = {
       notEmpty: true
     },
 
+    Type: {
+      type: 'string',
+      required: true,
+      notEmpty: true
+    },
+
     Price: {
       type: 'float',
       required: true,
