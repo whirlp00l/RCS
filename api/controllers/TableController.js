@@ -61,7 +61,7 @@ var updateTable = function (req, res, tableId, value, cb) {
       return res.serverError(err);
     }
 
-    if (!table || !table.Restaurant || !isSubscriber(table.Restaurant, req)) {
+    if (!table) {
       return res.badRequest('Table [' + tableId + '] is invalid.');
     }
 
@@ -96,6 +96,10 @@ var updateTable = function (req, res, tableId, value, cb) {
 
     if (typeof value.StatusUpdateAt != 'undefined') {
       table.StatusUpdateAt = value.StatusUpdateAt;
+    }
+
+    if (typeof value.OrderItems != 'undefined') {
+      table.OrderItems = value.OrderItems;
     }
 
     table.save(function (err, table) {
@@ -211,7 +215,7 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!table || !table.Restaurant || !isSubscriber(table.Restaurant, req)) {
+      if (!table) {
         return res.badRequest('Table [' + tableId + '] is invalid.');
       }
 
@@ -344,11 +348,63 @@ module.exports = {
 
       updateTable(req, res, tableId, {
         Status: 'empty',
-        StatusUpdateAt: new Date()
+        StatusUpdateAt: new Date(),
+        OrderItems: null
       }, function (table) {
         return res.json(table);
       });
     })
+  },
+
+  newOrder: function (req, res) {
+    var tableId = req.param('id');
+    var orderItems = req.body.OrderItems;
+
+    if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
+      return res.badRequest('Missing required field: ' + Order);
+    }
+
+    Table.findOneById(tableId).populate('Restaurant').exec(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!table) {
+        return res.badRequest('Invalid tableId = ' + tableId);
+      }
+
+      if (table.OrderItems) {
+        return res.badRequest('Table order is not empty. tableId = ' + tableId);
+      }
+
+      var validateCount = 0;
+      for (var i = orderItems.length - 1; i >= 0; i--) {
+        var menuItemId = orderItems[i];
+        sails.log.debug('validate menuItemId = ' + menuItemId + ', restaurantId = ' + table.Restaurant.id);
+        MenuItem.findOne({
+          id: menuItemId,
+          Restaurant: table.Restaurant.id
+        }).exec(function (err, menuItem) {
+          if (err) {
+            return res.serverError(err);
+          }
+
+          if (!menuItem) {
+            return res.badRequest('Invalid OrderItem = ' + menuItemId);
+          }
+
+          if (++validateCount == orderItems.length) {
+
+            updateTable(req, res, tableId, {
+              OrderItems: orderItems,
+              Status: 'ordered'
+            }, function (table) {
+              return res.json(table);
+            });
+          }
+        });
+      };
+    });
   },
 
   /**

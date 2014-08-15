@@ -15,6 +15,8 @@ module.exports = function(req, res, next) {
     return res.badRequest('Missing required fields: restaurantId');
   }
 
+  sails.log('policy - hasRestaurantPermission: restaurantId = ' + restaurantId);
+
   // is subscriber to restaurant ==> has permission
   sails.log.debug('If request client has subscribed to restaurant id = ' + restaurantId);
   if (subscribedRestaurant && subscribedRestaurant.id == restaurantId) {

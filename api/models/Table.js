@@ -73,6 +73,8 @@ module.exports = {
       via: 'Table'
     },
 
+    OrderItems: 'array',
+
     toJSON: function() {
       var obj = this.toObject();
       var activeCount = 0;
