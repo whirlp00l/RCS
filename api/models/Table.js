@@ -71,6 +71,26 @@ module.exports = {
     Requests: { // One to many
       collection: 'request',
       via: 'Table'
+    },
+
+    toJSON: function() {
+      var obj = this.toObject();
+      var activeCount = 0;
+      var closedCount = 0;
+      if (obj.Requests) {
+        for (var i = obj.Requests.length - 1; i >= 0; i--) {
+          if (obj.Requests[i].Status == 'closed') {
+            closedCount++;
+          } else {
+            activeCount++;
+          }
+        }
+      }
+
+      obj.ActiveRequestCount = activeCount;
+      obj.ClosedRequestCount = closedCount;
+      delete obj.Requests;
+      return obj;
     }
   },
 

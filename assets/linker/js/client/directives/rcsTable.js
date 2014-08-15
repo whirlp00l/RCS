@@ -143,17 +143,11 @@ angular
             }
 
             var tableData = $scope.table.data;
-            if (!tableData.Requests) {
+            if (!tableData.ActiveRequestCount || tableData.ActiveRequestCount == 0) {
               return false;
             }
 
-            for (var i = tableData.Requests.length - 1; i >= 0; i--) {
-              if (tableData.Requests[i].Status != REQUEST_STATUS.closed) {
-                return true;
-              }
-            };
-
-            return false;
+            return true;
           }
 
           var isBooked = function (tableData, emptyTableDataValue) {
