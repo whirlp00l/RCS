@@ -44,7 +44,7 @@ angular
           return '无预订';
         }
 
-        return '{0} (手机:{1}) {2}'.format(
+        return '{0} (联系方式:{1}) {2}'.format(
           $scope.tableData.BookName,
           $scope.tableData.BookCell,
           new Date($scope.tableData.BookDateTime).format('mm/dd HH:MM')
