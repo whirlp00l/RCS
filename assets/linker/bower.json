@@ -1,9 +1,0 @@
-{
-  "name": "rcsDependency",
-  "version": "0.0.0",
-  "private": "true",
-  "dependencies": {
-    "angular-ui-date": "latest",
-    "iCheck": "1.0.2"
-  }
-}

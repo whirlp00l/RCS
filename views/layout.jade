@@ -4,46 +4,45 @@ html
     title= title
 
     // Viewport mobile tag for sensible mobile support
-    meta(name="viewport",content="width=device-width, initial-scale=1, maximum-scale=1")
+    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1")
 
     block styles
-    link(rel='stylesheet', href='/linker/js/dependencies/angular-material/material-design.css')
-    link(rel='stylesheet', href='/linker/bower_components/jquery-ui/themes/smoothness/jquery-ui.css')
-    link(rel='stylesheet', href='linker/bower_components/iCheck/skins/square/red.css')
+    link(rel='stylesheet' href='/linker/styles/angular-material/material-design.css')
+    link(rel='stylesheet' href='/linker/styles/jquery-ui/jquery-ui.css')
+    link(rel='stylesheet' href='/linker/styles/iCheck/red.css')
+    link(rel='stylesheet' href='/linker/styles/bootstrap/bootstrap-theme.css')
+    link(rel='stylesheet' href='/linker/styles/bootstrap/bootstrap.css')
 
-    link(rel='stylesheet', href='/linker/bootstrap/css/bootstrap-theme.css')
-    link(rel='stylesheet', href='/linker/bootstrap/css/bootstrap.css')
-
-    link(rel='stylesheet', href='/linker/styles/custom.css')
-    link(rel='stylesheet', href='/linker/styles/rcsTable.css')
-    link(rel='stylesheet', href='/linker/styles/rcsRequest.css')
-    link(rel='stylesheet', href='/linker/styles/modalViewTable.css')
-    link(rel='stylesheet', href='/linker/styles/tableMap.css')
+    link(rel='stylesheet' href='/linker/styles/client/client.css')
+    link(rel='stylesheet' href='/linker/styles/client/rcsTable.css')
+    link(rel='stylesheet' href='/linker/styles/client/rcsRequest.css')
+    link(rel='stylesheet' href='/linker/styles/client/modalViewTable.css')
+    link(rel='stylesheet' href='/linker/styles/client/tableMap.css')
   body
     block body
 
-    script(src='/linker/bower_components/jquery/dist/jquery.js')
-    script(src='/linker/bower_components/jquery-ui/jquery-ui.js')
-    script(src='/linker/bootstrap/js/bootstrap.js')
-    script(src='/linker/js/socket.io.js')
-    script(src='/linker/js/sails.io.js')
-
-    script(src='/linker/bower_components/angular/angular.js')
-    script(src='/linker/bower_components/angular-ui-date/src/date.js')
-    script(src='/linker/bower_components/iCheck/icheck.js')
-
+    //- dependency
+    script(src='/linker/js/dependencies/jquery/jquery.js')
+    script(src='/linker/js/dependencies/jquery-ui/jquery-ui.js')
+    script(src='/linker/js/dependencies/bootstrap/bootstrap.js')
+    script(src='/linker/js/dependencies/angular/angular.js')
     script(src='/linker/js/dependencies/angular-ui-router/angular-ui-router.js')
-    script(src='/linker/js/dependencies/datetimeFormat.js')
-    script(src='/linker/js/dependencies/stringFormat.js')
-    script(src='/linker/js/dependencies/ui-bootstrap-tpls-0.11.0.min.js')
-
+    script(src='/linker/js/dependencies/angular-ui-date/date.js')
+    script(src='/linker/js/dependencies/angular-bootstrap/ui-bootstrap-tpls.js')
+    script(src='/linker/js/dependencies/iCheck/icheck.js')
     script(src='/linker/js/dependencies/angular-material/angular-animate.js')
     script(src='/linker/js/dependencies/angular-material/angular-animate-sequence.js')
     script(src='/linker/js/dependencies/angular-material/angular-animate-stylers.js')
     script(src='/linker/js/dependencies/angular-material/material-design.js')
+    script(src='/linker/js/dependencies/socket.io.js')
+    script(src='/linker/js/dependencies/sails.io.js')
+    script(src='/linker/js/dependencies/datetimeFormat.js')
+    script(src='/linker/js/dependencies/stringFormat.js')
 
+    //- client
     script(src='/linker/js/client/client.js')
     script(src='/linker/js/client/constant.js')
+
     script(src='/linker/js/client/controllers/homeCtrl.js')
     script(src='/linker/js/client/controllers/headerCtrl.js')
     script(src='/linker/js/client/controllers/requestListCtrl.js')
@@ -57,6 +56,7 @@ html
     script(src='/linker/js/client/controllers/newTableModalCtrl.js')
     script(src='/linker/js/client/controllers/viewTableModalCtrl.js')
     script(src='/linker/js/client/controllers/deleteModalCtrl.js')
+
     script(src='/linker/js/client/directives/rcsTable.js')
     script(src='/linker/js/client/directives/rcsRequest.js')
     script(src='/linker/js/client/directives/rcsLogout.js')
@@ -69,6 +69,7 @@ html
     script(src='/linker/js/client/directives/rcsToggleEdit.js')
     script(src='/linker/js/client/directives/rcsAutofocus.js')
     script(src='/linker/js/client/directives/testDiv.js')
+
     script(src='/linker/js/client/service/rcsSocket.js')
     script(src='/linker/js/client/service/rcsAPI.js')
     script(src='/linker/js/client/service/authService.js')
