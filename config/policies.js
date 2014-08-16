@@ -44,7 +44,9 @@ module.exports.policies = {
     'removeAdmin': ['isAuthenticated', 'isManager'],
     'listAdmin': ['isAuthenticated', 'isManager'],
     'checkMenuVersion': ['isAuthenticated', 'hasRestaurantPermission'],
-    'listMenu': ['isAuthenticated', 'hasRestaurantPermission']
+    'listMenu': ['isAuthenticated', 'hasRestaurantPermission'],
+    'downloadMenu': 'isLinkedTabletOfRestaurant',
+    'checkMenuVersion': 'isLinkedTabletOfRestaurant'
   },
 
   'Table':

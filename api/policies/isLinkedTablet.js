@@ -21,7 +21,7 @@ module.exports = function(req, res, next) {
 
   sails.log('policy - isLinkedTablet: tableId = ' + tableId);
 
-  if (!tableId || !token) {
+  if (typeof tableId == 'undefined' || !token) {
     return res.forbidden();
   }
 
@@ -34,6 +34,7 @@ module.exports = function(req, res, next) {
       return res.forbidden();
     }
 
+    sails.log.debug('token match');
     return next();
-  })
+  });
 };

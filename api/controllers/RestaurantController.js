@@ -354,18 +354,11 @@ module.exports = {
   },
 
   listMenu: function (req, res) {
-    var restaurantId = req.body.RestaurantId;
+    listMenu(req, res);
+  },
 
-    Restaurant.findOneById(restaurantId).populate('Menu').exec(function (err, restaurant) {
-      if (err) {
-        return res.serverError(err);
-      }
-
-      return res.json({
-        MenuVersion: restaurant.MenuVersion,
-        Menu: restaurant.Menu
-      });
-    })
+  downloadMenu: function (req, res) {
+    listMenu(req, res);
   },
 
   deleteAll: function (req, res, next) {
@@ -382,3 +375,18 @@ module.exports = {
 
 
 };
+
+var listMenu = function (req, res) {
+  var restaurantId = req.body.RestaurantId;
+
+  Restaurant.findOneById(restaurantId).populate('Menu').exec(function (err, restaurant) {
+    if (err) {
+      return res.serverError(err);
+    }
+
+    return res.json({
+      MenuVersion: restaurant.MenuVersion,
+      Menu: restaurant.Menu
+    });
+  });
+}
