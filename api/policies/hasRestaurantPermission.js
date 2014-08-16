@@ -4,7 +4,8 @@
 
  * @module      :: Policy
  * @description :: Policy to allow any restaurant admin user
- *
+ * @check feild :: restaurantId
+ * @pass condition:: subscriber, or admin, or manager
  */
 module.exports = function(req, res, next) {
   var restaurantId = req.body.RestaurantId;

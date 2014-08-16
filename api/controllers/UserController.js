@@ -50,7 +50,10 @@ module.exports = {
           if (match) {
             req.session.user = user;
             sails.log.debug('User/login: req.session.user := ' + req.session.user.Email);
-            return res.json(user, 200);
+            return res.json({
+              Email: user.Email,
+              Role: user.Role
+            });
           } else {
             req.session.user = null;
             return res.forbidden();
@@ -65,6 +68,7 @@ module.exports = {
   logout: function(req, res){
     var user = req.session.user;
     req.session.user = null;
+    req.session.subscribedRestaurant = null;
     sails.log.debug('User/logout: req.session.user := ' + req.session.user);
     res.json({message: 'User ' + user.Email + ' has been logged out'}, 200);
   },

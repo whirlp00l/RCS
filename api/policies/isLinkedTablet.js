@@ -3,17 +3,28 @@
  *
  * @module      :: Policy
  * @description :: Policy to allow only linked tablet
- *                 Assumes the request.body.TableId and request.body.Token is set by client
+ * @check feild :: {tableId:id}, or /id
+ * @pass condition:: token match
  *
  */
 module.exports = function(req, res, next) {
-
   var tableId = req.body.TableId;
+  if (typeof tableId == 'undefined') {
+    var tableId = req.param('id');
+  }
+
   var token = req.body.Token;
+
+  if (typeof tableId == 'undefined') {
+    return res.badRequest('Missing required fields: tableId');
+  }
+
+  sails.log('policy - isLinkedTablet: tableId = ' + tableId);
 
   if (!tableId || !token) {
     return res.forbidden();
   }
+
   Table.findOneById(tableId).exec(function (err, table) {
     if (err) {
       return res.serverError(err);

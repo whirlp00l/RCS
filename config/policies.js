@@ -54,15 +54,15 @@ module.exports.policies = {
     // 'link': ['isAuthenticated', 'hasRestaurantPermission'],
     'list': 'isAuthenticated', // test only
     'create': 'isAuthenticated', // test only
-    'link': 'isAuthenticated', // test only
+    'link': ['isAuthenticated', 'hasTablePermission'],
     'delete': ['isAuthenticated', 'hasTablePermission'],
     'book': ['isAuthenticated', 'hasTablePermission'],
     'cancelBook': ['isAuthenticated', 'hasTablePermission'],
     'removeLink': ['isAuthenticated', 'hasTablePermission'],
     'reset': ['isAuthenticated', 'hasTablePermission'],
-    'newOrder': ['isAuthenticated', 'hasTablePermission'],
-    // 'reset': 'isAuthenticated', // test only
-    // 'newOrder': 'isAuthenticated', // test only
+    'newOrder': 'isLinkedTablet',
+    'listOrder': 'isLinkedTablet',
+    'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
     'deleteAll': true // test only
   },
 
