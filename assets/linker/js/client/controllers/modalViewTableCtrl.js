@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .controller('viewTableModalCtrl', ['$scope', '$log', '$modalInstance', 'rcsAPI', 'REQUEST_STATUS', 'param',
+  .controller('modalViewTableCtrl', ['$scope', '$log', '$modalInstance', 'rcsAPI', 'REQUEST_STATUS', 'param',
     function($scope, $log, $modalInstance, rcsAPI, REQUEST_STATUS, param){
 
       // param

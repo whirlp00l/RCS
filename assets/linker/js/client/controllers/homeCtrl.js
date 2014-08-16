@@ -8,6 +8,7 @@
       }
 
       $scope.currentRestaurant = $stateParams.restaurantName;
+      $scope.restaurantId = 21;
 
       rcsSocket.connect($scope.currentRestaurant);
 

@@ -1,10 +1,10 @@
 angular
   .module('rcs')
-  .controller('deleteModalCtrl', ['$scope', '$modalInstance', 'title', 'content',
+  .controller('modalDeleteCtrl', ['$scope', '$modalInstance', 'title', 'content',
     function($scope, $modalInstance, title, content){
       $scope.title = title;
       $scope.content = content;
-      
+
       $scope.confirm = function () {
         $modalInstance.close();
       };

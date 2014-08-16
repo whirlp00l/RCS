@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .controller('newTableModalCtrl', ['$scope', '$http', '$modalInstance', 'rcsAPI', 'row', 'col', 'restaurantName',
+  .controller('modalNewTableCtrl', ['$scope', '$http', '$modalInstance', 'rcsAPI', 'row', 'col', 'restaurantName',
     function($scope, $http, $modalInstance, rcsAPI, row, col, restaurantName){
       $scope.tableTypes = [
         '普通', '大桌', '包间'

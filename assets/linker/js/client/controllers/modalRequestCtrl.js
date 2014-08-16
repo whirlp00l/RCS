@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .controller('confirmPayModalCtrl', ['$scope', '$modalInstance', 'rcsAPI', 'request',
+  .controller('modalRequestCtrl', ['$scope', '$modalInstance', 'rcsAPI', 'request',
     function($scope, $modalInstance, rcsAPI, request){
       $scope.request = request;
 

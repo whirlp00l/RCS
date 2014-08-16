@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .directive('rcsToggleEdit', ['$rootScope', 'RCS_EVENTS', function ($rootScope, RCS_EVENTS) {
+  .directive('rcsEditTable', ['$rootScope', 'RCS_EVENTS', function ($rootScope, RCS_EVENTS) {
     return {
       restrict: 'A',
       link: function ($scope, $element, $attr) {
@@ -14,15 +14,22 @@ angular
 
         $scope.toggleEdit = function () {
           edit = !edit;
+          var rcsEvent = null;
+
           if (edit) {
             $scope.rcsToggleEdit.text = textToTrunOff;
-            $scope.safeApply();
-            $rootScope.$broadcast(RCS_EVENTS.editModeOn);
+            rcsEvent = RCS_EVENTS.editModeOn;
           } else {
             $scope.rcsToggleEdit.text = textToTrunOn;
-            $scope.safeApply();
-            $rootScope.$broadcast(RCS_EVENTS.editModeOff);
+            rcsEvent = RCS_EVENTS.editModeOff;
           }
+
+          if (typeof $scope.status.isOpen != 'undefined') {
+            $scope.status.isOpen = false;
+          }
+
+          $scope.safeApply();
+          $rootScope.$broadcast(rcsEvent);
         }
 
         $scope.safeApply = function(fn) {

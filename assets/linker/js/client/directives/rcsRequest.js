@@ -14,7 +14,7 @@ angular
               // open modal to confirm payment received
               var modalInstance = $modal.open({
                 templateUrl: '/template/modalConfirmPay',
-                controller: 'confirmPayModalCtrl',
+                controller: 'modalRequestCtrl',
                 resolve: {
                   request: function () {
                     return $scope.request;

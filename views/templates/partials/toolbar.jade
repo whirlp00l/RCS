@@ -1,14 +1,15 @@
+//- partials of home
 .row
   .col-xs-1.text-left
-    .btn-group(dropdown is-open="status.isopen")
+    .btn-group(dropdown is-open="status.isOpen")
       a.dropdown-toggle.font-size-lg(href="" type="button" ng-disabled="disabled")
         span.glyphicon.glyphicon-cog.color-darkred
       ul.dropdown-menu(role="menu")
         li
-          a.font-size-md(rcs-toggle-edit href="")
+          a.font-size-md(rcs-edit-table href="")
             span.glyphicon.glyphicon-pencil &nbsp;{{rcsToggleEdit.text}}
         li
-          a.font-size-md(ng-hide="true")
+          a.font-size-md(rcs-edit-menu restaurant-id="{{restaurantId}}" href="")
             span.glyphicon.glyphicon-list-alt &nbsp;编辑菜单
         li.divider
         li(ng-if="'hasOtherRest'=='hasOtherRest'")

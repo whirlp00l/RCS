@@ -43,7 +43,7 @@ angular
           }
         })
         .state('newRestaurant', {
-          url: '/newRestaurant',
+          url: '/Restaurant/new',
           templateUrl: '/template/newRestaurant',
           controller: 'newRestaurantCtrl',
           data: {
@@ -69,11 +69,20 @@ angular
           }
         })
         .state('home', {
-          url: '/home/:restaurantName',
+          url: '/Restaurant/:restaurantName',
           templateUrl: '/template/home',
           controller: 'homeCtrl',
           data: {
             name: '餐厅管理',
+            authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
+          }
+        })
+        .state('menu', {
+          url: '/Menu/:restaurantId',
+          templateUrl: 'template/menu',
+          controller: 'menuCtrl',
+          data: {
+            name: '编辑菜单',
             authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
           }
         })

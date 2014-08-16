@@ -53,7 +53,14 @@ angular
             })
             .error(errorAction);
         },
-      },
+        listMenu: function (restaurantId) {
+          return $http
+            .post('Restaurant/listMenu', {
+              RestaurantId: restaurantId
+            })
+            .error(errorAction);
+        }
+      }
 
       rcsAPI.User = {
         login: function (email, password) {
@@ -84,7 +91,7 @@ angular
             .post('User/handshake')
             .error(errorAction);
         }
-      },
+      }
 
       rcsAPI.Table = {
         create: function (restaurantName, tableName, tableType, mapRow, mapCol) {
@@ -133,8 +140,15 @@ angular
           return $http
             .post('Table/removeLink/' + tableId)
             .error(errorAction);
+        },
+        modifyOrder: function (tableId, orderItems) {
+          return $http
+            .post('Table/modifyOrder/' + tableId, {
+              orderItems: orderItems
+            })
+            .error(errorAction);
         }
-      },
+      }
 
       rcsAPI.Request = {
         list: function (restaurantName) {
@@ -155,4 +169,36 @@ angular
             .error(errorAction);
         }
       }
+
+      rcsAPI.MenuItem = {
+        create: function (restaurantId, name, type, price, premiumPrice) {
+          return $http
+            .post('MenuItem/create', {
+              Name: name,
+              Type: type,
+              Price: price,
+              PremiumPrice: premiumPrice,
+              RestaurantId: restaurantId
+            })
+            .error(errorAction);
+        },
+        update: function (restaurantId, menuItemId, type, price, premiumPrice) {
+          return $http
+            .post('MenuItem/update/' + menuItemId, {
+              Type: type,
+              Price: price,
+              PremiumPrice: premiumPrice,
+              RestaurantId: restaurantId
+            })
+            .error(errorAction);
+        },
+        delete: function (restaurantId, menuItemId) {
+          return $http
+            .post('MenuItem/delete/' + menuItemId, {
+              RestaurantId: restaurantId
+            })
+            .error(errorAction);
+        }
+      }
+
     }]);

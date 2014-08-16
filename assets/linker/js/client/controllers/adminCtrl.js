@@ -28,7 +28,7 @@ angular
       $scope.removeAdmin = function (admin) {
         var modalInstance = $modal.open({
           templateUrl: '/template/modalDelete',
-          controller: 'deleteModalCtrl',
+          controller: 'modalDeleteCtrl',
           size: 'sm',
           resolve: {
             title: function () {
