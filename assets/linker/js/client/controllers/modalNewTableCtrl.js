@@ -1,14 +1,19 @@
 angular
   .module('rcs')
-  .controller('modalNewTableCtrl', ['$scope', '$http', '$modalInstance', 'rcsAPI', 'row', 'col', 'restaurantName',
-    function($scope, $http, $modalInstance, rcsAPI, row, col, restaurantName){
+  .controller('modalNewTableCtrl', ['$scope', '$http', '$modalInstance', 'rcsAPI', 'param',
+    function($scope, $http, $modalInstance, rcsAPI, param){
+
+      // const
       $scope.tableTypes = [
         '普通', '大桌', '包间'
       ]
 
-      $scope.row = row;
-      $scope.col = col;
+      // param
+      $scope.row = param.row;
+      $scope.col = param.col;
+      $scope.restaurantId = param.restaurantId;
 
+      // scope
       $scope.data = {
         tableName: '',
         tableType: $scope.tableTypes[0]
@@ -21,7 +26,7 @@ angular
           return;
         }
 
-        rcsAPI.Table.create(restaurantName, tableName, tableType, row, col)
+        rcsAPI.Table.create($scope.restaurantId, tableName, tableType, $scope.row, $scope.col)
           .success(function() {
             $modalInstance.dismiss('done');
           })

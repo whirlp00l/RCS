@@ -15,25 +15,6 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-var hasPermission = function (restaurant, currentUser) {
-  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
-
-  if (restaurant.Manager.id == currentUser.id) {
-    return true;
-  }
-
-  var isAdmin = false;
-  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-    if (restaurant.Admins[i].id == currentUser.id) {
-      isAdmin = true;
-      break;
-    }
-  }
-
-  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
-  return isAdmin;
-}
-
 module.exports = {
 
   create: function(req, res){
@@ -123,14 +104,14 @@ module.exports = {
 
   addAdmin: function (req, res) {
     var currentUser = req.session.user;
-    var restaurantName = req.body.RestaurantName;
+    var restaurantId = req.body.RestaurantId;
     var adminEmail = req.body.Admin;
 
-    if (!currentUser || !restaurantName || !adminEmail) {
-      return res.badRequest('Missing required fields.')
+    if (!adminEmail) {
+      return res.badRequest('Missing required fields: adminEmail')
     }
 
-    Restaurant.findOneByRestaurantName(restaurantName)
+    Restaurant.findOneById(restaurantId)
       .populate('Manager')
       .populate('Admins')
       .exec(function (err, restaurant){
@@ -138,8 +119,8 @@ module.exports = {
           return res.serverError(err);
         }
 
-        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
-          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        if (!restaurant) {
+          return res.badRequest('Invalid restaurantId = ' + restaurantId);
         }
 
         if (restaurant.Manager.Email == adminEmail) {
@@ -153,8 +134,8 @@ module.exports = {
         };
 
         User.findOneByEmail(adminEmail).exec(function (err, user) {
-          if (typeof user == 'undefined') {
-            return res.badRequest('User [' + adminEmail + '] is invalid');
+          if (!user) {
+            return res.badRequest('Invalid adminEmail = ' + adminEmail);
           }
 
           restaurant.Admins.add(user.id);
@@ -163,7 +144,9 @@ module.exports = {
               return res.serverError(err);
             }
 
-            return res.json(restaurant);
+            return res.json({
+              Admins: restaurant.Admins
+            });
           });
         });
       });
@@ -171,14 +154,14 @@ module.exports = {
 
   removeAdmin: function (req, res) {
     var currentUser = req.session.user;
-    var restaurantName = req.body.RestaurantName;
+    var restaurantId = req.body.RestaurantId;
     var adminEmail = req.body.Admin;
 
-    if (!currentUser || !restaurantName || !adminEmail) {
-      return res.badRequest('Missing required fields.')
+    if (!adminEmail) {
+      return res.badRequest('Missing required fields: adminEmail')
     }
 
-    Restaurant.findOneByRestaurantName(restaurantName)
+    Restaurant.findOneById(restaurantId)
       .populate('Manager')
       .populate('Admins')
       .exec(function (err, restaurant){
@@ -186,8 +169,8 @@ module.exports = {
           return res.serverError(err);
         }
 
-        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
-          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        if (!restaurant) {
+          return res.badRequest('Invalid restaurantId = ' + restaurantId);
         }
 
         var foundAdmin = false;
@@ -203,8 +186,8 @@ module.exports = {
         }
 
         User.findOneByEmail(adminEmail).exec(function (err, user) {
-          if (typeof user == 'undefined') {
-            return res.badRequest('User [' + adminEmail + '] is invalid');
+          if (!user) {
+            return res.badRequest('Invalid adminEmail = ' + adminEmail);
           }
 
           restaurant.Admins.remove(user.id);
@@ -213,7 +196,9 @@ module.exports = {
               return res.serverError(err);
             }
 
-            return res.json(restaurant);
+            return res.json({
+              Admins: restaurant.Admins
+            });
           });
         });
       });
@@ -221,39 +206,32 @@ module.exports = {
 
   listAdmin: function (req, res) {
     var currentUser = req.session.user;
-    var restaurantName = req.body.RestaurantName;
+    var restaurantId = req.body.RestaurantId;
 
-    if (!currentUser || !restaurantName) {
-      return res.badRequest('Missing required fields.')
-    }
-
-    Restaurant.findOneByRestaurantName(restaurantName)
-      .populate('Manager')
+    Restaurant.findOneById(restaurantId)
       .populate('Admins')
       .exec(function (err, restaurant){
         if (err) {
           return res.serverError(err);
         }
 
-        if (typeof restaurant == 'undefined' || restaurant.Manager.id != currentUser.id) {
-          return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+        if (!restaurant) {
+          return res.badRequest('Invalid restaurantId = ' + restaurantId);
         }
 
-        var admins = []
+        var admins = [];
         for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
           admins.push(restaurant.Admins[i].Email);
         };
 
-        return res.json(admins);
+        return res.json({
+          Admins: admins
+        });
       });
   },
 
   list: function (req, res) {
     var currentUser = req.session.user;
-
-    if (!currentUser) {
-      return res.badRequest('Missing required fields.')
-    }
 
     User.findOneById(currentUser.id).populateAll().exec(function (err, user){
       var restaurants = [];
@@ -274,7 +252,9 @@ module.exports = {
         });
       };
 
-      return res.json(restaurants);
+      return res.json({
+        Restaurants: restaurants
+      });
     });
   },
 
@@ -284,15 +264,15 @@ module.exports = {
     }
 
     var currentUser = req.session.user;
-    var restaurantName = req.body.RestaurantName;
+    var restaurantId = req.body.RestaurantId;
 
-    Restaurant.findOneByRestaurantName(restaurantName).populateAll().exec(function (err, restaurant){
+    Restaurant.findOneById(restaurantId).populateAll().exec(function (err, restaurant){
       if (err) {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant, currentUser)) {
-        return res.badRequest('Restaurant named [' + restaurantName + '] is invalid.');
+      if (!restaurant) {
+        return res.badRequest('Invalid restaurantId = ' + restaurantId);
       }
 
       if (req.session.subscribedRestaurant) {

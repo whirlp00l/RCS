@@ -4,12 +4,12 @@ angular
     return {
       restrict: 'A',
       scope: {
-        restaurant: '@'
+        restaurantId: '@'
       },
       link: function ($scope, $element, $attr) {
         $scope.goHome = function () {
-          if ($scope.restaurant) {
-            $state.go('home', {restaurantName: $scope.restaurant});
+          if ($scope.restaurantId) {
+            $state.go('home', {restaurantId: $scope.restaurantId});
           }
         }
 

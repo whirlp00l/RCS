@@ -15,14 +15,12 @@ angular
               controller: 'modalNewTableCtrl',
               size: 'sm',
               resolve: {
-                col: function () {
-                  return table.col;
-                },
-                row: function () {
-                  return table.row;
-                },
-                restaurantName: function () {
-                  return $scope.currentRestaurant;
+                param: function () {
+                  return {
+                    col: table.col,
+                    row: table.row,
+                    restaurantId: $scope.restaurantId
+                  };
                 }
               }
             });

@@ -30,26 +30,26 @@ angular
             })
             .error(errorAction);
         },
-        addAdmin: function (restaurantName, admin) {
+        addAdmin: function (restaurantId, admin) {
           return $http
             .post('Restaurant/addAdmin', {
-              RestaurantName: restaurantName,
+              RestaurantId: restaurantId,
               Admin: admin
             })
             .error(errorAction);
         },
-        removeAdmin: function (restaurantName, admin) {
+        removeAdmin: function (restaurantId, admin) {
           return $http
             .post('Restaurant/removeAdmin', {
-              RestaurantName: restaurantName,
+              RestaurantId: restaurantId,
               Admin: admin
             })
             .error(errorAction);
         },
-        listAdmin: function (restaurantName) {
+        listAdmin: function (restaurantId) {
           return $http
             .post('Restaurant/listAdmin', {
-              RestaurantName: restaurantName
+              RestaurantId: restaurantId
             })
             .error(errorAction);
         },
@@ -94,21 +94,14 @@ angular
       }
 
       rcsAPI.Table = {
-        create: function (restaurantName, tableName, tableType, mapRow, mapCol) {
+        create: function (restaurantId, tableName, tableType, mapRow, mapCol) {
           return $http
             .post('/Table/create', {
-              RestaurantName: restaurantName,
+              RestaurantId: restaurantId,
               TableName: tableName,
               TableType: tableType,
               MapRow: mapRow,
               MapCol: mapCol
-            })
-            .error(errorAction);
-        },
-        list: function (restaurantName) {
-          return $http
-            .post('Table/list', {
-              RestaurantName: restaurantName
             })
             .error(errorAction);
         },
@@ -151,10 +144,10 @@ angular
       }
 
       rcsAPI.Request = {
-        list: function (restaurantName) {
+        list: function (restaurantId) {
           return $http
             .post('Request/list', {
-              RestaurantName: restaurantName
+              RestaurantId: restaurantId
             })
             .error(errorAction);
         },

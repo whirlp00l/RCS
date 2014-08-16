@@ -54,7 +54,7 @@ module.exports = function(req, res, next) {
       }
 
       if (!restaurant) {
-        return res.forbidden('invalid restaurantId = ' + restaurantId);
+        return res.forbidden('invalid tableId = ' + tableId);
       }
 
       sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
@@ -74,7 +74,7 @@ module.exports = function(req, res, next) {
       sails.log.debug(hasPermission ? 'has permission' : 'no permission');
 
       if (!hasPermission) {
-        return res.forbidden('invalid restaurantId = ' + restaurantId);
+        return res.forbidden('invalid tableId = ' + tableId);
       }
 
       return next();

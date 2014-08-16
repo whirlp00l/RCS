@@ -36,8 +36,8 @@ angular
           },
           resolve: {
             restaurants: function (rcsAPI) {
-              return rcsAPI.Restaurant.list().then(function (data) {
-                return data.data;
+              return rcsAPI.Restaurant.list().then(function (res) {
+                return res.data.Restaurants;
               });
             }
           }
@@ -52,7 +52,7 @@ angular
           }
         })
         .state('admin', {
-          url: '/admin/:restaurantName',
+          url: '/admin/:restaurantId',
           templateUrl: '/template/admin',
           controller: 'adminCtrl',
           data: {
@@ -61,15 +61,15 @@ angular
           },
           resolve: {
             admins: function ($stateParams, rcsAPI) {
-              return rcsAPI.Restaurant.listAdmin($stateParams.restaurantName)
-                .then(function (data) {
-                  return data.data;
+              return rcsAPI.Restaurant.listAdmin($stateParams.restaurantId)
+                .then(function (res) {
+                  return res.data.Admins;
                 });
             }
           }
         })
         .state('home', {
-          url: '/Restaurant/:restaurantName',
+          url: '/Restaurant/:restaurantId',
           templateUrl: '/template/home',
           controller: 'homeCtrl',
           data: {

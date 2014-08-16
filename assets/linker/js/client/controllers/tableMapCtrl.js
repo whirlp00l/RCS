@@ -37,13 +37,14 @@ angular
       updateTableData();
 
       // listen to event
-      $scope.$on(RCS_EVENTS.tablesUpdate, function (event) {
+      $scope.$on(RCS_EVENTS.tablesUpdate, function (event, data) {
         $scope.requests = rcsSocket.data.tables;
         tableData = rcsSocket.data.tables;
         updateTableData();
 
+        $log.debug('tableMapCtrl: start applying tables updated (' + (new Date() - data.startTime) + 'ms)');
         $scope.safeApply(function () {
-          $log.debug('tableMapCtrl: applied tables updated');
+          $log.debug('tableMapCtrl: applied tables updated (' + (new Date() - data.startTime) + 'ms)');
         });
       })
 

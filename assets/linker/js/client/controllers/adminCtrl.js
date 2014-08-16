@@ -3,11 +3,11 @@ angular
   .controller('adminCtrl', ['$scope', '$state', '$stateParams', '$modal', 'admins', 'rcsAPI', 'TEXT',
     function($scope, $state, $stateParams, $modal, admins, rcsAPI, TEXT){
 
-      if (!$stateParams.restaurantName) {
+      if (!$stateParams.restaurantId) {
         return $state.go('restaurant');
       }
 
-      $scope.currentRestaurant = $stateParams.restaurantName;
+      $scope.restaurantId = $stateParams.restaurantId;
       $scope.admins = admins;
 
       $scope.done = function () {
@@ -19,7 +19,7 @@ angular
       }
 
       $scope.addAdmin = function (newAdmin) {
-        rcsAPI.Restaurant.addAdmin($scope.currentRestaurant, newAdmin)
+        rcsAPI.Restaurant.addAdmin($scope.restaurantId, newAdmin)
           .success(function () {
             admins.push(newAdmin);
           })
@@ -41,7 +41,7 @@ angular
         });
 
         modalInstance.result.then(function () {
-          rcsAPI.Restaurant.removeAdmin($scope.currentRestaurant, admin)
+          rcsAPI.Restaurant.removeAdmin($scope.restaurantId, admin)
             .success(function () {
               admins.splice(admins.indexOf(admin), 1);
             })

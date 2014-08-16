@@ -38,11 +38,11 @@ module.exports.policies = {
     'deleteAll': true, // test only
 
     'list': 'isAuthenticated',
-    'subscribe': 'isAuthenticated',
     'create': ['isAuthenticated', 'isManager'],
-    'addAdmin': ['isAuthenticated', 'isManager'],
-    'removeAdmin': ['isAuthenticated', 'isManager'],
-    'listAdmin': ['isAuthenticated', 'isManager'],
+    'subscribe': ['isAuthenticated', 'hasRestaurantPermission'],
+    'addAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
+    'removeAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
+    'listAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
     'checkMenuVersion': ['isAuthenticated', 'hasRestaurantPermission'],
     'listMenu': ['isAuthenticated', 'hasRestaurantPermission'],
     'downloadMenu': 'isLinkedTabletOfRestaurant',
@@ -51,20 +51,18 @@ module.exports.policies = {
 
   'Table':
   {
-    // 'list': ['isAuthenticated', 'hasRestaurantPermission'],
-    // 'create': ['isAuthenticated', 'hasRestaurantPermission'],
-    // 'link': ['isAuthenticated', 'hasRestaurantPermission'],
-    'list': 'isAuthenticated', // test only
-    'create': 'isAuthenticated', // test only
+    'list': ['isAuthenticated', 'hasRestaurantPermission'],
+    'create': ['isAuthenticated', 'hasRestaurantPermission'],
     'link': ['isAuthenticated', 'hasTablePermission'],
     'delete': ['isAuthenticated', 'hasTablePermission'],
     'book': ['isAuthenticated', 'hasTablePermission'],
     'cancelBook': ['isAuthenticated', 'hasTablePermission'],
     'removeLink': ['isAuthenticated', 'hasTablePermission'],
     'reset': ['isAuthenticated', 'hasTablePermission'],
+    'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
     'newOrder': 'isLinkedTablet',
     'listOrder': 'isLinkedTablet',
-    'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
+
     'deleteAll': true // test only
   },
 
@@ -72,6 +70,7 @@ module.exports.policies = {
   {
     '*': 'isAuthenticated',
     'create': 'isLinkedTablet',
+    'list': ['isAuthenticated', 'hasRestaurantPermission'],
 
     'deleteAll': true // test only
   },

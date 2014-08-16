@@ -3,14 +3,13 @@
   .controller('homeCtrl', ['$scope', 'rcsSocket', '$state', '$stateParams', '$window',
     function($scope, rcsSocket, $state, $stateParams, $window){
       $window.innerHeight = 500;
-      if (!$stateParams.restaurantName) {
+      if (typeof $stateParams.restaurantId == 'undefined') {
         return $state.go('restaurant');
       }
 
-      $scope.currentRestaurant = $stateParams.restaurantName;
-      $scope.restaurantId = 21;
+      $scope.restaurantId = $stateParams.restaurantId;
 
-      rcsSocket.connect($scope.currentRestaurant);
+      rcsSocket.connect($scope.restaurantId);
 
       // used in Ctrl inherited from homeCtrl
       $scope.safeApply = function(fn) {

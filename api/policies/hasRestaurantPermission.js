@@ -45,11 +45,11 @@ module.exports = function(req, res, next) {
     sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
 
     var hasPermission = false;
-    if (restaurant.Manager.id == currentUser.id) {
+    if (currentUser.Role == 'manager' && restaurant.Manager.id == currentUser.id) {
       hasPermission = true;
     } else {
       for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-        if (restaurant.Admins[i].id == currentUser.id) {
+        if (currentUser.Role == 'admin' && restaurant.Admins[i].id == currentUser.id) {
           hasPermission = true;
           break;
         }

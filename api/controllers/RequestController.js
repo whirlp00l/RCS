@@ -27,25 +27,6 @@ var isSubscriber = function (restaurantId, req) {
   return has;
 }
 
-var hasPermission = function (restaurant, currentUser) {
-  sails.log.debug('If user ' + currentUser.Email + ' has permission to ' + restaurant.RestaurantName);
-
-  if (restaurant.Manager.id == currentUser.id) {
-    return true;
-  }
-
-  var isAdmin = false;
-  for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-    if (restaurant.Admins[i].id == currentUser.id) {
-      isAdmin = true;
-      break;
-    }
-  }
-
-  sails.log.debug(isAdmin ? 'has permission' : 'no permission');
-  return isAdmin;
-}
-
 module.exports = {
   deleteAll: function (req, res) {
     Request.destroy({}).exec(function (err) {
@@ -54,29 +35,16 @@ module.exports = {
   },
 
   list: function (req, res) {
-    var restaurantName = req.body.RestaurantName;
+    var restaurantId = req.body.RestaurantId;
 
-    sails.log.debug('Request/list');
-
-    if (!restaurantName) {
-      return res.badRequest('Missing required fields.')
-    }
-
-    Restaurant.findOneByRestaurantName(restaurantName).populateAll().exec(function (err, restaurant){
+    Request.find({Restaurant: restaurantId}).exec(function (err, requests) {
       if (err) {
         return res.serverError(err);
       }
 
-      if (!restaurant || !hasPermission(restaurant, req.session.user)) {
-        return res.badRequest('Restaurant name [' + restaurantName + '] is invalid.');
-      }
-
-      Request.find({Restaurant: restaurant.id}).populate('Tables').exec(function (err, requests) {
-        if (err) {
-          return res.serverError(err);
-        }
-
-        return res.json(requests);
+      return res.json({
+        RestaurantId: restaurantId,
+        Requests: requests
       });
     });
   },

@@ -27,7 +27,7 @@ angular
 
         // subscribe to restaurant message event
         rcsSocket.sailsSocket.get('/Restaurant/subscribe', {
-          RestaurantName:rcsSocket.restaurantName
+          RestaurantId: rcsSocket.restaurantId
         }, function getSubscribe (data) {
           $log.debug(data);
         });
@@ -44,20 +44,22 @@ angular
 
           // listen to 'init'
           rcsSocket.sailsSocket.on('init', function (msg) {
-            $log.debug('rcsSocket: received message');
+            $log.debug('rcsSocket: received init');
             $log.debug(msg);
+            var startTime = new Date();
 
             rcsSocket.data.tables = msg.table;
-            $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
+            $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
             rcsSocket.data.requests = msg.request;
-            $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
+            $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
           });
 
           // listen to 'message'
 
           rcsSocket.sailsSocket.on('restaurant', function (msg) {
-            $log.debug('rcsSocket: received message');
+            $log.debug('rcsSocket: received message (0ms)');
             $log.debug(msg);
+            var startTime = new Date();
 
             switch(msg.verb) {
               case 'messaged':
@@ -70,7 +72,10 @@ angular
                   }
 
                   rcsSocket.data.tables = rcsSocket.data.tables.concat(data.newTable);
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
+
+                  $log.debug('rcsSocket: started broadcasting new-table (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted new-table (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle new-request
@@ -80,7 +85,10 @@ angular
                   }
 
                   rcsSocket.data.requests = rcsSocket.data.requests.concat(data.newRequest);
-                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
+
+                  $log.debug('rcsSocket: started broadcasting new-request (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted new-request (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle remove-table
@@ -99,7 +107,9 @@ angular
                     }
                   };
 
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
+                  $log.debug('rcsSocket: started broadcasting set-table (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted remove-table (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle remove-request
@@ -118,7 +128,9 @@ angular
                     }
                   };
 
-                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate);
+                  $log.debug('rcsSocket: started broadcasting remove-request (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted remove-request (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle set-table
@@ -138,7 +150,9 @@ angular
                     }
                   }
 
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
+                  $log.debug('rcsSocket: started broadcasting set-table (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted set-table (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle set-request
@@ -158,7 +172,9 @@ angular
                     }
                   }
 
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate);
+                  $log.debug('rcsSocket: started broadcasting set-request (' + (new Date() - startTime) + 'ms)');
+                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+                  $log.debug('rcsSocket: broadcasted set-request (' + (new Date() - startTime) + 'ms)');
                 }
 
                 break;
@@ -173,16 +189,16 @@ angular
       }
 
       // exposing
-      rcsSocket.restaurantName = null;
+      rcsSocket.restaurantId = null;
 
       rcsSocket.data = {
         tables: [],
         requests: []
       };
 
-      rcsSocket.connect = function (restaurantName) {
+      rcsSocket.connect = function (restaurantId) {
 
-        rcsSocket.restaurantName = restaurantName;
+        rcsSocket.restaurantId = restaurantId;
 
         // check if already connected
         if (rcsSocket.sailsSocket && rcsSocket.sailsSocket.socket.connected)
