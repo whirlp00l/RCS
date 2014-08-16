@@ -1,1 +1,92 @@
 h1 编辑菜单
+//- .row
+  .col-xs-1
+    material-button.material-button-raised.material-theme-red.full-width
+      span.glyphicon.glyphicon-plus(ng-click="newType()")
+  .col-xs-3
+      input.full-width.material-input.material-input-red.has-value(
+        type="text" ng-model="newType")
+.row.text-unselectable
+  .col-xs-10
+    material-tabs.customized(selected="selectedIndex" nobar)
+      material-tab(
+        ng-repeat="menuType in menuTypes track by $index"
+        ng-class="{active:selectedIndex==$index}"
+        on-select="onTabSelected()"
+        disabled="false")
+        material-tab-label
+          b {{menuType}}
+      material-tab(
+        ng-show="isValidNewType()"
+        disabled="true"
+        ng-click="createNewType()")
+        material-tab-label
+          a.glyphicon.glyphicon-plus
+            b {{newType}}
+  .col-xs-2
+    input.full-width.material-input.material-input-red.has-value(
+      type="text" ng-model="newType" placeholder="新类别")
+.row
+  material-list
+    material-item
+      .material-tile-left
+      .material-tile-content
+        .row
+          .col-xs-4
+            <b>名称</b>
+          .col-xs-2
+            <b>价格</b>
+          .col-xs-2
+            <b>会员价</b>
+          .col-xs-4
+            <b>特调</b>
+    material-item(ng-repeat="menuItem in menuItems | filter:{Type:menuTypes[selectedIndex]} | orderBy:'Name'")
+      .material-tile-left
+        material-button.material-button-raised.material-theme-red.full-width(
+          ng-show="isDirty(menuItem)" ng-click="update(menuItem)")
+          span.glyphicon.glyphicon-ok
+        material-button.material-button-raised.full-width(
+          ng-show="!isDirty(menuItem)" ng-click="delete(menuItem)")
+          span.glyphicon.glyphicon-remove
+      .material-tile-content
+        .row
+          form(name="form{{menuItem.id}}")
+            .col-xs-4
+              input.full-width.material-input.material-input-red(
+                readonly
+                type="text" ng-model="menuItem.Name" name="Name")
+            .col-xs-2
+              input.full-width.material-input.material-input-red(
+                ng-class="{'has-value':form{{menuItem.id}}.Price.$dirty}"
+                type="text" ng-model="menuItem.Price" name="Price")
+            .col-xs-2
+              input.full-width.material-input.material-input-red(
+                ng-class="{'has-value':form{{menuItem.id}}.PremiumPrice.$dirty}"
+                type="text" ng-model="menuItem.PremiumPrice" name="PremiumPrice")
+            .col-xs-4
+
+      .material-tile-right
+        a(ng-show='isDirty(menuItem)' ng-click="discardChange(menuItem)" href="") <b>清除改动</b>
+    material-item
+      .material-tile-left
+        material-button.material-button-raised.material-theme-red.full-width(
+          ng-click="createNew()")
+          span.glyphicon.glyphicon-plus
+      .material-tile-content
+        .row
+          .col-xs-4
+            input.full-width.material-input.material-input-red(
+              ng-class="{'has-value':newMenuItem.Name!=''}"
+              type="text" ng-model="newMenuItem.Name" name="Name" ng-required)
+          .col-xs-2
+            input.full-width.material-input.material-input-red(
+              ng-class="{'has-value':newMenuItem.Price!=''}"
+              type="text" ng-model="newMenuItem.Price" name="Price" ng-required)
+          .col-xs-2
+            input.full-width.material-input.material-input-red(
+              ng-class="{'has-value':newMenuItem.PremiumPrice!=''}"
+              type="text" ng-model="newMenuItem.PremiumPrice" name="PremiumPrice")
+          .col-xs-4
+      .material-tile-right
+        a(ng-show="newMenuItem.Name!='' || newMenuItem.Price!='' || newMenuItem.PremiumPrice!=''"
+          ng-click="resetNew()" href="") <b>清除</b>

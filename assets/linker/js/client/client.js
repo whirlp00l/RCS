@@ -84,6 +84,14 @@ angular
           data: {
             name: '编辑菜单',
             authorizedRoles: [USER_ROLES.admin, USER_ROLES.manager]
+          },
+          resolve: {
+            menu: function ($stateParams, rcsAPI) {
+              return rcsAPI.Restaurant.listMenu($stateParams.restaurantId)
+                .then(function (res) {
+                  return res.data.Menu;
+                });
+            }
           }
         })
         .state('test', {

@@ -1,0 +1,66 @@
+.material-button {
+  height: 3em;
+  line-height: 0;
+}
+
+material-button.customized-material-button {
+  height: 3em;
+  line-height: 3em;
+}
+
+.material-button-fab.rcs-icon {
+  width: 60px;
+  height: 60px;
+  position: static;
+  display: block;
+}
+
+.material-color-red {
+  color: #db4437
+}
+
+material-tabs.customized .tabs-header .tabs-header-items {
+  background-color: #dfdfe9;
+  cursor: pointer;
+}
+
+material-tabs.customized material-tab {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+material-tabs.customized material-tab.active {
+  background-color: #db4437;
+}
+
+
+material-tabs.customized material-tab material-tab-label {
+  color: black;
+  opacity: 0.6;
+  text-transform: none;
+  cursor: pointer;
+}
+
+material-tabs.customized material-tab material-tab-label:hover {
+  cursor: pointer;
+}
+
+material-tabs.customized material-tab material-tab-label.active {
+  color: white;
+  opacity: 1;
+}
+
+material-tabs.customized .material-ink-ripple {
+  color: #fff
+}
+
+input.material-input.material-input-red.has-value
+,input.material-input.material-input-red.focus.has-value {
+  border-color: #db4437;
+  border-bottom-width: 2px;
+}
+
+input.material-input.material-input-red.focus:focus {
+  border-color: #db4437;
+  border-bottom-width: 2px;
+}

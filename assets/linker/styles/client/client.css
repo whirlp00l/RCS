@@ -79,17 +79,6 @@ input.no-show {
   border-style: none;
 }
 
-.material-button {
-  height: 3em;
-}
-
-.material-button-fab.rcs-icon {
-  width: 60px;
-  height: 60px;
-  position: static;
-  display: block;
-}
-
 .text-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -97,8 +86,4 @@ input.no-show {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-.material-color-red {
-  color: #db4437
 }

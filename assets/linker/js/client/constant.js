@@ -26,6 +26,10 @@ angular
     removeAdmin: {
       title: '移除管理员: ',
       content: '移除后，该用户将无法继续管理餐厅',
+    },
+    removeMenuItem: {
+      title: '删除菜品: ',
+      content: '确认从菜单中删除？',
     }
   })
   .constant('REQUEST_STATUS', {
