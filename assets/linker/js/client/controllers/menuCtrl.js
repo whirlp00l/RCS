@@ -84,7 +84,7 @@ angular
           menuItem.id,
           menuItem.Type,
           menuItem.Price,
-          menuItem.PremiumPrice
+          menuItem.PremiumPrice == '' ? null : menuItem.PremiumPrice
         )
         .success(function(data) {
           var updatedMenuItem = data.MenuItem;
@@ -148,7 +148,7 @@ angular
           $scope.newMenuItem.Name,
           $scope.newMenuItem.Type,
           $scope.newMenuItem.Price,
-          $scope.newMenuItem.PremiumPrice
+          $scope.newMenuItem.PremiumPrice == '' ? null : $scope.newMenuItem.PremiumPrice
         )
         .success(function(data) {
           var newMenuItem = data.MenuItem;
