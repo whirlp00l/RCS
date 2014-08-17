@@ -263,13 +263,18 @@ module.exports = {
       return res.badRequest('request is not from Socket IO.');
     }
 
+    var startTime = new Date();
+    sails.log('Restaurant/subscribe: start');
+
     var currentUser = req.session.user;
     var restaurantId = req.body.RestaurantId;
 
-    Restaurant.findOneById(restaurantId).populateAll().exec(function (err, restaurant){
+    Restaurant.findOneById(restaurantId).exec(function (err, restaurant){
       if (err) {
         return res.serverError(err);
       }
+
+      sails.log('Restaurant/subscribe: found restaurant ' + (new Date() - startTime) + 'ms');
 
       if (!restaurant) {
         return res.badRequest('Invalid restaurantId = ' + restaurantId);
@@ -286,32 +291,49 @@ module.exports = {
       req.session.subscribedRestaurant = restaurant;
       sails.log.debug('Socket client [' + req.socket.id + '] has subscribed to Restaurant [' + restaurant.RestaurantName + '].');
 
-      Request.find({Restaurant: restaurant.id}).populate('Table').exec(function (err, requests) {
+      Table.find({Restaurant: restaurant.id}).populate('Requests').exec(function (err, tables) {
         if (err) {
           return res.serverError(err);
         }
 
-        Table.find({Restaurant: restaurant.id}).populate('Requests').exec(function (err, tables) {
-          if (err) {
-            return res.serverError(err);
-          }
+        sails.log('Restaurant/subscribe: found tables ' + (new Date() - startTime) + 'ms');
 
-          // send restaurant data to the new subscriber via socket
-          var socketId = sails.sockets.id(req.socket);
-          sails.sockets.emit(socketId, 'init', {
-            table: tables,
-            request: requests
-          });
+        var requests = [];
+        for (var i = tables.length - 1; i >= 0; i--) {
+          var table = tables[i];
+          for (var j = table.Requests.length - 1; j >= 0; j--) {
+            var request = table.Requests[j];
+            requests.push({
+              id: request.id,
+              Type: request.Type,
+              Status: request.Status,
+              Importance: request.Importance,
+              createdAt: request.createdAt,
+              PayType: request.PayType,
+              PayAmount: request.PayAmount,
+              OrderItems: request.OrderItems,
+              Table: {
+                TableName: table.TableName
+              }
+            })
+          };
+        };
 
-          // notify other subscribers for new comer
-          Restaurant.message(restaurant, {
-            newSubscriber: currentUser.Email
-          }, req);
-
-          return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
+        // send restaurant data to the new subscriber via socket
+        var socketId = sails.sockets.id(req.socket);
+        sails.sockets.emit(socketId, 'init', {
+          table: tables,
+          request: requests
         });
-      });
 
+        // notify other subscribers for new comer
+        Restaurant.message(restaurant, {
+          newSubscriber: currentUser.Email
+        }, req);
+
+        sails.log('Restaurant/subscribe: end ' + (new Date() - startTime) + 'ms');
+        return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
+      });
     });
   },
 

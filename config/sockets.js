@@ -15,20 +15,13 @@ module.exports.sockets = {
   // Keep in mind that Sails' RESTful simulation for sockets
   // mixes in socket.io events for your routes and blueprints automatically.
   onConnect: function(session, socket) {
-    sails.log.debug('socket client connected: id = ' + socket.id);
+    sails.log.debug('sockets: onConnect socket.id = ' + socket.id);
     if (socket.connected) {
-      sails.log.debug('socket client already connected');
+      sails.log.debug('sockets: client already connected');
     } else {
-      sails.log.debug('socket client authenticated?');
+      sails.log.debug('sockets: client authenticated?');
       if (session.user) {
-        User.findOneById(session.user.id).exec(function (err, user){
-          if (err) {
-            sails.log.debug(err);
-            socket.disconnect();
-          } else {
-            return sails.log.debug('User authenticated:' + user.Email + ', role:' + user.Role);
-          }
-        });
+        return sails.log.debug('sockets: authenticated: ' + session.user.Email + ', ' + session.user.Role);
       } else {
         sails.log.debug('socket client not login. Disconnect it.')
         socket.disconnect();
