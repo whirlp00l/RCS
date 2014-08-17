@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .controller('tableMapCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket', 'RCS_EVENTS',
-    function($scope, $http, $modal, $log, rcsSocket, RCS_EVENTS){
+  .controller('tableMapCtrl', ['$rootScope', '$scope', '$http', '$modal', '$log', 'rcsData', 'RCS_EVENTS',
+    function($rootScope, $scope, $http, $modal, $log, rcsData, RCS_EVENTS){
 
       // initial table 2d array
       $scope.maxTableRow = 10;
@@ -16,6 +16,8 @@ angular
       var tableData = [];
 
       var updateTableData = function () {
+        tableData = rcsData.getTables();
+
         for (var i = 0; i < $scope.maxTableRow; i++) {
           for (var j = 0; j < $scope.maxTableCol; j++) {
             $scope.tables[i][j] = {
@@ -37,9 +39,7 @@ angular
       updateTableData();
 
       // listen to event
-      $scope.$on(RCS_EVENTS.tablesUpdate, function (event, data) {
-        $scope.requests = rcsSocket.data.tables;
-        tableData = rcsSocket.data.tables;
+      $rootScope.$on(RCS_EVENTS.tablesUpdate, function (event, data) {
         updateTableData();
 
         $log.debug('tableMapCtrl: start applying tables updated (' + (new Date() - data.startTime) + 'ms)');
@@ -48,20 +48,20 @@ angular
         });
       })
 
-      $scope.editMode = false;
+      // $scope.editMode = false;
 
-      $scope.$on(RCS_EVENTS.editModeOn, function (event) {
-        $scope.editMode = true;
-        $scope.safeApply(function () {
-          $log.debug('tableMapCtrl: get into edit mode');
-        });
-      });
+      // $scope.$on(RCS_EVENTS.editModeOn, function (event) {
+      //   $scope.editMode = true;
+      //   $scope.safeApply(function () {
+      //     $log.debug('tableMapCtrl: get into edit mode');
+      //   });
+      // });
 
-      $scope.$on(RCS_EVENTS.editModeOff, function (event) {
-        $scope.editMode = false;
-        $scope.safeApply(function () {
-          $log.debug('tableMapCtrl: get out of edit mode');
-        });
-      });
+      // $scope.$on(RCS_EVENTS.editModeOff, function (event) {
+      //   $scope.editMode = false;
+      //   $scope.safeApply(function () {
+      //     $log.debug('tableMapCtrl: get out of edit mode');
+      //   });
+      // });
 
     }]);

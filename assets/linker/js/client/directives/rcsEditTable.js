@@ -4,7 +4,8 @@ angular
     return {
       restrict: 'A',
       link: function ($scope, $element, $attr) {
-        var edit = false;
+        $scope.editMode = false;
+
         var textToTrunOn = '编辑桌子';
         var textToTrunOff = '完成编辑';
 
@@ -13,15 +14,15 @@ angular
         }
 
         $scope.toggleEdit = function () {
-          edit = !edit;
+          $scope.editMode = !$scope.editMode;
           var rcsEvent = null;
 
-          if (edit) {
+          if ($scope.editMode) {
             $scope.rcsToggleEdit.text = textToTrunOff;
-            rcsEvent = RCS_EVENTS.editModeOn;
+            // rcsEvent = RCS_EVENTS.editModeOn;
           } else {
             $scope.rcsToggleEdit.text = textToTrunOn;
-            rcsEvent = RCS_EVENTS.editModeOff;
+            // rcsEvent = RCS_EVENTS.editModeOff;
           }
 
           if (typeof $scope.status.isOpen != 'undefined') {
@@ -29,19 +30,19 @@ angular
           }
 
           $scope.safeApply();
-          $rootScope.$broadcast(rcsEvent);
+          // $rootScope.$broadcast(rcsEvent);
         }
 
-        $scope.safeApply = function(fn) {
-          var phase = this.$root.$$phase;
-          if(phase == '$apply' || phase == '$digest') {
-            if(fn && (typeof(fn) === 'function')) {
-              fn();
-            }
-          } else {
-            this.$apply(fn);
-          }
-        }
+        // $scope.safeApply = function(fn) {
+        //   var phase = this.$root.$$phase;
+        //   if(phase == '$apply' || phase == '$digest') {
+        //     if(fn && (typeof(fn) === 'function')) {
+        //       fn();
+        //     }
+        //   } else {
+        //     this.$apply(fn);
+        //   }
+        // }
 
         $element.bind('click', $scope.toggleEdit);
       }

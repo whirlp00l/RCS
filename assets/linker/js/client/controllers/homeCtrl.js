@@ -1,25 +1,31 @@
 ﻿angular
   .module('rcs')
-  .controller('homeCtrl', ['$scope', 'rcsSocket', '$state', '$stateParams', '$window',
-    function($scope, rcsSocket, $state, $stateParams, $window){
+  .controller('homeCtrl', ['$scope', 'rcsSocket', 'rcsData', '$state', '$stateParams', '$window',
+    function($scope, rcsSocket, rcsData, $state, $stateParams, $window){
       $window.innerHeight = 500;
-      if (typeof $stateParams.restaurantId == 'undefined') {
+      if (!rcsData.getRestaurantId()) {
         return $state.go('restaurant');
       }
 
-      $scope.restaurantId = $stateParams.restaurantId;
+      $scope.restaurantId = rcsData.getRestaurantId();
+      $scope.restaurantName = rcsData.getRestaurantName();
 
-      rcsSocket.connect($scope.restaurantId);
+      rcsSocket.connect()
 
       // used in Ctrl inherited from homeCtrl
       $scope.safeApply = function(fn) {
-        var phase = this.$root.$$phase;
-        if(phase == '$apply' || phase == '$digest') {
-          if(fn && (typeof(fn) === 'function')) {
-            fn();
+        try {
+          var phase = this.$root.$$phase;
+          if(phase == '$apply' || phase == '$digest') {
+            if(fn && (typeof(fn) === 'function')) {
+              fn();
+            }
+          } else {
+            this.$apply(fn);
           }
-        } else {
-          this.$apply(fn);
+        }
+        catch (err) {
+
         }
       }
     }]);

@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .directive('rcsLogout', ['$state', 'AuthService', 'rcsSocket', function ($state, AuthService, rcsSocket) {
+  .directive('rcsLogout', ['$state', 'rcsAuth', 'rcsSocket', function ($state, rcsAuth, rcsSocket) {
     return {
       restrict: 'A',
 

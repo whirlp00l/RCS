@@ -1,11 +1,11 @@
 angular
   .module('rcs')
-  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'AuthService', '$state',
-    function ($scope, $rootScope, AUTH_EVENTS, AuthService, $state) {
+  .controller('loginCtrl', ['$scope', '$rootScope', 'AUTH_EVENTS', 'rcsAuth', '$state',
+    function ($scope, $rootScope, AUTH_EVENTS, rcsAuth, $state) {
       $scope.debug = false;
 
       // if already logged in
-      if (AuthService.isAuthenticated()) {
+      if (rcsAuth.isAuthenticated()) {
         $state.go('restaurant');
       }
 
@@ -15,7 +15,7 @@ angular
       };
 
       $scope.login = function (credentials) {
-        AuthService.login(credentials)
+        rcsAuth.login(credentials)
           .success(function () {
             $state.go('restaurant');
           })

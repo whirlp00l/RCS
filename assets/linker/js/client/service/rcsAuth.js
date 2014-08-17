@@ -1,6 +1,6 @@
 angular
   .module('rcs')
-  .factory('AuthService', ['$rootScope', '$http', 'SessionService', 'AUTH_EVENTS', 'USER_ROLES', 'rcsAPI',
+  .factory('rcsAuth', ['$rootScope', '$http', 'SessionService', 'AUTH_EVENTS', 'USER_ROLES', 'rcsAPI',
     function ($rootScope, $http, SessionService, AUTH_EVENTS, USER_ROLES, rcsAPI) {
 
       var authService = {};

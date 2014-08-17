@@ -1,36 +1,41 @@
 angular
   .module('rcs')
-  .service('rcsSocket', ['$rootScope', '$state', '$log', 'rcsAPI', 'AuthService', 'RCS_EVENTS',
-    function($rootScope, $state, $log, rcsAPI, AuthService, RCS_EVENTS) {
+  .service('rcsSocket', ['$rootScope', '$state', '$log', 'rcsAPI', 'rcsData', 'rcsAuth', 'RCS_EVENTS',
+    function($rootScope, $state, $log, rcsAPI, rcsData, rcsAuth, RCS_EVENTS) {
 
       var rcsSocket = this;
 
       var disconnectAndLogout = function () {
         $log.debug("rcsSocket: disconnected!");
 
-        rcsSocket.data = {
-          tables: [],
-          requests: []
-        };
+        rcsData.resetRestaurantData();
 
-        AuthService.logout(function () {
+        rcsAuth.logout(function () {
           $state.go('login');
         })
       }
 
       var subscribe = function () {
-        // clear cache data
-        rcsSocket.data = {
-          tables: [],
-          requests: []
-        };
+        rcsData.resetRestaurantData();
 
         // subscribe to restaurant message event
-        rcsSocket.sailsSocket.get('/Restaurant/subscribe', {
-          RestaurantId: rcsSocket.restaurantId
-        }, function getSubscribe (data) {
-          $log.debug(data);
-        });
+        var restaurantId = rcsData.getRestaurantId();
+        if (!restaurantId) {
+          return $log.error('rcsSocket: failed to subscribe, invalid restaurantId = ' + restaurantId);
+        }
+
+        rcsSocket.sailsSocket.get('/Restaurant/subscribe', {RestaurantId: rcsData.getRestaurantId()});
+      }
+
+      var notify = function () {
+        var startTime = new Date();
+        $log.debug('rcsSocket: started broadcasting tablesUpdate (' + (new Date() - startTime) + 'ms)');
+        $rootScope.$emit(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+        $log.debug('rcsSocket: broadcasted tablesUpdate (' + (new Date() - startTime) + 'ms)');
+
+        $log.debug('rcsSocket: started broadcasting requestsUpdate (' + (new Date() - startTime) + 'ms)');
+        $rootScope.$emit(RCS_EVENTS.requestsUpdate, {startTime: startTime});
+        $log.debug('rcsSocket: broadcasted requestsUpdatet (' + (new Date() - startTime) + 'ms)');
       }
 
       var listen = function() {
@@ -46,24 +51,28 @@ angular
           rcsSocket.sailsSocket.on('init', function (msg) {
             $log.debug('rcsSocket: received init');
             $log.debug(msg);
-            var startTime = new Date();
 
-            rcsSocket.data.tables = msg.table;
-            $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-            rcsSocket.data.requests = msg.request;
-            $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
+            rcsData.setTables(msg.table);
+            rcsData.setRequests(msg.request);
+            notify();
           });
 
           // listen to 'message'
 
+          // notify other subscribers for new comer
+          // Restaurant.message(restaurant, {
+          //   newSubscriber: currentUser.Email
+          // }, req);
+
           rcsSocket.sailsSocket.on('restaurant', function (msg) {
-            $log.debug('rcsSocket: received message (0ms)');
+            $log.debug('rcsSocket: received message');
             $log.debug(msg);
-            var startTime = new Date();
 
             switch(msg.verb) {
               case 'messaged':
                 var data = msg.data;
+                var tables = rcsData.getTables();
+                var requests = rcsData.getRequests();
 
                 // handle new-table
                 if (data.newTable) {
@@ -71,11 +80,7 @@ angular
                     data.newTable = [data.newTable];
                   }
 
-                  rcsSocket.data.tables = rcsSocket.data.tables.concat(data.newTable);
-
-                  $log.debug('rcsSocket: started broadcasting new-table (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted new-table (' + (new Date() - startTime) + 'ms)');
+                  tables.concat(data.newTable);
                 }
 
                 // handle new-request
@@ -84,11 +89,7 @@ angular
                     data.newRequest = [data.newRequest];
                   }
 
-                  rcsSocket.data.requests = rcsSocket.data.requests.concat(data.newRequest);
-
-                  $log.debug('rcsSocket: started broadcasting new-request (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted new-request (' + (new Date() - startTime) + 'ms)');
+                  requests.concat(data.newRequest);
                 }
 
                 // handle remove-table
@@ -98,18 +99,14 @@ angular
                   }
 
                   var removedCount = 0;
-                  for (var i = rcsSocket.data.tables.length - 1; i >= 0; i--) {
-                    if (data.removeTableId.indexOf(rcsSocket.data.tables[i].id) != -1) {
-                      rcsSocket.data.tables.splice(i, 1);
+                  for (var i = tables.length - 1; i >= 0; i--) {
+                    if (data.removeTableId.indexOf(tables[i].id) != -1) {
+                      tables.splice(i, 1);
                       if (++removedCount == data.removeTableId.length) {
                         break;
                       }
                     }
-                  };
-
-                  $log.debug('rcsSocket: started broadcasting set-table (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted remove-table (' + (new Date() - startTime) + 'ms)');
+                  }
                 }
 
                 // handle remove-request
@@ -119,18 +116,14 @@ angular
                   }
 
                   var removedCount = 0;
-                  for (var i = rcsSocket.data.requests.length - 1; i >= 0; i--) {
-                    if (data.removeRequestId.indexOf(rcsSocket.data.requests[i].id) != -1) {
-                      rcsSocket.data.requests.splice(i, 1);
+                  for (var i = requests.length - 1; i >= 0; i--) {
+                    if (data.removeRequestId.indexOf(requests[i].id) != -1) {
+                      requests.splice(i, 1);
                       if (++removedCount == data.removeRequestId.length) {
                         break;
                       }
                     }
-                  };
-
-                  $log.debug('rcsSocket: started broadcasting remove-request (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.requestsUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted remove-request (' + (new Date() - startTime) + 'ms)');
+                  }
                 }
 
                 // handle set-table
@@ -142,17 +135,13 @@ angular
                   for (var i = data.setTable.length - 1; i >= 0; i--) {
                     var tableToUpdate = data.setTable[i];
 
-                    for (var k = rcsSocket.data.tables.length - 1; k >= 0; k--) {
-                      if (rcsSocket.data.tables[k].id == tableToUpdate.id) {
-                        rcsSocket.data.tables[k] = tableToUpdate;
+                    for (var k = tables.length - 1; k >= 0; k--) {
+                      if (tables[k].id == tableToUpdate.id) {
+                        tables[k] = tableToUpdate;
                         break;
                       }
                     }
                   }
-
-                  $log.debug('rcsSocket: started broadcasting set-table (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted set-table (' + (new Date() - startTime) + 'ms)');
                 }
 
                 // handle set-request
@@ -164,18 +153,19 @@ angular
                   for (var i = data.setRequest.length - 1; i >= 0; i--) {
                     var requestToUpdate = data.setRequest[i];
 
-                    for (var k = rcsSocket.data.requests.length - 1; k >= 0; k--) {
-                      if (rcsSocket.data.requests[k].id == requestToUpdate.id) {
-                        rcsSocket.data.requests[k] = requestToUpdate;
+                    for (var k = requests.length - 1; k >= 0; k--) {
+                      if (requests[k].id == requestToUpdate.id) {
+                        requests[k] = requestToUpdate;
                         break;
                       }
                     }
                   }
-
-                  $log.debug('rcsSocket: started broadcasting set-request (' + (new Date() - startTime) + 'ms)');
-                  $rootScope.$broadcast(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-                  $log.debug('rcsSocket: broadcasted set-request (' + (new Date() - startTime) + 'ms)');
                 }
+
+                // set the data back
+                rcsData.setTables(tables);
+                rcsData.setRequests(requests);
+                notify();
 
                 break;
               default:
@@ -189,21 +179,13 @@ angular
       }
 
       // exposing
-      rcsSocket.restaurantId = null;
 
-      rcsSocket.data = {
-        tables: [],
-        requests: []
-      };
-
-      rcsSocket.connect = function (restaurantId) {
-
-        rcsSocket.restaurantId = restaurantId;
+      rcsSocket.connect = function () {
 
         // check if already connected
         if (rcsSocket.sailsSocket && rcsSocket.sailsSocket.socket.connected)
         {
-          $log.debug("rcsSocket had already connected!");
+          $log.debug("rcsSocket: had already connected!");
           return subscribe();
         }
 
@@ -219,7 +201,7 @@ angular
 
         // listen to 'connect'
         rcsSocket.sailsSocket.on('connect', function rcsSocketConnected() {
-          $log.debug("rcsSocket just connected!");
+          $log.debug("rcsSocket: just connected!");
 
           // subscribe to restaurant message event
           subscribe();

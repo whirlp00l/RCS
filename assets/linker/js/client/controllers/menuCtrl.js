@@ -1,16 +1,14 @@
 angular
   .module('rcs')
-  .controller('menuCtrl', ['$scope', '$state', '$stateParams', '$modal', '$timeout', 'rcsAPI', 'TEXT', 'menu',
-    function($scope, $state, $stateParams, $modal, $timeout, rcsAPI, TEXT, menu){
+  .controller('menuCtrl', ['$scope', '$state', '$stateParams', '$modal', '$timeout', 'rcsAPI', 'rcsData', 'TEXT', 'menu',
+    function($scope, $state, $stateParams, $modal, $timeout, rcsAPI, rcsData, TEXT, menu){
 
-      if (!$stateParams.restaurantId) {
-        var toStateName = $state.previous.state.name;
-        var toStateParams = $state.previous.params;
-
-        return $state.go(toStateName, toStateParams);
+      if (!rcsData.getRestaurantId()) {
+        return $state.go('restaurant');
       }
 
-      $scope.restaurantId = $stateParams.restaurantId;
+      $scope.restaurantId = rcsData.getRestaurantId();
+      $scope.restaurantName = rcsData.getRestaurantName();
       $scope.menuItems = menu;
       $scope.menuTypes = [];
       $scope.master = {

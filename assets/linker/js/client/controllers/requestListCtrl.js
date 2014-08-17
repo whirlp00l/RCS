@@ -1,10 +1,10 @@
 angular
   .module('rcs')
-  .controller('requestListCtrl', ['$scope', '$http', '$modal', '$log', 'rcsSocket', 'RCS_EVENTS',
-    function($scope, $http, $modal, $log, rcsSocket, RCS_EVENTS) {
+  .controller('requestListCtrl', ['$rootScope', '$scope', '$http', '$modal', '$log', 'rcsData', 'RCS_EVENTS',
+    function($rootScope, $scope, $http, $modal, $log, rcsData, RCS_EVENTS) {
 
-      $scope.$on(RCS_EVENTS.requestsUpdate, function (event) {
-        $scope.requests = rcsSocket.data.requests;
+      $rootScope.$on(RCS_EVENTS.requestsUpdate, function (event) {
+        $scope.requests = rcsData.getRequests();
         $scope.safeApply(function () {
           $log.debug('requestCtrl: applied requests updated');
         });

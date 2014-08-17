@@ -16,11 +16,15 @@ h1 餐厅
           b {{restaurant.RestaurantName}}
           h1(ng-if="canManage(restaurant)")
         .material-tile-right
-          button.material-button.material-button-raised.material-theme-red.full-width(style="height:2em"
+          button.material-button.material-button-raised.material-theme-red.full-width(
+            style="height:2em"
+            ng-click="selectRestaurant($index)"
             rcs-go-home restaurant-id="{{restaurant.id}}") <b>管理餐厅</b>
           div(ng-if="canManage(restaurant)")
             h4
-            button.material-button.material-button-raised.full-width(style="height:2em"
+            button.material-button.material-button-raised.full-width(
+              style="height:2em"
+              ng-click="selectRestaurant($index)"
               rcs-go-admin restaurant-id="{{restaurant.id}}") <b>分配管理员</b>
     //- .btn-group.full-width(dropdown is-open="status.isopen")
       button.btn.btn-default.dropdown-toggle.full-width(type="button", ng-disabled="disabled")

@@ -1,13 +1,14 @@
 angular
   .module('rcs')
-  .controller('adminCtrl', ['$scope', '$state', '$stateParams', '$modal', 'admins', 'rcsAPI', 'TEXT',
-    function($scope, $state, $stateParams, $modal, admins, rcsAPI, TEXT){
+  .controller('adminCtrl', ['$scope', '$state', '$stateParams', '$modal', 'admins', 'rcsAPI', 'rcsData', 'TEXT',
+    function($scope, $state, $stateParams, $modal, admins, rcsAPI, rcsData, TEXT){
 
-      if (!$stateParams.restaurantId) {
+      if (!rcsData.getRestaurantId()) {
         return $state.go('restaurant');
       }
 
-      $scope.restaurantId = $stateParams.restaurantId;
+      $scope.restaurantId = rcsData.getRestaurantId();
+      $scope.restaurantName = rcsData.getRestaurantName();
       $scope.admins = admins;
 
       $scope.done = function () {

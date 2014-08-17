@@ -104,8 +104,8 @@ angular
         });
     }]
   )
-  .run(['$rootScope', '$state', '$stateParams', 'AuthService', 'USER_ROLES',
-    function($rootScope, $state, $stateParams, AuthService, USER_ROLES) {
+  .run(['$rootScope', '$state', '$stateParams', 'rcsAuth', 'USER_ROLES',
+    function($rootScope, $state, $stateParams, rcsAuth, USER_ROLES) {
        $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
         $state.previous = {
           state: fromState,
@@ -115,7 +115,7 @@ angular
 
       $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
         // handshake with server
-        AuthService.handshake();
+        rcsAuth.handshake();
 
         // track the state the user wants to go to; authorization service needs this
         var authorizedRoles = toState.data.authorizedRoles;
@@ -132,9 +132,9 @@ angular
           return;
         }
 
-        if (!AuthService.isAuthorized(authorizedRoles)) {
+        if (!rcsAuth.isAuthorized(authorizedRoles)) {
           event.preventDefault();
-          if (AuthService.isAuthenticated()) {
+          if (rcsAuth.isAuthenticated()) {
             // user is not allowed
             $state.go('login');
           } else {
