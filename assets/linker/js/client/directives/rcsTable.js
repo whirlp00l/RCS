@@ -1,14 +1,14 @@
 angular
   .module('rcs')
-  .directive('rcsTable', ['$modal', 'rcsAPI', 'REQUEST_STATUS',
-    function ($modal, rcsAPI, REQUEST_STATUS) {
+  .directive('rcsTable', ['$modal', 'rcsAPI', 'TABLE_STATUS',
+    function ($modal, rcsAPI, TABLE_STATUS) {
       return {
         restrict: 'A',
         templateUrl: '/template/rcsTable',
 
         link: function ($scope, $element, $attr) {
 
-          // click table
+          // binding click event
           var addTable = function (table) {
             var modalInstance = $modal.open({
               templateUrl: '/template/modalNewTable',
@@ -59,78 +59,9 @@ angular
             }
           }
 
-          // show table
-          $scope.getTableName = function() {
-            if ($scope.isNothing()) {
-              return null;
-            }
+          $element.bind('click', $scope.clickTable);
 
-            return $scope.table.data.TableName;
-          }
-
-          $scope.getTableStatus = function() {
-            if ($scope.isNothing()) {
-              return null;
-            }
-
-            return $scope.table.data.Status;
-          }
-
-          var getTableStatusText = function(tableData) {
-            switch (tableData.Status) {
-              case 'empty':
-                return '空桌';
-              case 'paying':
-                return '正在支付';
-              case 'paid':
-                return '已支付';
-              defalut:
-                return tableData.Status;
-            }
-          }
-
-          $scope.getTableUpdateDurationMin = function (tableData) {
-            var diff = new Date() - new Date(tableData.StatusUpdateAt);
-            if (diff < 0) {
-              diff = 0;
-            }
-            return Math.floor(diff/1000/60);
-          }
-
-          $scope.getTooltip = function (table) {
-            if (table.data == $scope.undefinedTable) {
-              return '';
-            }
-
-            var bookingInfo = '';
-            if ($scope.isBooked(table)) {
-              bookingInfo = (
-                '<div class="rcs-table-tooltip">' +
-                  '预订: {0} {1}' +
-                '</div>'
-                ).format(
-                  table.data.BookName,
-                  new Date(table.data.BookDateTime).format('mm/dd HH:MM')
-                );
-            }
-
-            var linkInfo = '<div class="rcs-table-tooltip"><i class="{0}"></i>{1}</div>'.format(
-                $scope.isLinked(table) ? 'glyphicon glyphicon-ok' :'glyphicon glyphicon-remove',
-                $scope.isLinked(table) ? '已关联' :'未关联'
-            );
-
-            return (
-              '<div class="rcs-tooltip">' +
-                '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
-              '</div>'
-            ).format(
-              table.data.TableType,
-              getTableStatusText(table.data),
-              $scope.getTableUpdateDurationMin(table.data)
-            ) + bookingInfo + linkInfo;
-          }
-
-          // check table
+          // conditions
           $scope.isNothing = function () {
             return $scope.table.data === $scope.undefinedTable;
           }
@@ -192,7 +123,80 @@ angular
             return true;
           }
 
-          $element.bind('click', $scope.clickTable);
+          // properties
+          $scope.getTableName = function() {
+            if ($scope.isNothing()) {
+              return null;
+            }
+
+            return $scope.table.data.TableName;
+          }
+
+          $scope.getTableStatus = function() {
+            if ($scope.isNothing()) {
+              return null;
+            }
+
+            return $scope.table.data.Status;
+          }
+
+          var getTableStatusText = function(tableData) {
+            switch (tableData.Status) {
+              case TABLE_STATUS.empty:
+                return TABLE_STATUS.emptyText;
+              case TABLE_STATUS.ordering:
+                return TABLE_STATUS.orderingText;
+              case TABLE_STATUS.ordered:
+                return TABLE_STATUS.orderedText;
+              case TABLE_STATUS.paying:
+                return TABLE_STATUS.payingText;
+              case TABLE_STATUS.paid:
+                return TABLE_STATUS.paidText;
+              defalut:
+                return tableData.Status;
+            }
+          }
+
+          $scope.getTableUpdateDurationMin = function (tableData) {
+            var diff = new Date() - new Date(tableData.StatusUpdateAt);
+            if (diff < 0) {
+              diff = 0;
+            }
+            return Math.floor(diff/1000/60);
+          }
+
+          $scope.getTooltip = function (table) {
+            if (table.data == $scope.undefinedTable) {
+              return '';
+            }
+
+            var bookingInfo = '';
+            if ($scope.isBooked(table)) {
+              bookingInfo = (
+                '<div class="rcs-table-tooltip">' +
+                  '预订: {0} {1}' +
+                '</div>'
+                ).format(
+                  table.data.BookName,
+                  new Date(table.data.BookDateTime).format('mm/dd HH:MM')
+                );
+            }
+
+            var linkInfo = '<div class="rcs-table-tooltip"><i class="{0}"></i>{1}</div>'.format(
+                $scope.isLinked(table) ? 'glyphicon glyphicon-ok' :'glyphicon glyphicon-remove',
+                $scope.isLinked(table) ? '已关联' :'未关联'
+            );
+
+            return (
+              '<div class="rcs-tooltip">' +
+                '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
+              '</div>'
+            ).format(
+              table.data.TableType,
+              getTableStatusText(table.data),
+              $scope.getTableUpdateDurationMin(table.data)
+            ) + bookingInfo + linkInfo;
+          }
         }
       }
     }]);

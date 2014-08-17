@@ -17,7 +17,7 @@
             b 历史
   .row
     material-list(ng-if="selectedIndex == 0")
-      rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10 track by $index")
+      rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:['-Importance', 'createdAt'] | limitTo: 10 track by $index")
     material-list(ng-if="selectedIndex == 1")
       rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
 

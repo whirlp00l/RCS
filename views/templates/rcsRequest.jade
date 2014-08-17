@@ -1,12 +1,13 @@
 material-item.rcs-request(
-  ng-class="{'rcs-request-important':importanceHigh()}"
+  ng-class="{'rcs-request-important':isImportant()}"
   tooltip-placement="left"
   tooltip-popup-delay="100"
   tooltip-html-unsafe="{{getTooltip()}}")
   .material-tile-left
     b.pull-left.glyphicon.glyphicon-usd(ng-if="request.Type==requestType.pay")
-    b.pull-left.glyphicon.glyphicon-earphone(ng-if="request.Type==requestType.call")
+    b.pull-left.glyphicon.glyphicon-user(ng-if="request.Type==requestType.call")
     b.pull-left.glyphicon.glyphicon-tint(ng-if="request.Type==requestType.water")
+    b.pull-left.glyphicon.glyphicon-th-list(ng-if="request.Type==requestType.order")
   .material-tile-content
     span.<b>{{request.Table.TableName}}</b> {{getRequestText()}}
   .material-tile-right

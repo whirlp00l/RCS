@@ -68,10 +68,10 @@ module.exports.policies = {
 
   'Request':
   {
-    '*': 'isAuthenticated',
-    'create': 'isLinkedTablet',
+    'create': 'isLinkedTabletOfRestaurant',
     'list': ['isAuthenticated', 'hasRestaurantPermission'],
-
+    'start': ['isAuthenticated', 'hasRequestPermission'],
+    'close': ['isAuthenticated', 'hasRequestPermission'],
     'deleteAll': true // test only
   },
 

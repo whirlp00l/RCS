@@ -13,7 +13,7 @@ module.exports = function(req, res, next) {
   var token = req.body.Token;
 
   if (typeof restaurantId == 'undefined') {
-    return res.badRequest('Missing required fields: restaurantId');
+    return res.badRequest('Missing required fields: RestaurantId');
   }
 
   sails.log('policy - isLinkedTabletOfRestaurant: restaurantId = ' + restaurantId);

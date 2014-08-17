@@ -9,19 +9,10 @@
 module.exports = {
 
   attributes: {
-    RestaurantName: {
-      type: 'string',
-      // required: true,
-      // notEmpty: true
-    },
-    TableName: {
-      type: 'string',
-      // required: true,
-      // notEmpty: true
-    },
+
     Type: {
       type: 'string',
-      in: ['pay', 'water', 'call'],
+      in: ['pay', 'water', 'call', 'order'],
       required: true,
       notEmpty: true
     },
@@ -61,7 +52,9 @@ module.exports = {
     Restaurant: {
       model: 'restaurant',
       via: 'Requests'
-    }
+    },
+
+    OrderItems: 'array'
   }
 
 };

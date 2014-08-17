@@ -3,7 +3,7 @@
   line-height: 0;
 }
 
-material-button.customized-material-button {
+material-button.customized {
   height: 3em;
   line-height: 3em;
 }
@@ -51,10 +51,10 @@ material-tabs.customized material-tab material-tab-label.active {
 }
 
 material-ink-bar {
-  height: 4px;
+  height: 5px;
   background: black;
   position: absolute;
-  margin-top: -4px;
+  margin-top: -5px;
 }
 
 material-tabs.customized .material-ink-ripple {
@@ -70,4 +70,12 @@ input.material-input.material-input-red.has-value
 input.material-input.material-input-red.focus:focus {
   border-color: #db4437;
   border-bottom-width: 2px;
+}
+
+material-dialog.width-md {
+  width: 600px;
+}
+
+material-dialog .dialog-content.height-md {
+  height: 400px;
 }

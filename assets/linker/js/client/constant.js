@@ -39,6 +39,23 @@ angular
   })
   .constant('REQUEST_TYPE', {
     call: 'call',
+    callText: '呼叫服务',
     pay: 'pay',
-    water: 'water'
+    payText: '请求结账',
+    water: 'water',
+    waterText: '请求加水',
+    order: 'order',
+    orderText: '提交点菜'
+  })
+  .constant('TABLE_STATUS', {
+    empty: 'empty',
+    emptyText: '空桌',
+    ordering: 'ordering',
+    orderingText: '正在点菜',
+    ordered: 'ordered',
+    orderedText: '正在用餐',
+    paying: 'paying',
+    payingText: '正在结帐',
+    paid: 'paid',
+    paidText: '已结帐'
   });

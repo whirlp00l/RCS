@@ -331,7 +331,7 @@ var updateOrder = function (req, res, isNew) {
   var orderItems = req.body.OrderItems;
 
   if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
-    return res.badRequest('Missing required field: ' + Order);
+    return res.badRequest('Missing required field: OrderItems');
   }
 
   Table.findOneById(tableId).populate('Restaurant').exec(function (err, table) {

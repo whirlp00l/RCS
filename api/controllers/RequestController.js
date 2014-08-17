@@ -14,18 +14,6 @@
  *
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
-var isSubscriber = function (restaurantId, req) {
-  sails.log.debug('If request client has subscribed to ' + restaurantId);
-  sails.log.debug('req.session.subscribedRestaurant.id = ' + req.session.subscribedRestaurant.id);
-
-  var has = false;
-  if (req.session.subscribedRestaurant && req.session.subscribedRestaurant.id == restaurantId) {
-    has = true;
-  }
-
-  sails.log.debug(has ? 'has subscribed' : 'not subscribed');
-  return has;
-}
 
 module.exports = {
   deleteAll: function (req, res) {
@@ -51,14 +39,13 @@ module.exports = {
 
   create: function (req, res) {
     var tableId = req.body.TableId;
+    var restaurantId = req.body.RestaurantId;
     var type = req.body.Type;
 
-    if (!tableId || !type ) {
-      return res.badRequest('Missing required fields.')
+    if (!type) {
+      return res.badRequest('Missing required field: type')
     }
 
-    var payType = req.body.PayType;
-    var payAmount = req.body.PayAmount;
 
     Table.findOneById(tableId).populate('Requests').exec(function (err, table) {
       if (err) {
@@ -66,76 +53,32 @@ module.exports = {
       }
 
       if (!table) {
-        return res.badRequest('Not exist: Table id = ' + tableId);
+        return res.badRequest('Invalid tableid = ' + tableId);
       }
 
-      var isDupRequest = false;
+      var hasDupRequest = false;
       var dupRequest = null;
       for (var i = table.Requests.length - 1; i >= 0; i--) {
         dupRequest = table.Requests[i];
         if (dupRequest.Status != "closed" && dupRequest.Type == type) {
-          isDupRequest = true;
+          hasDupRequest = true;
           break;
         }
       };
 
-      if (!isDupRequest) {
+      if (!hasDupRequest) {
         // create new request
-        Request.create({
-          Table: table.id,
-          Restaurant: table.Restaurant,
-          Type: type,
-          PayType: payType,
-          PayAmount: payAmount
-        }).exec(function (err, request) {
-          table.Requests.add(request.id);
-          if (request.Type == 'pay') {
-            table.Status = 'paying';
-            table.StatusUpdateAt = new Date();
-          }
-
-          table.save(function (err, table) {
-            if (err) {
-              return res.serverError(err);
-            }
-
-            Request.findOneById(request.id).populate('Table').exec(function (err, request) {
-              if (err) {
-                return res.serverError(err);
-              }
-
-              // publish a message to the restaurant.
-              // every client subscribed to the restaurant will get it.
-              Restaurant.message(table.Restaurant, {
-                newRequest: request,
-                setTable: table
-              });
-
-              return res.json(request);
-            });
-          });
-        });
+        switch (type) {
+          case 'order':
+            return createOrder(req, res, table, restaurantId, type);
+          case 'pay':
+            return createPay(req, res, table, restaurantId, type);
+          default:
+            return createOther(req, res, table, restaurantId, type);
+        }
       } else {
         // increase the priority
-        Request.update(dupRequest.id, {
-          Importance: parseInt(dupRequest.Importance) + 1
-        }).exec(function (err, request) {
-          if (err) {
-            return res.serverError(err);
-          }
-
-          Request.findOneById(dupRequest.id).populate('Table').exec(function (err, request) {
-            if (err) {
-              return res.serverError(err);
-            }
-
-            // publish a message to the restaurant.
-            // every client subscribed to the restaurant will get it.
-            Restaurant.message(table.Restaurant, {setRequest: request});
-
-            return res.json(request);
-          });
-        });
+        return bumpImportance(res, dupRequest, table, restaurantId);
       }
     });
   },
@@ -148,8 +91,8 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!request || !request.Restaurant || !isSubscriber(request.Restaurant, req)) {
-        return res.badRequest('Request [' + requestId + '] is invalid.');
+      if (!request) {
+        return res.badRequest('Invalid requestId = ' + requestId);
       }
 
       request.Status = 'inProgress';
@@ -176,8 +119,8 @@ module.exports = {
         return res.serverError(err);
       }
 
-      if (!request || !request.Restaurant || !isSubscriber(request.Restaurant, req)) {
-        return res.badRequest('Request [' + requestId + '] is invalid.');
+      if (!request) {
+        return res.badRequest('Invalid requestId = ' + requestId);
       }
 
       request.Status = 'closed';
@@ -220,3 +163,155 @@ module.exports = {
 
 
 };
+
+var createOrder = function (req, res, table, restaurantId, type) {
+  var orderItems = req.body.OrderItems;
+
+  if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
+    return res.badRequest('Missing required field: OrderItems');
+  }
+
+  var validateCount = 0;
+  for (var i = orderItems.length - 1; i >= 0; i--) {
+    var menuItemId = orderItems[i];
+    sails.log.debug('validate menuItemId = ' + menuItemId + ', restaurantId = ' + table.Restaurant.id);
+    MenuItem.findOne({
+      id: menuItemId,
+      Restaurant: table.Restaurant.id
+    }).exec(function (err, menuItem) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!menuItem) {
+        return res.badRequest('Invalid OrderItem = ' + menuItemId);
+      }
+
+      if (++validateCount == orderItems.length) {
+        Request.create({
+          Table: table.id,
+          Restaurant: restaurantId,
+          Type: type,
+          OrderItems: orderItems
+        })
+        .exec(function (err, request) {
+          table.Requests.add(request.id);
+          table.Status = 'ordering'; // check current status for blocking?
+          table.StatusUpdateAt = new Date();
+
+          table.save(function (err, table) {
+            if (err) {
+              return res.serverError(err);
+            }
+
+            // publish a message to the restaurant.
+            // every client subscribed to the restaurant will get it.
+            Restaurant.message(table.Restaurant, {
+              newRequest: getRequestMessage(request, table),
+              setTable: table
+            });
+
+            return res.json(request);
+          });
+        });
+      }
+    });
+  }
+}
+
+var createPay = function (req, res, table, restaurantId, type) {
+  var payType = req.body.PayType;
+  var payAmount = req.body.PayAmount;
+
+  if (!payType || !payAmount ) {
+    return res.badRequest('Missing required fields: payType, payAmount')
+  }
+
+  Request.create({
+    Table: table.id,
+    Restaurant: restaurantId,
+    Type: type,
+    PayType: payType,
+    PayAmount: payAmount
+  })
+  .exec(function (err, request) {
+    table.Requests.add(request.id);
+    table.Status = 'paying';
+    table.StatusUpdateAt = new Date();
+
+    table.save(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      // publish a message to the restaurant.
+      // every client subscribed to the restaurant will get it.
+      Restaurant.message(table.Restaurant, {
+        newRequest: getRequestMessage(request, table),
+        setTable: table
+      });
+
+      return res.json(request);
+    });
+  });
+}
+
+var createOther = function (req, res, table, restaurantId, type) {
+  Request.create({
+    Table: table.id,
+    Restaurant: restaurantId,
+    Type: type
+  })
+  .exec(function (err, request) {
+    table.Requests.add(request.id);
+
+    table.save(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      // publish a message to the restaurant.
+      // every client subscribed to the restaurant will get it.
+      Restaurant.message(table.Restaurant, {
+        newRequest: getRequestMessage(request, table),
+        setTable: table
+      });
+
+      return res.json(request);
+    });
+  });
+}
+
+var bumpImportance = function (res, request, table, restaurantId) {
+  Request.update(request.id, {
+    Importance: parseInt(request.Importance) == 0 ? 1 : 1
+  }).exec(function (err, request) {
+    if (err) {
+      return res.serverError(err);
+    }
+
+    Restaurant.message(restaurantId, {
+      setRequest: getRequestMessage(request, table)
+    });
+
+    return res.json({
+      message: 'request is being processed'
+    });
+  });
+}
+
+var getRequestMessage = function (request, table) {
+  return {
+    id: request.id,
+    Type: request.Type,
+    Status: request.Status,
+    Importance: request.Importance,
+    createdAt: request.createdAt,
+    PayType: request.PayType,
+    PayAmount: request.PayAmount,
+    OrderItems: request.OrderItems,
+    Table: {
+      TableName: table.TableName
+    }
+  }
+}

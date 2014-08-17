@@ -19,5 +19,5 @@ angular
         update();
       })
 
-      $scope.versionText = 'v0.1.6';
+      $scope.versionText = 'v0.1.7';
     }]);
