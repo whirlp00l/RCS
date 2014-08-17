@@ -174,10 +174,11 @@ var createOrder = function (req, res, table, restaurantId, type) {
   var validateCount = 0;
   for (var i = orderItems.length - 1; i >= 0; i--) {
     var menuItemId = orderItems[i];
-    sails.log.debug('validate menuItemId = ' + menuItemId + ', restaurantId = ' + table.Restaurant.id);
+
+    sails.log.debug('validate menuItemId = ' + menuItemId + ', restaurantId = ' + restaurantId);
     MenuItem.findOne({
       id: menuItemId,
-      Restaurant: table.Restaurant.id
+      Restaurant: restaurantId
     }).exec(function (err, menuItem) {
       if (err) {
         return res.serverError(err);
