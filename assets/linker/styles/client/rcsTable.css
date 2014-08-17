@@ -91,7 +91,11 @@
 .rcs-table > .rcs-table-text {
   position: absolute;
   font-size: 16px;
-  top: 40px;
+  top: 38px;
   height: 0;
   width: 100%;
+}
+
+.rcs-table.rcs-table-with-book > .rcs-table-text {
+  top: 30px;
 }
