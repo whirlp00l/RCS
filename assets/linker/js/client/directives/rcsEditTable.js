@@ -4,13 +4,8 @@ angular
     return {
       restrict: 'A',
       link: function ($scope, $element, $attr) {
-        $scope.editMode = false;
-
-        var textToTrunOn = '编辑桌子';
-        var textToTrunOff = '完成编辑';
-
-        $scope.rcsToggleEdit = {
-          text: textToTrunOn
+        if (typeof $scope.editMode == 'undefined') {
+          $scope.editMode = false;
         }
 
         $scope.toggleEdit = function () {
@@ -18,19 +13,12 @@ angular
           var rcsEvent = null;
 
           if ($scope.editMode) {
-            $scope.rcsToggleEdit.text = textToTrunOff;
-            // rcsEvent = RCS_EVENTS.editModeOn;
+            rcsEvent = RCS_EVENTS.editModeOn;
           } else {
-            $scope.rcsToggleEdit.text = textToTrunOn;
-            // rcsEvent = RCS_EVENTS.editModeOff;
+            rcsEvent = RCS_EVENTS.editModeOff;
           }
 
-          if (typeof $scope.status.isOpen != 'undefined') {
-            $scope.status.isOpen = false;
-          }
-
-          $scope.safeApply();
-          // $rootScope.$broadcast(rcsEvent);
+          $rootScope.$emit(rcsEvent);
         }
 
         // $scope.safeApply = function(fn) {

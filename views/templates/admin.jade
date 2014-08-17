@@ -9,7 +9,7 @@ h1 管理餐厅 <b>{{restaurantName}}</b>
       label 当前管理员
     .row
       .col-xs-3(ng-repeat="admin in admins")
-        button.material-button.material-button-raised.material-button-fab.rcs-icon(ng-click="removeAdmin(admin)")
+        material-button.customized-icon.material-button-fab.material-button-raised(ng-click="removeAdmin(admin)")
           sapn.glyphicon.glyphicon-user.font-size-lg
         span {{admin}}
         h4

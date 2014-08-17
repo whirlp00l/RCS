@@ -106,3 +106,8 @@ input.no-show {
 .tooltip * {
   opacity: 0.9;
 }
+
+/*home*/
+.col-xs-4.padding-left {
+  padding-left: 30px;
+}

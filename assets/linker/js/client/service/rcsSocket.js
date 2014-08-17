@@ -6,6 +6,11 @@ angular
       var rcsSocket = this;
 
       var disconnectAndLogout = function () {
+        if (rcsSocket.sailsSocket) {
+          rcsSocket.sailsSocket.removeAllListeners();
+          rcsSocket.sailsSocket = null;
+        }
+
         $log.debug("rcsSocket: disconnected!");
 
         rcsData.resetRestaurantData();
@@ -211,9 +216,9 @@ angular
           return rcsSocket.sailsSocket.socket.reconnect();
         }
 
-        // connect
+        // connect (force new connection, passing null as the 1st to let socket use the default url)
         $log.debug("rcsSocket: connecting...");
-        rcsSocket.sailsSocket = io.connect();
+        rcsSocket.sailsSocket = io.connect(null, { 'force new connection': true });
 
         // listen to 'connect'
         rcsSocket.sailsSocket.on('connect', function rcsSocketConnected() {

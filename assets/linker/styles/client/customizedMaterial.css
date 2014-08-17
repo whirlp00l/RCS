@@ -8,12 +8,16 @@ material-button.customized {
   line-height: 3em;
 }
 
-.material-button-fab.rcs-icon {
+.material-button-fab.customized-icon {
+  line-height: 0;
+}
+
+/*.material-button-fab.rcs-icon {
   width: 60px;
   height: 60px;
   position: static;
   display: block;
-}
+}*/
 
 .material-color-red {
   color: #db4437

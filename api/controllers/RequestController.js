@@ -212,7 +212,10 @@ var createOrder = function (req, res, table, restaurantId, type) {
               setTable: table
             });
 
-            return res.json(request);
+            return res.json({
+              newRequest: getRequestMessage(request, table),
+              setTable: table
+            });
           });
         });
       }
@@ -252,7 +255,10 @@ var createPay = function (req, res, table, restaurantId, type) {
         setTable: table
       });
 
-      return res.json(request);
+      return res.json({
+        newRequest: getRequestMessage(request, table),
+        setTable: table
+      });
     });
   });
 }
@@ -278,15 +284,17 @@ var createOther = function (req, res, table, restaurantId, type) {
         setTable: table
       });
 
-      return res.json(request);
+      return res.json({
+        newRequest: getRequestMessage(request, table),
+        setTable: table
+      });
     });
   });
 }
 
 var bumpImportance = function (res, request, table, restaurantId) {
-  Request.update(request.id, {
-    Importance: parseInt(request.Importance) == 0 ? 1 : 1
-  }).exec(function (err, request) {
+  request.Importance = parseInt(request.Importance) == 0 ? 1 : 1;
+  request.save(function (err) {
     if (err) {
       return res.serverError(err);
     }
@@ -296,12 +304,13 @@ var bumpImportance = function (res, request, table, restaurantId) {
     });
 
     return res.json({
-      message: 'request is being processed'
+      setRequest: getRequestMessage(request, table)
     });
   });
 }
 
 var getRequestMessage = function (request, table) {
+  sails.log.debug('getRequestMessage(' + request + ', ' + table + ')');
   return {
     id: request.id,
     Type: request.Type,

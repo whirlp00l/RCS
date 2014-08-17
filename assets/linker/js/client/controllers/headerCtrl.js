@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .controller('headerCtrl', ['$scope', 'SessionService', 'rcsAuth', 'AUTH_EVENTS',
-    function($scope, SessionService, rcsAuth, AUTH_EVENTS){
+  .controller('headerCtrl', ['$rootScope', '$scope', 'SessionService', 'rcsAuth', 'AUTH_EVENTS',
+    function($rootScope, $scope, SessionService, rcsAuth, AUTH_EVENTS){
 
       var update = function () {
         $scope.isAuthenticated = rcsAuth.isAuthenticated();
@@ -11,13 +11,13 @@ angular
 
       update();
 
-      $scope.$on(AUTH_EVENTS.loginSuccess, function (event) {
+      $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event) {
         update();
       });
 
-      $scope.$on(AUTH_EVENTS.logoutSuccess, function (event) {
+      $rootScope.$on(AUTH_EVENTS.logoutSuccess, function (event) {
         update();
       })
 
-      $scope.versionText = 'v0.1.7';
+      $scope.versionText = 'v0.1.8';
     }]);

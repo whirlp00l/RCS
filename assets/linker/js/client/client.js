@@ -16,6 +16,13 @@ angular
             name: '登录',
             authorizedRoles: [USER_ROLES.any]
           },
+          resolve: {
+            handshake: function (rcsAPI) {
+              return rcsAPI.User.handshake().then(function (res) {
+                return res.data;
+              });
+            }
+          }
         })
         .state('signup', {
           url: '/signup',

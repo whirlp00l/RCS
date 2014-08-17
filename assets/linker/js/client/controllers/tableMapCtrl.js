@@ -16,7 +16,6 @@ angular
       var tableData = [];
 
       var updateTableData = function () {
-        tableData = rcsData.getTables();
 
         for (var i = 0; i < $scope.maxTableRow; i++) {
           for (var j = 0; j < $scope.maxTableCol; j++) {
@@ -36,32 +35,43 @@ angular
         }
       }
 
+      $scope.isLoadingTable = true;
       updateTableData();
 
       // listen to event
       $rootScope.$on(RCS_EVENTS.tablesUpdate, function (event, data) {
+        tableData = rcsData.getTables();
+        if (tableData.length == 0) {
+          $rootScope.$emit(RCS_EVENTS.editModeOn);
+        }
+
         updateTableData();
 
         $log.debug('tableMapCtrl: start applying tables updated (' + (new Date() - data.startTime) + 'ms)');
         $scope.safeApply(function () {
           $log.debug('tableMapCtrl: applied tables updated (' + (new Date() - data.startTime) + 'ms)');
+          $scope.isLoadingTable = false;
         });
       })
 
+      $scope.$on('$destroy', function (argument) {
+        $log.debug('tableMapCtrl: destroy');
+      });
+
       // $scope.editMode = false;
 
-      // $scope.$on(RCS_EVENTS.editModeOn, function (event) {
-      //   $scope.editMode = true;
-      //   $scope.safeApply(function () {
-      //     $log.debug('tableMapCtrl: get into edit mode');
-      //   });
-      // });
+      $rootScope.$on(RCS_EVENTS.editModeOn, function (event) {
+        $scope.editMode = true;
+        $scope.safeApply(function () {
+          $log.debug('tableMapCtrl: get into edit mode');
+        });
+      });
 
-      // $scope.$on(RCS_EVENTS.editModeOff, function (event) {
-      //   $scope.editMode = false;
-      //   $scope.safeApply(function () {
-      //     $log.debug('tableMapCtrl: get out of edit mode');
-      //   });
-      // });
+      $rootScope.$on(RCS_EVENTS.editModeOff, function (event) {
+        $scope.editMode = false;
+        $scope.safeApply(function () {
+          $log.debug('tableMapCtrl: get out of edit mode');
+        });
+      });
 
     }]);

@@ -9,7 +9,7 @@ angular
         return rcsAPI.User.login(credentials.email, credentials.password)
           .success(function (user) {
             SessionService.create(user.Email, user.Role);
-            $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+            $rootScope.$emit(AUTH_EVENTS.loginSuccess);
           });
       };
 
@@ -21,22 +21,22 @@ angular
         return rcsAPI.User.logout()
           .success(function () {
             SessionService.destroy();
-            $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+            $rootScope.$emit(AUTH_EVENTS.logoutSuccess);
             cb();
           });
       };
 
-      authService.handshake = function (argument) {
+      authService.handshake = function () {
         return rcsAPI.User.handshake()
           .success(function (user) {
             SessionService.destroy();
             if (user) {
               // user logged in
               SessionService.create(user.Email, user.Role);
-              $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+              $rootScope.$emit(AUTH_EVENTS.loginSuccess);
             } else {
               // no user logged in
-              $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+              $rootScope.$emit(AUTH_EVENTS.logoutSuccess);
             }
           });
       }

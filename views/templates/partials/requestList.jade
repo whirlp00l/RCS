@@ -1,39 +1,44 @@
-.row.no-margin.text-unselectable(ng-controller="requestListCtrl")
-  .row
-    material-tabs.customized(selected="selectedIndex")
-      material-tab(
-        ng-class="{active:selectedIndex == $index}"
-        on-select="onTabSelected()"
-        disabled="false")
-        material-tab-label
-          i.glyphicon.glyphicon-bell
-            b 当前
-      material-tab(
-        ng-class="{active:selectedIndex == $index}"
-        on-select="onTabSelected()"
-        disabled="false")
-        material-tab-label
-          i.glyphicon.glyphicon-time
-            b 历史
-  .row
-    material-list(ng-if="selectedIndex == 0")
-      rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:['-Importance', 'createdAt'] | limitTo: 10 track by $index")
-    material-list(ng-if="selectedIndex == 1")
-      rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
+div(ng-controller="requestListCtrl")
+  .row.text-center(ng-if="isLoadingRequest==true")
+    h2 Loading...
+  .row.no-margin.text-unselectable(ng-if="isLoadingRequest==false")
+    .row
+      material-tabs.customized(selected="selectedIndex")
+        material-tab(
+          ng-class="{active:selectedIndex == $index}"
+          on-select="onTabSelected()"
+          disabled="false")
+          material-tab-label
+            i.glyphicon.glyphicon-bell
+              b 当前
+        material-tab(
+          ng-class="{active:selectedIndex == $index}"
+          on-select="onTabSelected()"
+          disabled="false")
+          material-tab-label
+            i.glyphicon.glyphicon-time
+              b 历史
+    .row(ng-if="selectedIndex == 0")
+      h2.text-center(ng-if="hasActiveRequest()==false") 没有未完成请求
+      material-list
+        rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:['createdAt'] | limitTo: 10 track by $index")
+    .row(ng-if="selectedIndex == 1")
+      material-list
+        rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
 
-//- .background-color-default(ng-controller="requestListCtrl" style="height: 620px;")
-  tabset.background-color-default(justified="true")
-    tab
-      tab-heading
-        i.glyphicon.glyphicon-bell 当前
-      p
-        br
-      .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10 track by $index")
-        div(rcs-request)
-    tab
-      tab-heading
-        i.glyphicon.glyphicon-time 历史
-      p
-        br
-      .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
-        div(rcs-request)
+  //- .background-color-default(ng-controller="requestListCtrl" style="height: 620px;")
+    tabset.background-color-default(justified="true")
+      tab
+        tab-heading
+          i.glyphicon.glyphicon-bell 当前
+        p
+          br
+        .row.row-rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:'Importance':true | limitTo: 10 track by $index")
+          div(rcs-request)
+      tab
+        tab-heading
+          i.glyphicon.glyphicon-time 历史
+        p
+          br
+        .row.row-rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
+          div(rcs-request)

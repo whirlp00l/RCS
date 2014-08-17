@@ -124,12 +124,12 @@ module.exports = {
         }
 
         if (restaurant.Manager.Email == adminEmail) {
-          return res.badRequest('Cannot assign Manager [' + adminEmail + '] as Admin to Restaurant [' + restaurantName + ']');
+          return res.badRequest('Cannot assign Manager [' + adminEmail + '] as Admin to Restaurant [' + restaurant.RestaurantName + ']');
         }
 
         for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
           if (restaurant.Admins[i].Email == adminEmail) {
-            return res.badRequest('User [' + adminEmail + '] has already been assigned as Admin to Restaurant [' + restaurantName + ']');
+            return res.badRequest('User [' + adminEmail + '] has already been assigned as Admin to Restaurant [' + restaurant.RestaurantName + ']');
           }
         };
 
