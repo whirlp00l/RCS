@@ -50,6 +50,13 @@ material-tabs.customized material-tab material-tab-label.active {
   opacity: 1;
 }
 
+material-ink-bar {
+  height: 4px;
+  background: black;
+  position: absolute;
+  margin-top: -4px;
+}
+
 material-tabs.customized .material-ink-ripple {
   color: #fff
 }

@@ -35,8 +35,13 @@
   border: 5px solid rgba(100, 94, 85, 0.7);
 }
 
-.rcs-table-none{
+.rcs-table-none {
   background-color: transparent;
+  cursor: default;
+}
+
+.rcs-table-none canvas.material-ink-ripple {
+  visibility: hidden
 }
 
 .rcs-table-empty{
@@ -62,10 +67,6 @@
 
 .rcs-table-with-book {
   border-top: 8px solid #93b0ba;
-}
-
-.rcs-table-tooltip {
-  font-size: 16px;
 }
 
 .tooltip {

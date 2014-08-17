@@ -87,3 +87,22 @@ input.no-show {
   -ms-user-select: none;
   user-select: none;
 }
+
+.row.no-margin {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.rcs-tooltip {
+  font-size: 16px;
+}
+
+.tooltip {
+  width: 200px;
+  height: 120px;
+  text-align: left;
+}
+
+.tooltip * {
+  opacity: 0.9;
+}

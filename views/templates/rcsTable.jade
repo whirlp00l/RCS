@@ -16,18 +16,18 @@
 -editModeClass += "}"
 
 div.text-unselectable
-  .rcs-table(
-    ng-show="editMode==false"
+  material-button.rcs-table(
+    ng-if="editMode==false"
     ng-class=useModeClass
     tooltip-placement="right"
     tooltip-popup-delay="100"
     tooltip-html-unsafe="{{getTooltip(table)}}")
-    .rcs-table-mark(ng-show="ifHasRequest()==true").glyphicon.glyphicon-bell
+    .rcs-table-mark(ng-if="ifHasRequest()==true").glyphicon.glyphicon-bell
       //- span
     .rcs-table-text {{getTableName()}}
-  .rcs-table(
-    ng-show="editMode==true"
+  material-button.rcs-table(
+    ng-if="editMode==true"
     ng-class=editModeClass)
-    .rcs-table-mark(ng-show="isNothing()==true")
+    .rcs-table-mark(ng-if="isNothing()==true")
       span.glyphicon.glyphicon-plus
-    .rcs-table-text(ng-show="isNothing()==false") {{getTableName()}}
+    .rcs-table-text(ng-if="isNothing()==false") {{getTableName()}}

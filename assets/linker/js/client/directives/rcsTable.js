@@ -120,7 +120,7 @@ angular
             );
 
             return (
-              '<div class="rcs-table-tooltip">' +
+              '<div class="rcs-tooltip">' +
                 '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
               '</div>'
             ).format(

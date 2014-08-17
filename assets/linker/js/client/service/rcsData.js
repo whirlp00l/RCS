@@ -13,10 +13,16 @@ angular
 
       // exposing
       rcsData.getRestaurantId = function () {
+        if (data.restaurant == null ) {
+          return null;
+        }
         return data.restaurant.id;
       }
 
       rcsData.getRestaurantName = function () {
+        if (data.restaurant == null ) {
+          return null;
+        }
         return data.restaurant.RestaurantName;
       }
 

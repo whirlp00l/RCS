@@ -27,15 +27,19 @@ angular
         rcsSocket.sailsSocket.get('/Restaurant/subscribe', {RestaurantId: rcsData.getRestaurantId()});
       }
 
-      var notify = function () {
+      var notify = function (tableChanged, requestChanged) {
         var startTime = new Date();
-        $log.debug('rcsSocket: started broadcasting tablesUpdate (' + (new Date() - startTime) + 'ms)');
-        $rootScope.$emit(RCS_EVENTS.tablesUpdate, {startTime: startTime});
-        $log.debug('rcsSocket: broadcasted tablesUpdate (' + (new Date() - startTime) + 'ms)');
+        if (tableChanged) {
+          $log.debug('rcsSocket: started broadcasting tablesUpdate (' + (new Date() - startTime) + 'ms)');
+          $rootScope.$emit(RCS_EVENTS.tablesUpdate, {startTime: startTime});
+          $log.debug('rcsSocket: broadcasted tablesUpdate (' + (new Date() - startTime) + 'ms)');
+        }
 
-        $log.debug('rcsSocket: started broadcasting requestsUpdate (' + (new Date() - startTime) + 'ms)');
-        $rootScope.$emit(RCS_EVENTS.requestsUpdate, {startTime: startTime});
-        $log.debug('rcsSocket: broadcasted requestsUpdatet (' + (new Date() - startTime) + 'ms)');
+        if (requestChanged) {
+          $log.debug('rcsSocket: started broadcasting requestsUpdate (' + (new Date() - startTime) + 'ms)');
+          $rootScope.$emit(RCS_EVENTS.requestsUpdate, {startTime: startTime});
+          $log.debug('rcsSocket: broadcasted requestsUpdatet (' + (new Date() - startTime) + 'ms)');
+        }
       }
 
       var listen = function() {
@@ -54,7 +58,7 @@ angular
 
             rcsData.setTables(msg.table);
             rcsData.setRequests(msg.request);
-            notify();
+            notify(true, true);
           });
 
           // listen to 'message'
@@ -73,6 +77,8 @@ angular
                 var data = msg.data;
                 var tables = rcsData.getTables();
                 var requests = rcsData.getRequests();
+                var tableChanged = false;
+                var requestChanged = false;
 
                 // handle new-table
                 if (data.newTable) {
@@ -80,7 +86,8 @@ angular
                     data.newTable = [data.newTable];
                   }
 
-                  tables.concat(data.newTable);
+                  tables = tables.concat(data.newTable);
+                  tableChanged = true;
                 }
 
                 // handle new-request
@@ -89,7 +96,8 @@ angular
                     data.newRequest = [data.newRequest];
                   }
 
-                  requests.concat(data.newRequest);
+                  requests = requests.concat(data.newRequest);
+                  requestChanged = true;
                 }
 
                 // handle remove-table
@@ -107,6 +115,8 @@ angular
                       }
                     }
                   }
+
+                  tableChanged = true;
                 }
 
                 // handle remove-request
@@ -124,6 +134,8 @@ angular
                       }
                     }
                   }
+
+                  requestChanged = true;
                 }
 
                 // handle set-table
@@ -142,6 +154,8 @@ angular
                       }
                     }
                   }
+
+                  tableChanged = true;
                 }
 
                 // handle set-request
@@ -160,12 +174,14 @@ angular
                       }
                     }
                   }
+
+                  requestChanged = true;
                 }
 
                 // set the data back
                 rcsData.setTables(tables);
                 rcsData.setRequests(requests);
-                notify();
+                notify(tableChanged, requestChanged);
 
                 break;
               default:

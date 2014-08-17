@@ -3,7 +3,7 @@ angular
   .directive('rcsRequest', ['$modal', 'rcsAPI', 'REQUEST_STATUS', 'REQUEST_TYPE',
     function ($modal, rcsAPI, REQUEST_STATUS, REQUEST_TYPE) {
       return {
-        restrict: 'A',
+        restrict: 'EA',
         templateUrl: '/template/rcsRequest',
 
         link: function ($scope, $element, $attr) {
@@ -88,6 +88,21 @@ angular
               case REQUEST_TYPE.water:
                 return '加水';
             }
+          }
+
+          $scope.getTooltip = function () {
+            var request = $scope.request;
+
+            return (
+              '<div class="rcs-tooltip">' +
+                '餐桌: {0}<br>请求: {1}<br>({2}分钟前提交)<br>Importance:{3}' +
+              '</div>'
+            ).format(
+              request.Table.TableName,
+              request.Type,
+              1,
+              request.Importance
+            );
           }
 
           $element.bind('click', $scope.clickRequest);
