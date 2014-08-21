@@ -1,2 +1,3 @@
-# RcsOnSail
-### a Sails application
+# RCSnew
+
+a [Sails](http://sailsjs.org) application
