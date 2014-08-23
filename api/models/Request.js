@@ -64,6 +64,7 @@ module.exports = {
         Status: this.Status,
         Importance: this.Importance,
         createdAt: this.createdAt,
+        ClosedAt: this.ClosedAt,
         PayType: this.PayType,
         PayAmount: this.PayAmount,
         OrderItems: this.OrderItems,

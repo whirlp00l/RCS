@@ -43,7 +43,8 @@ angular
                       $hideDialog();
                     };
                     $scope.confirmOrder = function() {
-                      alert('call API to close Request and set order to Table')
+                      rcsAPI.Request.close($scope.request.id);
+                      $hideDialog();
                     };
                   }]
                 });

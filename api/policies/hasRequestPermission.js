@@ -9,7 +9,9 @@
  *
  */
 module.exports = function(req, res, next) {
-  var requestId = req.body.TableId;
+  if (req.body) {
+    var requestId = req.body.RequestId;
+  }
   if (typeof requestId == 'undefined') {
     var requestId = req.param('id');
   }

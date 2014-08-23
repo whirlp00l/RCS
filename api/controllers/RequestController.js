@@ -79,7 +79,7 @@ module.exports = {
               Type: type
             };
 
-            return createRequest(request, table, res);
+            return createRequest(res, request, table);
         }
       } else {
         // increase the importance
@@ -107,11 +107,14 @@ module.exports = {
           return res.serverError(err);
         }
 
-        Restaurant.message(request.Restaurant, {
-          setRequest: request
-        });
+        var message = {
+          setRequest: request.getMessage(request.Table.TableName)
+        };
 
-        return res.json(request);
+        // publish a message to the restaurant.
+        // every client subscribed to the restaurant will get it.
+        Restaurant.message(request.Restaurant, message);
+        return res.json(message);
       });
     });
   },
@@ -122,10 +125,6 @@ module.exports = {
     Request.findOneById(requestId).exec(function (err, request) {
       if (err) {
         return res.serverError(err);
-      }
-
-      if (!request) {
-        return res.badRequest('Invalid requestId = ' + requestId);
       }
 
       request.Status = 'closed';
@@ -143,21 +142,27 @@ module.exports = {
             table.StatusUpdateAt = new Date();
           }
 
+          if (request.Type == 'order') {
+            table.Status = 'ordered';
+            table.OrderItems = request.OrderItems;
+          }
+
           table.save(function (err) {
             if (err) {
               return res.serverError(err);
             }
 
-            Restaurant.message(table.Restaurant, {
-              setRequest: request,
+            var message = {
+              setRequest: request.getMessage(table.TableName),
               setTable: table
-            });
+            }
 
-            return res.json(request);
-          })
-        })
+            Restaurant.message(request.Restaurant, message);
+            return res.json(message);
+          });
+        });
       });
-    })
+    });
   },
 
   /**
@@ -205,7 +210,7 @@ function createOrder (req, res, table, restaurantId, type) {
           OrderItems: orderItems
         };
 
-        return createRequest(request, table, res);
+        return createRequest(res, request, table);
       }
     });
   }
@@ -230,10 +235,10 @@ function createPay (req, res, table, restaurantId, type) {
   table.Status = 'paying';
   table.StatusUpdateAt = new Date();
 
-  return createRequest(request, table, res);
+  return createRequest(res, request, table);
 }
 
-function createRequest (request, table, res) {
+function createRequest (res, request, table) {
   Request.create(request).exec(function (err, requestCreated) {
     if (err) {
       return res.serverError(err);

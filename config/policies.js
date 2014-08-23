@@ -27,6 +27,69 @@ module.exports.policies = {
   ***************************************************************************/
 
   // '*': true,
+  '*': false,
+
+  'Template':
+  {
+    '*': true
+  },
+
+  'User':
+  {
+    'deleteAll': true, // test only
+
+    'logout': 'isAuthenticated',
+    'login': true,
+    'create': true,
+    'handshake': true
+  },
+
+  'Restaurant':
+  {
+    'deleteAll': true, // test only
+
+    'list': 'isAuthenticated',
+    'create': ['isAuthenticated', 'isManager'],
+    'subscribe': ['isAuthenticated', 'hasRestaurantPermission'],
+    'addAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
+    'removeAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
+    'listAdmin': ['isAuthenticated', 'isManager', 'hasRestaurantPermission'],
+    'checkMenuVersion': ['isAuthenticated', 'hasRestaurantPermission'],
+    'listMenu': ['isAuthenticated', 'hasRestaurantPermission'],
+    'downloadMenu': 'isLinkedTabletOfRestaurant',
+    'checkMenuVersion': 'isLinkedTabletOfRestaurant'
+  },
+
+  'Table':
+  {
+    'list': ['isAuthenticated', 'hasRestaurantPermission'],
+    'create': ['isAuthenticated', 'hasRestaurantPermission'],
+    'link': ['isAuthenticated', 'hasTablePermission'],
+    'delete': ['isAuthenticated', 'hasTablePermission'],
+    'book': ['isAuthenticated', 'hasTablePermission'],
+    'cancelBook': ['isAuthenticated', 'hasTablePermission'],
+    'removeLink': ['isAuthenticated', 'hasTablePermission'],
+    'reset': ['isAuthenticated', 'hasTablePermission'],
+    'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
+    'newOrder': 'isLinkedTablet',
+    'listOrder': 'isLinkedTablet',
+
+    'deleteAll': true // test only
+  },
+
+  'Request':
+  {
+    'create': 'isLinkedTabletOfRestaurant',
+    'list': ['isAuthenticated', 'hasRestaurantPermission'],
+    'start': ['isAuthenticated', 'hasRequestPermission'],
+    'close': ['isAuthenticated', 'hasRequestPermission'],
+    'deleteAll': true // test only
+  },
+
+  'MenuItem':
+  {
+    '*': ['isAuthenticated', 'hasRestaurantPermission']
+  }
 
   /***************************************************************************
   *                                                                          *
