@@ -46,7 +46,6 @@ module.exports = {
       return res.badRequest('Missing required field: type')
     }
 
-
     Table.findOneById(tableId).populate('Requests').exec(function (err, table) {
       if (err) {
         return res.serverError(err);
@@ -74,10 +73,16 @@ module.exports = {
           case 'pay':
             return createPay(req, res, table, restaurantId, type);
           default:
-            return createOther(req, res, table, restaurantId, type);
+            var request = {
+              Table: table.id,
+              Restaurant: restaurantId,
+              Type: type
+            };
+
+            return createRequest(request, table, res);
         }
       } else {
-        // increase the priority
+        // increase the importance
         return bumpImportance(res, dupRequest, table, restaurantId);
       }
     });
@@ -164,7 +169,11 @@ module.exports = {
 
 };
 
-var createOrder = function (req, res, table, restaurantId, type) {
+function createOrder (req, res, table, restaurantId, type) {
+  if (table.Status == 'paying' || table.Status == 'paid') {
+    return res.badRequest('Cannot request order when table is ' + table.Status);
+  }
+
   var orderItems = req.body.OrderItems;
 
   if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
@@ -189,41 +198,20 @@ var createOrder = function (req, res, table, restaurantId, type) {
       }
 
       if (++validateCount == orderItems.length) {
-        Request.create({
+        var request = {
           Table: table.id,
           Restaurant: restaurantId,
           Type: type,
           OrderItems: orderItems
-        })
-        .exec(function (err, request) {
-          table.Requests.add(request.id);
-          table.Status = 'ordering'; // check current status for blocking?
-          table.StatusUpdateAt = new Date();
+        };
 
-          table.save(function (err, table) {
-            if (err) {
-              return res.serverError(err);
-            }
-
-            // publish a message to the restaurant.
-            // every client subscribed to the restaurant will get it.
-            Restaurant.message(table.Restaurant, {
-              newRequest: getRequestMessage(request, table),
-              setTable: table
-            });
-
-            return res.json({
-              newRequest: getRequestMessage(request, table),
-              setTable: table
-            });
-          });
-        });
+        return createRequest(request, table, res);
       }
     });
   }
 }
 
-var createPay = function (req, res, table, restaurantId, type) {
+function createPay (req, res, table, restaurantId, type) {
   var payType = req.body.PayType;
   var payAmount = req.body.PayAmount;
 
@@ -231,97 +219,66 @@ var createPay = function (req, res, table, restaurantId, type) {
     return res.badRequest('Missing required fields: payType, payAmount')
   }
 
-  Request.create({
+  var request = {
     Table: table.id,
     Restaurant: restaurantId,
     Type: type,
     PayType: payType,
     PayAmount: payAmount
-  })
-  .exec(function (err, request) {
-    table.Requests.add(request.id);
-    table.Status = 'paying';
-    table.StatusUpdateAt = new Date();
+  };
 
-    table.save(function (err, table) {
-      if (err) {
-        return res.serverError(err);
-      }
+  table.Status = 'paying';
+  table.StatusUpdateAt = new Date();
 
-      // publish a message to the restaurant.
-      // every client subscribed to the restaurant will get it.
-      Restaurant.message(table.Restaurant, {
-        newRequest: getRequestMessage(request, table),
-        setTable: table
-      });
-
-      return res.json({
-        newRequest: getRequestMessage(request, table),
-        setTable: table
-      });
-    });
-  });
+  return createRequest(request, table, res);
 }
 
-var createOther = function (req, res, table, restaurantId, type) {
-  Request.create({
-    Table: table.id,
-    Restaurant: restaurantId,
-    Type: type
-  })
-  .exec(function (err, request) {
-    table.Requests.add(request.id);
-
-    table.save(function (err, table) {
-      if (err) {
-        return res.serverError(err);
-      }
-
-      // publish a message to the restaurant.
-      // every client subscribed to the restaurant will get it.
-      Restaurant.message(table.Restaurant, {
-        newRequest: getRequestMessage(request, table),
-        setTable: table
-      });
-
-      return res.json({
-        newRequest: getRequestMessage(request, table),
-        setTable: table
-      });
-    });
-  });
-}
-
-var bumpImportance = function (res, request, table, restaurantId) {
-  request.Importance = parseInt(request.Importance) == 0 ? 1 : 1;
-  request.save(function (err) {
+function createRequest (request, table, res) {
+  Request.create(request).exec(function (err, requestCreated) {
     if (err) {
       return res.serverError(err);
     }
 
-    Restaurant.message(restaurantId, {
-      setRequest: getRequestMessage(request, table)
+    sails.log('1 request created');
+    sails.log('  id = ' + requestCreated.id);
+
+    table.Requests.add(requestCreated.id);
+    table.save(function (err, tableUpdated) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      sails.log('1 table updated');
+      sails.log('  id = ' + tableUpdated.id);
+
+      var message = {
+        newRequest: requestCreated.getMessage(tableUpdated.TableName),
+        setTable: tableUpdated
+      };
+
+      // publish a message to the restaurant.
+      // every client subscribed to the restaurant will get it.
+      Restaurant.message(requestCreated.Restaurant, message);
+      return res.json(message);
     });
 
-    return res.json({
-      setRequest: getRequestMessage(request, table)
-    });
   });
 }
 
-var getRequestMessage = function (request, table) {
-  sails.log.debug('getRequestMessage(' + request + ', ' + table + ')');
-  return {
-    id: request.id,
-    Type: request.Type,
-    Status: request.Status,
-    Importance: request.Importance,
-    createdAt: request.createdAt,
-    PayType: request.PayType,
-    PayAmount: request.PayAmount,
-    OrderItems: request.OrderItems,
-    Table: {
-      TableName: table.TableName
+function bumpImportance (res, existingRequest, table, restaurantId) {
+  existingRequest.Importance = parseInt(existingRequest.Importance) == 0 ? 1 : 1;
+  existingRequest.save(function (err) {
+    if (err) {
+      return res.serverError(err);
     }
-  }
+
+    var message = {
+      setRequest: existingRequest.getMessage(table.TableName)
+    };
+
+    // publish a message to the restaurant.
+    // every client subscribed to the restaurant will get it.
+    Restaurant.message(restaurantId, message);
+    return res.json(message);
+  });
 }

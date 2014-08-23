@@ -48,11 +48,6 @@ module.exports = {
 
     LinkTime: 'datetime',
 
-    RequestCount: {
-      type: 'int',
-      defaultsTo: 0
-    },
-
     StatusUpdateAt: {
       type: 'datetime'
     },
@@ -77,6 +72,11 @@ module.exports = {
 
     toJSON: function() {
       var obj = this.toObject();
+
+      delete obj.createdAt;
+      delete obj.updatedAt;
+      delete obj.Token;
+
       var activeCount = 0;
       var closedCount = 0;
       if (obj.Requests) {
@@ -88,10 +88,16 @@ module.exports = {
           }
         }
       }
-
       obj.ActiveRequestCount = activeCount;
       obj.ClosedRequestCount = closedCount;
       delete obj.Requests;
+
+      if (obj.Restaurant.RestaurantName) {
+        var restaurantName = obj.Restaurant.RestaurantName;
+        delete obj.Restaurant;
+        obj.Resaurant = {RestaurantName:restaurantName};
+      }
+
       return obj;
     }
   },

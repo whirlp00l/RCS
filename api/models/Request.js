@@ -54,7 +54,24 @@ module.exports = {
       via: 'Requests'
     },
 
-    OrderItems: 'array'
+    OrderItems: 'array',
+
+    // Attributes methods
+    getMessage: function (tableName) {
+      return {
+        id: this.id,
+        Type: this.Type,
+        Status: this.Status,
+        Importance: this.Importance,
+        createdAt: this.createdAt,
+        PayType: this.PayType,
+        PayAmount: this.PayAmount,
+        OrderItems: this.OrderItems,
+        Table: {
+          TableName: tableName
+        }
+      };
+    }
   }
 
 };
