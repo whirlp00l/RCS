@@ -144,7 +144,7 @@ module.exports = {
 
           if (request.Type == 'order') {
             table.Status = 'ordered';
-            table.OrderItems = table.OrderItems.concat(request.OrderItems);
+            table.OrderItems = table.OrderItems ? table.OrderItems.concat(request.OrderItems) : request.OrderItems;
           }
 
           table.save(function (err) {
