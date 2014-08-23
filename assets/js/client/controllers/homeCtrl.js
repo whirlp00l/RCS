@@ -24,12 +24,14 @@ function homeCtrl ($rootScope, $scope, rcsSocket, rcsData, rcsAPI, RCS_EVENTS, $
 
   $rootScope.$on(RCS_EVENTS.editModeOn, function (event) {
     $scope.editTableText = '完成编辑';
+    $scope.editMode = true;
     $scope.isDropdownOpen = false;
     $scope.safeApply();
   });
 
   $rootScope.$on(RCS_EVENTS.editModeOff, function (event) {
     $scope.editTableText = '编辑桌子';
+    $scope.editMode = false;
     $scope.isDropdownOpen = false;
     $scope.safeApply();
   });

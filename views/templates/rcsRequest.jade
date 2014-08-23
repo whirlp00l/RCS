@@ -11,10 +11,7 @@ material-item.rcs-request(
   .material-tile-content
     span.<b>{{request.Table.TableName}}</b> {{getRequestText()}}
   .material-tile-right
-    span {{request.Status}}
-//- div(ng-class="{'progress progress-striped active':isInProgress()}" style="height: 40px;")
-  button(role="progressbar" ng-class="{'btn-request-important':importanceHigh(), 'btn-request':importanceNormal(), 'progress-bar':isInProgress()}")
-    b.pull-left.glyphicon.glyphicon-usd(ng-if="request.Type==requestType.pay")
-    b.pull-left.glyphicon.glyphicon-earphone(ng-if="request.Type==requestType.call")
-    b.pull-left.glyphicon.glyphicon-tint(ng-if="request.Type==requestType.water")
-    span.pull-left.force-wrap &nbsp;<b>{{request.Table.TableName}}</b> {{getRequestText()}}
+    span(ng-show="request.Status=='new'")
+    //- using ng-class below to make fa-spin to disappear at the right moment
+    span(ng-show="request.Status=='inProgress'" ng-class="{'fa fa-spinner fa-spin fa-2x':request.Status=='inProgress'}")
+    span.fa.fa-check-square-o.fa-2x(ng-show="request.Status=='closed'")

@@ -21,7 +21,7 @@ div(ng-controller="requestListCtrl")
     .row(ng-if="selectedIndex == 0")
       h2.text-center(ng-if="hasActiveRequest()==false") 没有未完成请求
       material-list
-        rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:['createdAt'] | limitTo: 10 track by $index")
+        rcs-request(ng-repeat="request in requests | filter:unclosed | orderBy:['-Importance','createdAt'] | limitTo: 10 track by $index")
     .row(ng-if="selectedIndex == 1")
       material-list
         rcs-request(ng-repeat="request in requests | filter:closed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")

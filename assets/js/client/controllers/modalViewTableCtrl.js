@@ -87,19 +87,12 @@ angular
       }
 
       $scope.getRequestInfo = function () {
-        var requests = $scope.tableData.Requests;
-        if (!requests || requests.length == 0) {
+        var table = $scope.tableData;
+        if (table.ActiveRequestCount == 0) {
           return '无请求';
         }
 
-        var requestCount = 0;
-        for (var i = requests.length - 1; i >= 0; i--) {
-          if (requests[i].Status != REQUEST_STATUS.closed) {
-            requestCount++;
-          }
-        };
-
-        return '[' + requestCount + '] 项未完成请求';
+        return '[' + table.ActiveRequestCount + ']项未完成请求';
       }
 
       $scope.getOrderInfo = function () {
@@ -108,7 +101,7 @@ angular
           return '未点菜';
         }
 
-        return '[' + orderItemsCount + '] 项已点菜品';
+        return '[' + orderItemsCount + ']道已点菜品';
       }
 
       $scope.isLinked = function () {
