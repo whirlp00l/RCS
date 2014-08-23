@@ -99,3 +99,7 @@
 .rcs-table.rcs-table-with-book > .rcs-table-text {
   top: 30px;
 }
+
+.rcs-table.rcs-table-with-book > .rcs-table-mark {
+  top: -8px;
+}

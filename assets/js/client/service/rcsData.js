@@ -1,57 +1,51 @@
 angular
   .module('rcs')
-  .service('rcsData', [
-    function() {
+  .service('rcsData', ['rcsAPI', rcsData]);
 
-      var rcsData = this;
-      var data = {
-        restaurant: null,
-        onlineAdmins: [],
-        tables: [],
-        requests: []
+function rcsData (rcsAPI) {
+  var data = {
+    restaurant: null,
+    onlineAdmins: [],
+    tables: [],
+    requests: [],
+    menuItems: []
+  }
+
+  var service = {
+    getRestaurantId: function () {
+      if (data.restaurant == null ) {
+        return null;
       }
-
-      // exposing
-      rcsData.getRestaurantId = function () {
-        if (data.restaurant == null ) {
-          return null;
-        }
-        return data.restaurant.id;
+      return data.restaurant.id;
+    },
+    getRestaurantName: function () {
+      if (data.restaurant == null ) {
+        return null;
       }
+      return data.restaurant.RestaurantName;
+    },
+    setRestaurant: function (value) {
+      data.restaurant = value;
+    },
+    getTables: function () {
+      return data.tables;
+    },
+    setTables: function (value) {
+      data.tables = value;
+    },
+    getRequests: function () {
+      return data.requests;
+    },
+    setRequests: function (value) {
+      data.requests = value;
+    },
+    getMenuItems: function () {
+      return data.menuItems;
+    },
+    setMenuItems: function (value) {
+      data.menuItems = value;
+    }
+  };
 
-      rcsData.getRestaurantName = function () {
-        if (data.restaurant == null ) {
-          return null;
-        }
-        return data.restaurant.RestaurantName;
-      }
-
-      rcsData.setRestaurant = function (value) {
-        data.restaurant = value;
-      }
-
-      rcsData.getTables = function () {
-        return data.tables;
-      }
-
-      rcsData.setTables = function (value) {
-        data.tables = value;
-      }
-
-      rcsData.getRequests = function () {
-        return data.requests;
-      }
-
-      rcsData.setRequests = function (value) {
-        data.requests = value;
-      }
-
-      rcsData.resetRestaurantData = function () {
-        rcsData.data = {
-          onlineAdmins: [],
-          tables: [],
-          requests: []
-        }
-      }
-
-    }]);
+  return service;
+}

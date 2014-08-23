@@ -1,7 +1,7 @@
 angular
   .module('rcs')
-  .controller('modalViewTableCtrl', ['$scope', '$log', '$modalInstance', 'rcsAPI', 'REQUEST_STATUS', 'param',
-    function($scope, $log, $modalInstance, rcsAPI, REQUEST_STATUS, param){
+  .controller('modalViewTableCtrl', ['$scope', '$log', '$modalInstance', 'rcsAPI', 'rcsData', 'REQUEST_STATUS', 'param',
+    function($scope, $log, $modalInstance, rcsAPI, rcsData, REQUEST_STATUS, param){
 
       // param
       $scope.tableData = param.tableData;
@@ -25,6 +25,7 @@ angular
 
       $scope.state = {
         isCollapsed: true,
+        isOrderCollapsed : true,
         opened: false
       };
 
@@ -33,6 +34,40 @@ angular
       $scope.mstep = 5;
       $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
       $scope.format = $scope.formats[1];
+
+      var menu = rcsData.getMenuItems();
+      var orderItems = [];
+      var tableOrder = $scope.tableData.OrderItems ? $scope.tableData.OrderItems : [];
+      for (var i = tableOrder.length - 1; i >= 0; i--) {
+        var itemId = tableOrder[i];
+
+        if (orderItems[itemId]) {
+          orderItems[itemId].count++;
+        } else {
+          for (var j = menu.length - 1; j >= 0; j--) {
+            if (menu[j].id == itemId) {
+              var itemName = menu[j].Name;
+              var itemType = menu[j].Type;
+              var itemPrice = menu[j].Price;
+              break;
+            }
+          }
+
+          orderItems[itemId] = {
+            name: itemName,
+            type: itemType,
+            price: itemPrice,
+            count: 1
+          };
+        }
+      }
+
+      $scope.orderItems = [];
+      for (var i = orderItems.length - 1; i >= 0; i--) {
+        if (angular.isDefined(orderItems[i])) {
+          $scope.orderItems.push(orderItems[i]);
+        }
+      }
 
       // method (getting info)
       $scope.getStatusUpdateTime = function () {
@@ -64,7 +99,16 @@ angular
           }
         };
 
-        return '[' + requestCount + ']项未完成请求';
+        return '[' + requestCount + '] 项未完成请求';
+      }
+
+      $scope.getOrderInfo = function () {
+        var orderItemsCount = $scope.tableData.OrderItems ? $scope.tableData.OrderItems.length : 0;
+        if (orderItemsCount == 0) {
+          return '未点菜';
+        }
+
+        return '[' + orderItemsCount + '] 项已点菜品';
       }
 
       $scope.isLinked = function () {

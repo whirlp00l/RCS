@@ -3,13 +3,16 @@
     a.glyphicon.glyphicon-remove.pull-right(ng-click="cancel()")
   h3.modal-title <b>{{table.TableName}}</b> 餐桌详情
     span(ng-if="editMode==true") &nbsp;(编辑模式)
-.modal-body(collapse="!state.isCollapsed")
+.modal-body(collapse="!state.isCollapsed || !state.isOrderCollapsed")
   div
     pre 餐桌类型: <b>{{tableData.TableType}}</b>
     pre 当前状态: <b>{{getTableStatusText()}}</b> (更新时间： {{getStatusUpdateTime()}})
       a.pull-right(ng-if="editMode==false" ng-click="resetTable()" href="")
-        b 重置
+        b 重置(将添加确认)
     pre 请求信息: <b>{{getRequestInfo()}}</b>
+    pre 点菜信息: <b>{{getOrderInfo()}}</b>
+      a.pull-right(ng-if="editMode==false" ng-show="orderItems.length!=0" ng-click="state.isOrderCollapsed = !state.isOrderCollapsed" href="")
+        b 显示明细
     pre 关联信息: <b>{{getLinkingInfo()}}</b>
       span(ng-show="isLinked()") &nbsp;(关联时间： {{getLinkingTime()}})
       a.pull-right(ng-if="editMode==false" ng-show="isLinked()" ng-click="removeLinking()" href="")
@@ -22,11 +25,10 @@
 .modal-footer(ng-if="editMode==true" collapse="!state.isCollapsed")
   button.material-button.material-button-raised.material-theme-red.full-width(ng-click="deleteTable()") 删除餐桌
 
-.modal-header(ng-class="{hidden:state.isCollapsed == true}")
+.modal-header(ng-hide="state.isCollapsed == true")
   h4
     a.glyphicon.glyphicon-minus.pull-right(ng-click="state.isCollapsed = true")
-  h3.modal-title
-    | 新建预订
+  h3.modal-title 新建预订
 form(ng-submit="newBooking()")
   .modal-body(collapse="state.isCollapsed")
     .row
@@ -57,3 +59,27 @@ form(ng-submit="newBooking()")
   .modal-footer(collapse="state.isCollapsed")
     input.material-button.material-button-raised.material-theme-red.full-width(type="submit" id="submit" value="确认预订")
   //- button.btn.btn-danger(ng-click="newBooking()") 确认预订
+
+.modal-header(ng-hide="state.isOrderCollapsed == true")
+  h4
+    a.glyphicon.glyphicon-minus.pull-right(ng-click="state.isOrderCollapsed = true")
+  h3.modal-title 已点菜品
+.modal-body(collapse="state.isOrderCollapsed")
+  .row
+    .col-xs-10.col-xs-offset-1
+      material-list
+        material-item.list-header
+          .material-tile-left
+            b 类型
+          .material-tile-content
+            b 菜品
+          .material-tile-right
+            b 数量
+        material-item(ng-repeat="orderItem in orderItems | orderBy:['type'] track by $index")
+          .material-tile-left
+            | {{orderItem.type}}
+          .material-tile-content
+            h2 {{orderItem.name}}
+            h3 {{orderItem.price}}元
+          .material-tile-right
+            | {{orderItem.count}}

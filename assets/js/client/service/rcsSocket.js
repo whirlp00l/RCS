@@ -13,16 +13,12 @@ angular
 
         $log.debug("rcsSocket: disconnected!");
 
-        rcsData.resetRestaurantData();
-
         rcsAuth.logout(function () {
           $state.go('login');
         })
       }
 
       var subscribe = function () {
-        rcsData.resetRestaurantData();
-
         // subscribe to restaurant message event
         var restaurantId = rcsData.getRestaurantId();
         if (!restaurantId) {
