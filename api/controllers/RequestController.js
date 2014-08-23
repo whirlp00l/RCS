@@ -144,7 +144,7 @@ module.exports = {
 
           if (request.Type == 'order') {
             table.Status = 'ordered';
-            table.OrderItems = request.OrderItems;
+            table.OrderItems = table.OrderItems.concat(request.OrderItems);
           }
 
           table.save(function (err) {
@@ -209,6 +209,8 @@ function createOrder (req, res, table, restaurantId, type) {
           Type: type,
           OrderItems: orderItems
         };
+
+
 
         return createRequest(res, request, table);
       }

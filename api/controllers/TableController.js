@@ -238,7 +238,7 @@ module.exports = {
   },
 
   listOrder: function (req, res) {
-    var tableId = req.param('id');
+    var tableId = req.body.TableId;
 
     Table.findOneById(tableId).populate('Restaurant').exec(function (err, table) {
       if (err) {

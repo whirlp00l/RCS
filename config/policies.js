@@ -71,8 +71,8 @@ module.exports.policies = {
     'removeLink': ['isAuthenticated', 'hasTablePermission'],
     'reset': ['isAuthenticated', 'hasTablePermission'],
     'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
-    'newOrder': 'isLinkedTablet',
-    'listOrder': 'isLinkedTablet',
+    'newOrder': false,
+    'listOrder': 'isLinkedTabletOfRestaurant',
 
     'deleteAll': true // test only
   },
