@@ -1,0 +1,52 @@
+#user .pane {
+  width: 400px;
+  min-height: 300px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 40px;
+  font-size: 18px;
+}
+
+#user .pane material-button {
+  margin-top: 30px;
+  height: 40px;
+  line-height: 32px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+#user .pane label, #user .pane input{
+  width: 100%;
+}
+
+#user material-tabs .material-ink-ripple {
+  color: #fff
+}
+
+#user material-tab {
+  background-color: #e6e6e6;
+}
+
+#user material-tab.active {
+  background-color: #4285f4;
+}
+
+#user material-tab-label {
+  font-weight: bold;
+  color: #818181;
+}
+
+#user material-tab-label.active {
+  color: #f1f1f1;
+}
+
+/*
+#user .pane-signin {
+  font-size: 18px;
+  height: 300px;
+}
+
+#user .pane-signup {
+  font-size: 18px;
+  height: 300px;
+}*/

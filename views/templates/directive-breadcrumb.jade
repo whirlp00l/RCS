@@ -1,0 +1,12 @@
+ul.breadcrumb(title="{{$state.current.name}}")
+  li(ng-class="{active: $last}" ng-repeat="state in states")
+    span(ng-if="state.data.icon" class="fa fa-{{state.data.icon}}")
+    | {{state.title}}
+//- ul.breadcrumb(title="{{$state.current.name}}")
+//-   li(ng-class="{active: $last}" ng-repeat="state in states" ng-switch="$last")
+//-     a(ui-sref="{{state.name}}" ng-switch-when="false")
+//-       span(ng-if="state.data.icon" class="fa fa-{{state.data.icon}}")
+//-       {{state.title}}
+//-     span(ng-switch-when="true")
+//-       span(ng-if="state.data.icon" class="fa fa-{{state.data.icon}}")
+//-       {{state.title}}

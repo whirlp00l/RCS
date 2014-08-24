@@ -1,6 +1,6 @@
 ﻿angular
   .module('rcs')
-  .controller('homeCtrl', [
+  .controller('monitorCtrl', [
     '$rootScope',
     '$scope',
     'rcsSocket',
@@ -9,9 +9,9 @@
     'RCS_EVENTS',
     '$state',
     '$stateParams',
-    homeCtrl]);
+    monitorCtrl]);
 
-function homeCtrl ($rootScope, $scope, rcsSocket, rcsData, rcsAPI, RCS_EVENTS, $state, $stateParams) {
+function monitorCtrl ($rootScope, $scope, rcsSocket, rcsData, rcsAPI, RCS_EVENTS, $state, $stateParams) {
   if (!rcsData.getRestaurantId()) {
     return $state.go('restaurant');
   }

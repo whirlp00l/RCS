@@ -1,0 +1,39 @@
+div(id="user" flex layout="vertical" layout-fill)
+  .text-center
+    h2 登录餐厅管理系统
+    h3
+      a(href="" ng-click="showSignUp()") (注册新用户)
+
+  div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
+
+    .pane.material-whiteframe-z3(ng-show="signUpShown")
+      h3.text-center 请输入注册信息
+      .material-input-group.material-input-group-theme-light
+        label(for="0") 注册邮箱
+        input(id="0" type="text" ng-model="signUp.email" ng-required="true")
+      .material-input-group.material-input-group-theme-light
+        label(for="1") 密码
+        input(id="1" type="password" ng-model="signUp.pwd" ng-required="true")
+      .material-input-group.material-input-group-theme-light
+        label(for="2") 请确认密码
+        input(id="2" type="password" ng-model="signUp.pwdConfirm" ng-required="true")
+
+      h3.text-center 请选择用户类型
+      material-tabs(selected="selectedIndex" nobar tabs-align="bottom")
+        material-tab(ng-class="{active:selectedIndex == 0}" label="餐厅员工")
+        material-tab(ng-class="{active:selectedIndex == 1}" label="餐厅经理")
+      .material-input-group.material-input-group-theme-light(ng-if="selectedIndex==1")
+        label(for="3") 注册码 (input 'key' for test)
+        input(id="3" type="text" ng-model="signUp.key" ng-required="true")
+      material-button.material-button-raised.material-theme-light(ng-click="clickSignUp()") 注册
+
+
+    .pane.pane-signin.material-whiteframe-z3(layout="vertical")
+      h3.text-center 请输入登录信息
+      .material-input-group.material-input-group-theme-light
+        label(for="4") 用户邮箱
+        input(id="4" type="text" ng-model="signIn.email" ng-required="true")
+      .material-input-group.material-input-group-theme-light
+        label(for="5") 密码
+        input(id="5" type="password" ng-model="signIn.pwd" ng-required="true")
+      material-button.material-button-raised.material-theme-light(ng-click="clickSignIn()") 登录
