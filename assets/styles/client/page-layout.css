@@ -1,0 +1,46 @@
+#layout material-button.nav-entry {
+  cursor: pointer;
+  line-height: 40px;
+  max-height: 40px;
+  text-align: left;
+  width: 100%;
+  padding-left: 40px;
+}
+
+#layout material-button.nav-entry span,
+#layout material-button.nav-entry b {
+  font-size: 18px;
+}
+
+#layout .active material-button.nav-entry {
+  font-weight: bold;
+}
+
+/*.active material-button.nav-entry::before {
+  content: ">";
+  font-size: 20px;
+  font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
+}*/
+
+#layout .breadcrumb {
+  background: transparent;
+  margin-bottom: 0px;
+}
+
+#layout .breadcrumb > .active {
+  color: inherit;
+}
+
+#layout material-sidenav {
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
+}
+
+#layout .material-toolbar-tools material-button {
+  font-size: 18px;
+}
+
+#signout {
+  margin-bottom: 20px;
+}

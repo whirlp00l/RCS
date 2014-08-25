@@ -28,23 +28,23 @@ angular
 function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperProvider) {
   $logProvider.debugEnabled(true);
 
-  $urlRouterProvider.otherwise('/user');
+  $urlRouterProvider.otherwise('/about');
 
   stateHelperProvider.setNestedState({
     name: 'home',
     abscract: true,
-    templateUrl: '/template/page-home',
-    controller: 'homeCtrl',
+    templateUrl: '/template/page-layout',
+    controller: 'layoutCtrl',
     data: {
-      // icon: 'home',
       title: ''
     },
     children: [{
-      name: 'user',
-      url: '/user',
-      templateUrl: 'template/page-home-user',
-      controller: 'userCtrl',
+      name: 'signin',
+      url: '/signin',
+      templateUrl: 'template/page-home-signin',
+      controller: 'signInCtrl',
       data: {
+        icon: 'sign-in',
         title: '登录'
       },
     }, {
@@ -52,30 +52,76 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
       url: '/about',
       templateUrl: 'template/page-home-about',
       data: {
+        icon: 'info-circle',
         title: '关于'
       },
     }]
   });
 
   stateHelperProvider.setNestedState({
+    name: 'restaurant',
+    abscract: true,
+    templateUrl: '/template/page-layout',
+    controller: 'layoutCtrl',
+    data: {
+      title: '餐厅'
+    },
+    children: [{
+      name: 'list',
+      url: '/restaurant/list',
+      templateUrl: '/template/page-restaurant-list',
+      controller: 'listRestaurantCtrl',
+      data: {
+        icon: 'info-circle',
+        title: '餐厅列表'
+      }
+    }, {
+      name: 'new',
+      url: '/restaurant/new',
+      templateUrl: '/template/page-restaurant-new',
+      controller: 'newRestaurantCtrl',
+      data: {
+        icon: 'info-circle',
+        title: '新建餐厅'
+      }
+    }]
+  });
+
+  stateHelperProvider.setNestedState({
     name: 'management',
     abscract: true,
-    templateUrl: '/template/page-management',
+    templateUrl: '/template/page-layout',
+    controller: 'layoutCtrl',
+    data: {
+      title: '管理餐厅'
+    },
     children: [{
-      name: 'restaurant',
-      url: '/management/restaurant',
-      templateUrl: '/template/page-management-restaurant',
-      controller: 'restaurantCtrl'
-    }, {
       name: 'monitor',
       url: '/management/monitor',
       templateUrl: '/template/page-management-monitor',
-      controller: 'monitorCtrl'
+      controller: 'monitorCtrl',
+      data: {
+        icon: 'th',
+        title: '餐桌+请求'
+      }
     }, {
       name: 'authorMenu',
       url: '/management/authorMenu',
       templateUrl: '/template/page-management-authorMenu',
-      controller: 'authorMenuCtrl'
+      controller: 'authorMenuCtrl',
+      data: {
+        icon: 'edit',
+        title: '菜单'
+      }
+    }, {
+      name: 'assignAdmin',
+      url: '/management/assignAdmin',
+      templateUrl: '/template/page-management-assignAdmin',
+      controller: 'assignAdminCtrl',
+      data: {
+        icon: 'users',
+        title: '分配管理员'
+      }
     }]
   });
 

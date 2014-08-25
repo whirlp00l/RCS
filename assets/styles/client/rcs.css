@@ -8,44 +8,19 @@ body *
    font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
 }
 
-material-button.nav-entry {
-  cursor: pointer;
-  line-height: 40px;
-  max-height: 40px;
-  text-align: left;
-  width: 100%;
-  padding-left: 40px;
-}
-
-material-button.nav-entry .fa-2x+span {
-  font-size: 18px;
-}
-
-.active material-button.nav-entry {
-  font-weight: bold;
-}
-
-.active material-button.nav-entry::before {
-  content: ">";
-  font-size: 20px;
-  font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
-}
-
-.breadcrumb {
-  background: transparent;
-  margin-bottom: 0px;
-}
-
-.breadcrumb > .active {
-  color: inherit;
-}
-
 /*material-content[layout-fill] .material-content {
   height: 95%;
 }*/
 
 .full-width {
   width: 100%;
+}
+
+.fa.right-conner {
+  float: right;
+  position: relative;
+  left: 10px;
+  top: 10px;
 }
 
 /*.rcs-theme-red {

@@ -2,6 +2,7 @@ angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb]);
 
+// directives
 function breadcrumb ($state, $stateParams, $interpolate) {
   return {
     link: link,
