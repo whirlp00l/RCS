@@ -31,17 +31,17 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
   $urlRouterProvider.otherwise('/about');
 
   stateHelperProvider.setNestedState({
-    name: 'home',
+    name: 'page',
     abscract: true,
-    templateUrl: '/template/page-layout',
-    controller: 'layoutCtrl',
+    templateUrl: '/template/page',
+    controller: 'pageCtrl',
     data: {
       title: ''
     },
     children: [{
       name: 'signin',
       url: '/signin',
-      templateUrl: 'template/page-home-signin',
+      templateUrl: 'template/page-signin',
       controller: 'signInCtrl',
       data: {
         icon: 'sign-in',
@@ -50,80 +50,75 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
     }, {
       name: 'about',
       url: '/about',
-      templateUrl: 'template/page-home-about',
+      templateUrl: 'template/page-about',
       data: {
         icon: 'info-circle',
         title: '关于'
       },
+    }, {
+      name: 'restaurant',
+      abscract: true,
+      template: '<div ui-view></div>',
+      data: {
+        title: '餐厅'
+      },
+      children: [{
+        name: 'list',
+        url: '/restaurant/list',
+        templateUrl: '/template/page-restaurant-list',
+        controller: 'listRestaurantCtrl',
+        data: {
+          icon: 'info-circle',
+          title: '餐厅列表'
+        }
+      }, {
+        name: 'new',
+        url: '/restaurant/new',
+        templateUrl: '/template/page-restaurant-new',
+        controller: 'newRestaurantCtrl',
+        data: {
+          icon: 'info-circle',
+          title: '新建餐厅'
+        }
+      }]
+    }, {
+      name: 'management',
+      abscract: true,
+      template: '<div ui-view></div>',
+      data: {
+        title: '管理'
+      },
+      children: [{
+        name: 'monitor',
+        url: '/management/monitor',
+        templateUrl: '/template/page-management-monitor',
+        controller: 'monitorCtrl',
+        data: {
+          icon: 'th',
+          title: '餐桌+请求'
+        }
+      }, {
+        name: 'authorMenu',
+        url: '/management/authorMenu',
+        templateUrl: '/template/page-management-authorMenu',
+        controller: 'authorMenuCtrl',
+        data: {
+          icon: 'edit',
+          title: '菜单'
+        }
+      }, {
+        name: 'assignAdmin',
+        url: '/management/assignAdmin',
+        templateUrl: '/template/page-management-assignAdmin',
+        controller: 'assignAdminCtrl',
+        data: {
+          icon: 'users',
+          title: '分配管理员'
+        }
+      }]
     }]
   });
 
-  stateHelperProvider.setNestedState({
-    name: 'restaurant',
-    abscract: true,
-    templateUrl: '/template/page-layout',
-    controller: 'layoutCtrl',
-    data: {
-      title: '餐厅'
-    },
-    children: [{
-      name: 'list',
-      url: '/restaurant/list',
-      templateUrl: '/template/page-restaurant-list',
-      controller: 'listRestaurantCtrl',
-      data: {
-        icon: 'info-circle',
-        title: '餐厅列表'
-      }
-    }, {
-      name: 'new',
-      url: '/restaurant/new',
-      templateUrl: '/template/page-restaurant-new',
-      controller: 'newRestaurantCtrl',
-      data: {
-        icon: 'info-circle',
-        title: '新建餐厅'
-      }
-    }]
-  });
-
-  stateHelperProvider.setNestedState({
-    name: 'management',
-    abscract: true,
-    templateUrl: '/template/page-layout',
-    controller: 'layoutCtrl',
-    data: {
-      title: '管理餐厅'
-    },
-    children: [{
-      name: 'monitor',
-      url: '/management/monitor',
-      templateUrl: '/template/page-management-monitor',
-      controller: 'monitorCtrl',
-      data: {
-        icon: 'th',
-        title: '餐桌+请求'
-      }
-    }, {
-      name: 'authorMenu',
-      url: '/management/authorMenu',
-      templateUrl: '/template/page-management-authorMenu',
-      controller: 'authorMenuCtrl',
-      data: {
-        icon: 'edit',
-        title: '菜单'
-      }
-    }, {
-      name: 'assignAdmin',
-      url: '/management/assignAdmin',
-      templateUrl: '/template/page-management-assignAdmin',
-      controller: 'assignAdminCtrl',
-      data: {
-        icon: 'users',
-        title: '分配管理员'
-      }
-    }]
-  });
 
   // $stateProvider
   //   .state('login', {

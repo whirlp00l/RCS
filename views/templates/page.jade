@@ -1,12 +1,10 @@
 div(id="layout" layout="horizontal" layout-fill)
-  material-sidenav.material-sidenav-left.material-whiteframe-z4(
-    component-id="left"
-    ng-click="clickCloseNav()")
+  material-sidenav.material-sidenav-left.material-whiteframe-z4(component-id="left")
     div(layout="vertical" layout-fill)
       material-toolbar.material-theme-light
         .material-toolbar-tools <b>餐厅管理系统</b>
       material-content(flex)
-        a(ng-repeat="navEntry in navEntries"
+        a(ng-repeat="navEntry in navEntries | filter:canNav"
           ui-sref="{{navEntry.name}}" ui-sref-active="active")
           material-button.nav-entry
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")

@@ -1,5 +1,22 @@
-h1.text-center restaurant list
+div(id="restaurant" flex layout="vertical" layout-fill)
+  .text-center
+    h2 餐厅列表
+    h3
 
+  div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
+
+    .pane.material-whiteframe-z3
+      material-button.material-button-fab.material-theme-light.material-whiteframe-z5.right-conner(
+        ng-disabled="selectedIndex==-1" ng-click="clickGoNext()")
+        i.fa.fa-arrow-right.fa-2x
+      material-radio-group(ng-model="selectedIndex")
+        material-list(ng-repeat="restaurant in restaurants")
+          material-item(ng-click="clickSelectRestaurant($index)")
+            .material-tile-left
+              material-radio-button(ng-class="{'material-checked':selectedIndex==$index}" noink)
+            .material-tile-content
+              h2 {{restaurant.name}}
+              h3 {{restaurant.description}}
 
 //- h1 餐厅
 //-   .row.text-center
