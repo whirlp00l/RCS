@@ -105,21 +105,60 @@ function listRestaurantCtrl ($scope, $state) {
   }, {
     name: 'KFC-fake2', description: 'this is another test'
   }]
+
   $scope.clickSelectRestaurant = selectRestaurant;
-  $scope.clickGoNext = goNext;
+  $scope.clickGoTo = goTo;
 
   function selectRestaurant (index) {
     $scope.selectedIndex = index;
   }
 
-  function goNext () {
-    // TODO: add real logic
+  function goTo () {
+    // session service: restaurant changed
     $state.go('page.management.monitor');
   }
 }
 
 function newRestaurantCtrl($scope) {
-  // body...
+  $scope.name = '';
+  $scope.description = '';
+  $scope.admins = [];
+  $scope.newAdmin = '';
+
+  $scope.ifDisableCreate = ifDisableCreate;
+  $scope.ifDisableAddAdmin = ifDisableAddAdmin;
+  $scope.clickCreate = create;
+  $scope.clickDeleteAdmin = deleteAdmin;
+  $scope.clickAddAdmin = addAdmin;
+
+  function ifDisableCreate () {
+    return !$scope.name;
+  }
+
+  function create () {
+    alert('create');
+  }
+
+  function deleteAdmin (index) {
+    $scope.admins.splice(index, 1);
+  }
+
+  function ifDisableAddAdmin () {
+    return !$scope.newAdmin;
+  }
+
+  function addAdmin () {
+    if (!$scope.newAdmin) {
+      return;
+    }
+
+    if ($scope.admins.indexOf($scope.newAdmin) != -1) {
+      return alert('无法重复添加用户:' + $scope.newAdmin);
+    }
+
+    $scope.admins.push($scope.newAdmin);
+    $scope.newAdmin = '';
+  }
 }
 
 function monitorCtrl($scope) {

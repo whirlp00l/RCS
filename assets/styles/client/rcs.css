@@ -43,3 +43,10 @@ body *
   background-color: #cba353;
   color: #f1f1f1;
 }*/
+
+.material-button-fab.right-conner {
+  float: right;
+  position: relative;
+  left: 40px;
+  top: -25px;
+}

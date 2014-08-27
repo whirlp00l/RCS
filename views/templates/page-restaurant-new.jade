@@ -1,1 +1,35 @@
-h1.text-center new restaurant
+div(id="restaurant-new" flex layout="vertical" layout-fill)
+  h2.text-center(id="title") 新建餐厅
+
+  div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
+
+    .pane.material-whiteframe-z3
+      material-button.material-button-fab.material-theme-light.material-whiteframe-z5.right-conner(
+        ng-disabled="ifDisableCreate()" ng-click="clickCreate()")
+        i.fa.fa-check.fa-2x
+
+      h3.text-center 请输入餐厅信息
+      .material-input-group.material-input-group-theme-light
+        label(for="name") 餐厅名称
+        input.full-width(id="name" type="text" ng-model="name")
+      .material-input-group.material-input-group-theme-light
+        label(for="description") 描述
+        input.full-width(id="description" type="text" ng-model="description")
+
+      h3.text-center 请分配初始管理员
+      material-list(id="admin-list")
+        material-item(ng-repeat="admin in admins")
+          .material-tile-left
+            material-button.material-button-raised(ng-click="clickDeleteAdmin($index)")
+              i.fa.fa-minus
+          .material-tile-content
+            h3 {{admin}}
+        material-item
+          .material-tile-left
+            material-button.material-button-raised.material-theme-light(
+              ng-disabled="ifDisableAddAdmin()"
+              ng-click="clickAddAdmin()")
+              i.fa.fa-plus
+          .material-tile-content
+            .material-input-group.material-input-group-theme-light
+              input.full-width(type="text" ng-model="newAdmin" placeholder="用户邮箱")

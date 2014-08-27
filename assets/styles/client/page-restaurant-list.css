@@ -1,4 +1,8 @@
-#restaurant .pane {
+#restaurant-list #title {
+  margin-bottom: 20px;
+}
+
+#restaurant-list .pane {
   width: 500px;
   min-height: 300px;
   padding-left: 20px;
@@ -7,28 +11,21 @@
   font-size: 18px;
 }
 
-#restaurant .material-tile-content {
-  margin-right: 20px;
+#restaurant-list .material-tile-content {
+  width: 385px;
 }
 
-#restaurant .material-button-fab.right-conner {
-  float: right;
-  position: relative;
-  left: 40px;
-  top: -25px;
-}
-
-#restaurant .material-button-fab.right-conner .fa {
+#restaurant-list .material-button-fab.right-conner .fa {
   position: relative;
   top: -5px;
 }
 
-#restaurant material-radio-button .material-on {
+#restaurant-list material-radio-button .material-on {
   background-color: #4285f4;
 }
 
 /*
-#restaurant .pane material-button {
+#restaurant-list .pane material-button {
   margin-top: 30px;
   height: 40px;
   line-height: 32px;
@@ -36,27 +33,27 @@
   width: 100%;
 }
 
-#restaurant .pane label, #restaurant .pane input{
+#restaurant-list .pane label, restaurant-list .pane input{
   width: 100%;
 }
 
-#restaurant material-tabs .material-ink-ripple {
+#restaurant-list material-tabs .material-ink-ripple {
   color: #fff
 }
 
-#restaurant material-tab {
+#restaurant-list material-tab {
   background-color: #e6e6e6;
 }
 
-#restaurant material-tab.active {
+#restaurant-list material-tab.active {
   background-color: #4285f4;
 }
 
-#restaurant material-tab-label {
+#restaurant-list material-tab-label {
   font-weight: bold;
   color: #818181;
 }
 
-#restaurant material-tab-label.active {
+#restaurant-list material-tab-label.active {
   color: #f1f1f1;
 }*/

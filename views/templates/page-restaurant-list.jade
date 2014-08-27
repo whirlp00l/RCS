@@ -1,13 +1,11 @@
-div(id="restaurant" flex layout="vertical" layout-fill)
-  .text-center
-    h2 餐厅列表
-    h3
+div(id="restaurant-list" flex layout="vertical" layout-fill)
+  h2.text-center(id="title") 餐厅列表
 
   div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
 
     .pane.material-whiteframe-z3
       material-button.material-button-fab.material-theme-light.material-whiteframe-z5.right-conner(
-        ng-disabled="selectedIndex==-1" ng-click="clickGoNext()")
+        ng-disabled="selectedIndex==-1" ng-click="clickGoTo()")
         i.fa.fa-arrow-right.fa-2x
       material-radio-group(ng-model="selectedIndex")
         material-list(ng-repeat="restaurant in restaurants")

@@ -1,0 +1,26 @@
+#restaurant-new #title {
+  margin-bottom: 20px;
+}
+
+#restaurant-new .pane {
+  width: 400px;
+  min-height: 300px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 40px;
+  font-size: 18px;
+}
+
+#restaurant-new .material-button-fab.right-conner .fa {
+  position: relative;
+  top: -5px;
+  left: -5px;
+}
+
+#restaurant-new #admin-list .material-tile-content {
+  margin-right: 0px;
+}
+
+#restaurant-new #admin-list material-button {
+  width: 30px;
+}
