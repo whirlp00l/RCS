@@ -1,0 +1,140 @@
+#monitor .pane {
+  min-height: 800px;
+  max-height: 800px;
+  margin-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 40px;
+  font-size: 18px;
+}
+
+#monitor .pane-tables {
+  width: 800px;
+  font-size: 18px;
+}
+
+#monitor .pane-requests {
+  width: 300px;
+  font-size: 18px;
+  margin-left: 30px;
+}
+
+#monitor .header {
+  height: 30px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+#monitor .header material-button{
+  line-height: 22px;
+}
+
+#monitor .rcs-table-sample {
+  height: 30px;
+  line-height: 30px;
+  width: 60px;
+  margin-left: 5px;
+  margin-right: 5px;
+  text-align: center;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+#monitor .rcs-table-sample.rcs-table-with-book > span {
+  position: relative;
+  font-size: 16px;
+  top: -8px;
+  height: 0;
+  width: 100%;
+}
+
+#monitor rcs-table {
+  height: 60px;
+  max-width: 60px;
+  margin: 5px;
+}
+
+#monitor .rcs-table {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+#monitor .rcs-table > .rcs-table-mark {
+  position: relative;
+  font-size: 16px;
+  top: 12px;
+}
+
+#monitor .rcs-table > .rcs-table-text {
+  position: absolute;
+  font-size: 16px;
+  top: 38px;
+  height: 0;
+  width: 100%;
+}
+
+#monitor .rcs-table-empty {
+  background-color: #e4e0d8;
+  color: #000;
+}
+
+#monitor .rcs-table-serving{
+  background-color: #8a1717;
+  color: #fff;
+}
+
+#monitor .rcs-table-paid{
+  background-color: #cba353;
+  color: #fff;
+}
+
+#monitor .rcs-table-null {
+  background-color: transparent;
+  cursor: default;
+}
+
+#monitor .rcs-table-null canvas.material-ink-ripple {
+  visibility: hidden
+}
+
+#monitor .rcs-table-create {
+  border: 5px solid #fff;
+  background-color: transparent;
+}
+
+#monitor .rcs-table-create:hover {
+  border: 5px solid rgba(100, 94, 85, 0.7);
+}
+
+#monitor .rcs-table-with-book {
+  border-top: 8px solid #93b0ba;
+}
+
+#monitor .rcs-table-with-book > .rcs-table-mark {
+  top: 4px;
+}
+
+#monitor .rcs-table-with-book > .rcs-table-text {
+  top: 30px;
+}
+
+#monitor .tooltip {
+  width: 200px;
+  height: 120px;
+  text-align: left;
+}
+
+#monitor .tooltip * {
+  opacity: 0.9;
+}
+
+#monitor .rcs-tooltip {
+  font-size: 16px;
+}

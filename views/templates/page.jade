@@ -1,4 +1,4 @@
-div(id="layout" layout="horizontal" layout-fill)
+div(id="page" layout="horizontal" layout-fill)
   material-sidenav.material-sidenav-left.material-whiteframe-z4(component-id="left")
     div(layout="vertical" layout-fill)
       material-toolbar.material-theme-light
@@ -8,7 +8,7 @@ div(id="layout" layout="horizontal" layout-fill)
           ui-sref="{{navEntry.name}}" ui-sref-active="active")
           material-button.nav-entry
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")
-            | {{navEntry.data.title}}
+            | &nbsp;{{navEntry.data.title}}
       material-button.nav-entry
         b {{currentUser}}
       material-button.nav-entry(id="signout" ng-click="clickSignOut()")

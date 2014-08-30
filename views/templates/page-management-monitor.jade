@@ -1,1 +1,24 @@
-h1.text-center monitor
+div(id="monitor" flex layout="vertical" layout-fill)
+
+  div.text-unselectable(layout="horizontal" layout-align="center" layout-padding)
+    .pane.pane-tables.material-whiteframe-z3
+
+      div.header(layout="horizontal")
+        material-button.material-button-raised.material-theme-light(flex="10" ng-click="clickToggleEditting()")
+          span(ng-if="editingTable") 完成
+          span(ng-if="!editingTable") 编辑
+        div(flex="80" ng-switch="editingTable")
+          div(ng-switch-when="false" layout="horizontal" layout-align="center")
+            .rcs-table-sample.rcs-table-empty 空桌
+            .rcs-table-sample.rcs-table-serving 用餐中
+            .rcs-table-sample.rcs-table-paid 已结帐
+            .rcs-table-sample.rcs-table-empty.rcs-table-with-book
+              span 有预订
+          div(ng-switch-when="true" layout="horizontal" layout-align="center")
+           b 编辑餐桌
+        div(flex="10")
+      div(ng-repeat="tableRow in tables track by $index" layout="horizontal" layout-align="center")
+        rcs-table(flex ng-repeat="table in tableRow track by $index")
+
+    .pane.pane-requests.material-whiteframe-z3
+      h2 Requests

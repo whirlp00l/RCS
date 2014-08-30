@@ -1,4 +1,4 @@
-#layout material-button.nav-entry {
+#page material-button.nav-entry {
   cursor: pointer;
   line-height: 40px;
   max-height: 40px;
@@ -7,12 +7,12 @@
   padding-left: 40px;
 }
 
-#layout material-button.nav-entry span,
-#layout material-button.nav-entry b {
+#page material-button.nav-entry span,
+#page material-button.nav-entry b {
   font-size: 18px;
 }
 
-#layout .active material-button.nav-entry {
+#page .active material-button.nav-entry {
   font-weight: bold;
 }
 
@@ -22,24 +22,24 @@
   font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
 }*/
 
-#layout .breadcrumb {
+#page .breadcrumb {
   background: transparent;
   margin-bottom: 0px;
 }
 
-#layout .breadcrumb > .active {
+#page .breadcrumb > .active {
   color: inherit;
 }
 
-#layout material-sidenav {
+#page material-sidenav {
   min-width: 220px;
   max-width: 220px;
 }
 
-#layout .material-toolbar-tools material-button {
+#page .material-toolbar-tools material-button {
   font-size: 18px;
 }
 
-#signout {
+#page #signout {
   margin-bottom: 20px;
 }

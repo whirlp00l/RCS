@@ -1,0 +1,29 @@
+-var useModeClass = "{"
+-useModeClass += "'rcs-table-null':ifNull()===true,"
+-useModeClass += "'material-button-raised':ifNull()===false,"
+-useModeClass += "'rcs-table-empty':ifEmpty()===true,"
+-useModeClass += "'rcs-table-serving':ifServing()===true,"
+-useModeClass += "'rcs-table-paid':ifPaid()===true,"
+-useModeClass += "'rcs-table-with-book':ifBooked()===true,"
+-useModeClass += "}"
+
+-var editModeClass = "{"
+-editModeClass += "'rcs-table-create':ifNull()===true,"
+-editModeClass += "'rcs-table-empty material-button-raised':ifNull()===false"
+-editModeClass += "}"
+
+material-button.rcs-table(
+  ng-if="editingTable===false"
+  ng-class=useModeClass
+  ng-click="clickManageTable()"
+  tooltip-placement="right"
+  tooltip-popup-delay="100"
+  tooltip-html-unsafe="{{getTooltip()}}")
+  .rcs-table-mark(ng-show="ifHasRequest()").fa.fa-bell
+  .rcs-table-text {{getTableName()}}
+material-button.rcs-table(
+  ng-if="editingTable===true"
+  ng-click="clickEditTable()"
+  ng-class=editModeClass)
+  .rcs-table-mark.fa.fa-plus(ng-show="ifNull()===true")
+  .rcs-table-text(ng-show="ifNull()===false") {{getTableName()}}

@@ -162,7 +162,147 @@ function newRestaurantCtrl($scope) {
 }
 
 function monitorCtrl($scope) {
-  // body...
+  $scope.maxTableRow = 10;
+  $scope.maxTableCol = 10;
+
+  $scope.editingTable = false;
+  $scope.tables = initializeTables();
+  $scope.requests = initializeRequests();
+
+  $scope.clickToggleEditting = clickToggleEditting;
+
+  function initializeTables () {
+    var tables = new Array($scope.maxTableRow);
+    for (var i = 0; i < $scope.maxTableRow; i++) {
+      tables[i] = new Array($scope.maxTableCol);
+      for (var j = 0; j < $scope.maxTableCol; j++) {
+       tables[i][j] = 'null';
+      }
+    }
+
+    tables[0][0] = {
+      TableName: 'A4',
+      TableType: 'A',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[0][1] = {
+      TableName: 'A5',
+      TableType: 'A',
+      Status: 'ordering',
+      ActiveRequestCount: 0
+    };
+
+    tables[0][3] = {
+      TableName: 'A6',
+      TableType: 'A',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[0][7] = {
+      TableName: 'A7',
+      TableType: 'A',
+      Status: 'paid',
+      ActiveRequestCount: 0
+    };
+
+    tables[0][9] = {
+      TableName: 'A9',
+      TableType: 'A',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[1][9] = {
+      TableName: 'A8',
+      TableType: 'A',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[2][7] = {
+      TableName: 'A10',
+      TableType: 'A',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[2][3] = {
+      id: 1,
+      TableName: 'A1',
+      TableType: 'A',
+      Status: 'empty',
+      MapRow: 2,
+      MapCol: 3,
+      ActiveRequestCount: 0
+    };
+
+    tables[5][2] = {
+      id: 2,
+      TableName: 'A2',
+      TableType: 'A',
+      Status: 'paying',
+      MapRow: 5,
+      MapCol: 2,
+      ActiveRequestCount: 1
+    };
+
+    tables[5][1] = {
+      id: 3,
+      TableName: 'A3',
+      TableType: 'A',
+      Status: 'paid',
+      MapRow: 5,
+      MapCol: 1,
+      ActiveRequestCount: 2
+    };
+
+    tables[9][9] = {
+      TableName: 'C1',
+      TableType: 'C',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    tables[9][0] = {
+      TableName: 'C2',
+      TableType: 'C',
+      Status: 'empty',
+      ActiveRequestCount: 0
+    };
+
+    return tables;
+  }
+
+  function initializeRequests () {
+    var requests = [{
+      id: 1,
+      Type: 'call',
+      Table: {
+        TableName: 'A1',
+      }
+    }, {
+      id: 2,
+      Type: 'pay',
+      Table: {
+        TableName: 'B1',
+      }
+    }, {
+      id: 3,
+      Type: 'order',
+      Table: {
+        TableName: 'B2',
+      }
+    }];
+
+    return requests;
+  }
+
+  function clickToggleEditting () {
+    $scope.editingTable = !$scope.editingTable;
+  }
 }
 
 function authorMenuCtrl($scope) {
