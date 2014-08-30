@@ -19,112 +19,6 @@
   margin-left: 30px;
 }
 
-#monitor .header {
-  height: 30px;
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-
-#monitor .header material-button{
-  line-height: 22px;
-}
-
-#monitor .rcs-table-sample {
-  height: 30px;
-  line-height: 30px;
-  width: 60px;
-  margin-left: 5px;
-  margin-right: 5px;
-  text-align: center;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-}
-
-#monitor .rcs-table-sample.rcs-table-with-book > span {
-  position: relative;
-  font-size: 16px;
-  top: -8px;
-  height: 0;
-  width: 100%;
-}
-
-#monitor rcs-table {
-  height: 60px;
-  max-width: 60px;
-  margin: 5px;
-}
-
-#monitor .rcs-table {
-  height: 100%;
-  width: 100%;
-  padding: 0;
-  cursor: pointer;
-  text-align: center;
-  box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box;
-}
-
-#monitor .rcs-table > .rcs-table-mark {
-  position: relative;
-  font-size: 16px;
-  top: 12px;
-}
-
-#monitor .rcs-table > .rcs-table-text {
-  position: absolute;
-  font-size: 16px;
-  top: 38px;
-  height: 0;
-  width: 100%;
-}
-
-#monitor .rcs-table-empty {
-  background-color: #e4e0d8;
-  color: #000;
-}
-
-#monitor .rcs-table-serving{
-  background-color: #8a1717;
-  color: #fff;
-}
-
-#monitor .rcs-table-paid{
-  background-color: #cba353;
-  color: #fff;
-}
-
-#monitor .rcs-table-null {
-  background-color: transparent;
-  cursor: default;
-}
-
-#monitor .rcs-table-null canvas.material-ink-ripple {
-  visibility: hidden
-}
-
-#monitor .rcs-table-create {
-  border: 5px solid #fff;
-  background-color: transparent;
-}
-
-#monitor .rcs-table-create:hover {
-  border: 5px solid rgba(100, 94, 85, 0.7);
-}
-
-#monitor .rcs-table-with-book {
-  border-top: 8px solid #93b0ba;
-}
-
-#monitor .rcs-table-with-book > .rcs-table-mark {
-  top: 4px;
-}
-
-#monitor .rcs-table-with-book > .rcs-table-text {
-  top: 30px;
-}
-
 #monitor .tooltip {
   width: 200px;
   height: 120px;
@@ -137,4 +31,147 @@
 
 #monitor .rcs-tooltip {
   font-size: 16px;
+}
+
+#tables .header {
+  height: 30px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+#tables .header material-button{
+  line-height: 22px;
+}
+
+#tables .rcs-table-sample {
+  height: 30px;
+  line-height: 30px;
+  width: 60px;
+  margin-left: 5px;
+  margin-right: 5px;
+  text-align: center;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+#tables .rcs-table-sample.rcs-table-with-book > span {
+  position: relative;
+  font-size: 16px;
+  top: -8px;
+  height: 0;
+  width: 100%;
+}
+
+#tables rcs-table {
+  height: 60px;
+  max-width: 60px;
+  margin: 5px;
+}
+
+#tables .rcs-table {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+  box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+#tables .rcs-table > .rcs-table-mark {
+  position: relative;
+  font-size: 16px;
+  top: 12px;
+}
+
+#tables .rcs-table > .rcs-table-text {
+  position: absolute;
+  font-size: 16px;
+  top: 38px;
+  height: 0;
+  width: 100%;
+}
+
+#tables .rcs-table-empty {
+  background-color: #e4e0d8;
+  color: #000;
+}
+
+#tables .rcs-table-serving{
+  background-color: #8a1717;
+  color: #fff;
+}
+
+#tables .rcs-table-paid{
+  background-color: #cba353;
+  color: #fff;
+}
+
+#tables .rcs-table-null {
+  background-color: transparent;
+  cursor: default;
+}
+
+#tables .rcs-table-null canvas.material-ink-ripple {
+  visibility: hidden
+}
+
+#tables .rcs-table-create {
+  background-color: transparent;
+}
+
+#tables .rcs-table-create:hover {
+  background-color: #93b0ba;
+}
+
+#tables .rcs-table-with-book {
+  border-top: 8px solid #93b0ba;
+}
+
+#tables .rcs-table-with-book > .rcs-table-mark {
+  top: 4px;
+}
+
+#tables .rcs-table-with-book > .rcs-table-text {
+  top: 30px;
+}
+
+#requests material-tabs .material-ink-ripple {
+  color: #fff
+}
+
+#requests material-tab {
+  background-color: #e6e6e6;
+}
+
+#requests material-tab.active {
+  background-color: #4285f4;
+}
+
+#requests material-tab-label {
+  font-weight: bold;
+  color: #818181;
+  font-size: 18px;
+}
+
+#requests material-tab-label.active {
+  color: #f1f1f1;
+}
+
+#requests material-ink-bar {
+  height: 5px;
+  background: #3f51b5;
+  position: absolute;
+  margin-top: -5px;
+  width: 50% !important;
+}
+
+#requests .rcs-request .material-tile-left {
+  text-align: center;
+}
+
+#requests .rcs-request .material-tile-left .fa {
+  font-size: 28px;
 }

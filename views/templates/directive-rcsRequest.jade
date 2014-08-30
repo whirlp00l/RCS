@@ -1,0 +1,19 @@
+material-item.rcs-request(
+  ng-class="{'rcs-request-important':ifImportant()}"
+  ng-click="clickRequest()"
+  tooltip-placement="left"
+  tooltip-popup-delay="100"
+  tooltip-html-unsafe="{{getTooltip()}}")
+  .material-tile-left
+    b.fa.fa-cny(ng-if="request.Type==requestType.pay")
+    b.fa.fa-user(ng-if="request.Type==requestType.call")
+    b.fa.fa-coffee(ng-if="request.Type==requestType.water")
+    b.fa.fa-list-alt(ng-if="request.Type==requestType.order")
+  .material-tile-content
+    h2 <b>{{request.Table.TableName}}</b> {{getRequestText()}}
+    h3 {{getRequestAdditionalText()}}
+  .material-tile-right
+    //- span(ng-show="request.Status==requestStatus.new")
+    //- using ng-class below to make fa-spin to disappear at the right moment
+    span(ng-show="request.Status==requestStatus.inProgress" ng-class="{'fa fa-spinner fa-spin fa-2x':request.Status==requestStatus.inProgress}")
+    //- span.fa.fa-check-square-o(ng-show="request.Status==requestStatus.closed")

@@ -1,7 +1,7 @@
 div(id="monitor" flex layout="vertical" layout-fill)
 
   div.text-unselectable(layout="horizontal" layout-align="center" layout-padding)
-    .pane.pane-tables.material-whiteframe-z3
+    .pane.pane-tables.material-whiteframe-z3(id="tables" ng-controller="monitorTableCtrl")
 
       div.header(layout="horizontal")
         material-button.material-button-raised.material-theme-light(flex="10" ng-click="clickToggleEditting()")
@@ -20,5 +20,24 @@ div(id="monitor" flex layout="vertical" layout-fill)
       div(ng-repeat="tableRow in tables track by $index" layout="horizontal" layout-align="center")
         rcs-table(flex ng-repeat="table in tableRow track by $index")
 
-    .pane.pane-requests.material-whiteframe-z3
-      h2 Requests
+    .pane.pane-requests.material-whiteframe-z3(id="requests" ng-controller="monitorRequestCtrl")
+      material-tabs(selected="selectedIndex")
+        material-tab(
+          ng-class="{active:selectedIndex == $index}"
+          disabled="false")
+          material-tab-label
+            i.fa.fa-bell
+              b &nbsp;当前
+        material-tab(
+          ng-class="{active:selectedIndex == $index}"
+          disabled="false")
+          material-tab-label
+            i.fa.fa-history
+              b &nbsp;历史
+      //- h3.text-center(ng-if="ifHasActiveRequest()==false")
+        i.fa.fa-check
+        | 没有未完成请求
+      material-list(ng-if="selectedIndex == 0")
+        rcs-request(ng-repeat="request in requests | filter:ifUnclosed | orderBy:['-Importance','createdAt'] | limitTo: 10 track by $index")
+      material-list(ng-if="selectedIndex == 1")
+        rcs-request(ng-repeat="request in requests | filter:ifClosed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")

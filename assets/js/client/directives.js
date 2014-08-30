@@ -1,7 +1,8 @@
 angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb])
-  .directive('rcsTable', ['$rootScope', '$materialToast', 'TABLE_STATUS', rcsTable]);
+  .directive('rcsTable', ['$rootScope', 'TABLE_STATUS', rcsTable])
+  .directive('rcsRequest', ['$rootScope', 'REQUEST_STATUS', 'REQUEST_TYPE', rcsRequest]);
 
 // directives
 function breadcrumb ($state, $stateParams, $interpolate) {
@@ -33,12 +34,14 @@ function breadcrumb ($state, $stateParams, $interpolate) {
   }
 }
 
-function rcsTable ($rootScope, $materialToast, TABLE_STATUS) {
+function rcsTable ($rootScope, TABLE_STATUS) {
   return {
     link: link,
     $scope: {
       table: '=',
-      editingTable: '='
+      editingTable: '=',
+      simpleToast: '&',
+      safeApply: '&'
     },
     restrict: 'E',
     templateUrl: '/template/directive-rcsTable',
@@ -62,19 +65,26 @@ function rcsTable ($rootScope, $materialToast, TABLE_STATUS) {
 
     function clickManageTable () {
       if ($scope.ifNull()) return;
-      simpleToast('manageTable:' + $scope.table.TableName);
+      $scope.safeApply();
+      $scope.simpleToast('manageTable:' + $scope.table.TableName);
     }
 
     function clickEditTable() {
-      simpleToast('editTable:' + ($scope.ifNull() ? 'null' : $scope.table.TableName));
-    }
+      var mapRow = $scope.$parent.$index;
+      var mapCol = $scope.$index;
 
-    function simpleToast (content) {
-      $materialToast({
-        template: '<material-toast class="rcs">' + content + '</material-toast>',
-        duration: 1000,
-        position: 'buttom right'
-      });
+      $scope.table = {
+        TableName: 'A' + mapRow + mapCol,
+        TableType: 'A',
+        Status: 'empty',
+        ActiveRequestCount: 0,
+        MapRow: mapRow,
+        MapCol: mapCol
+      };
+
+      $scope.safeApply();
+      $scope.simpleToast('editTable:' + mapRow + ',' + mapCol);
+      // $scope.simpleToast
     }
 
     function ifNull () {
@@ -197,5 +207,120 @@ function rcsTable ($rootScope, $materialToast, TABLE_STATUS) {
       }
       return Math.floor(diff/1000/60);
     }
+  }
+}
+
+function rcsRequest ($rootScope, REQUEST_STATUS, REQUEST_TYPE) {
+  return {
+    link: link,
+    $scope: {
+      request: '=',
+      simpleToast: '&',
+      safeApply: '&'
+    },
+    restrict: 'E',
+    templateUrl: '/template/directive-rcsRequest',
+    replace: false
+  };
+
+  function link ($scope, $element, $attrs) {
+    $scope.requestStatus = REQUEST_STATUS;
+    $scope.requestType = REQUEST_TYPE;
+
+    $scope.clickRequest = clickRequest;
+    $scope.getTooltip = getTooltip;
+    $scope.getRequestText = getRequestText;
+    $scope.getRequestAdditionalText = getRequestAdditionalText;
+
+    var getRequestTypeText = getRequestTypeText;
+    var getRequestCreateDurationText = getRequestCreateDurationText;
+
+    function clickRequest () {
+      if ($scope.request.Status == REQUEST_STATUS.new) {
+        $scope.request.Status = REQUEST_STATUS.inProgress;
+      } else if ($scope.request.Status == REQUEST_STATUS.inProgress) {
+        $scope.request.Status = REQUEST_STATUS.closed;
+      }
+      return $scope.simpleToast(getRequestText() + ' ' + getRequestAdditionalText());
+    }
+
+    function getTooltip () {
+      var request = $scope.request;
+
+      return (
+        '<div class="rcs-tooltip">' +
+          '餐桌: {0}<br>请求: {1}<br>({2}前提交)' +
+        '</div>'
+      ).format(
+        request.Table.TableName,
+        getRequestTypeText(request),
+        getRequestCreateDurationText(request)
+      );
+    }
+
+    function getRequestText () {
+      var request = $scope.request;
+      return getRequestTypeText(request);
+    }
+
+    function getRequestAdditionalText () {
+      var request = $scope.request;
+      var text = '';
+      switch (request.Type) {
+        case REQUEST_TYPE.pay:
+          switch (request.PayType) {
+            case 'cash':
+              if (request.PayAmount && request.PayAmount != '') {
+                text = '准备支付现金:{0}元'.format(request.PayAmount);
+              }
+              break;
+            case 'card':
+              text = '准备刷卡'
+              break;
+            case 'alipay':
+              text = '使用支付宝'
+              break;
+          }
+          break;
+        case REQUEST_TYPE.order:
+          text = '{0}道菜'.format(request.OrderItems.length);
+          break;
+      }
+
+      return text;
+    }
+
+    function getRequestTypeText () {
+      var request = $scope.request;
+      switch (request.Type) {
+        case REQUEST_TYPE.call:
+          return REQUEST_TYPE.callText;
+        case REQUEST_TYPE.pay:
+          return REQUEST_TYPE.payText;
+        case REQUEST_TYPE.water:
+          return REQUEST_TYPE.waterText;
+        case REQUEST_TYPE.order:
+          return REQUEST_TYPE.orderText;
+        default:
+          return request.Type;
+      }
+    }
+
+    function getRequestCreateDurationText () {
+      var request = $scope.request;
+
+      var diff = new Date() - new Date(request.createdAt);
+      if (diff < 0) {
+        diff = 0;
+      }
+
+      var durationSec = Math.floor(diff/1000);
+      if (durationSec > 60) {
+        return Math.floor(durationSec/60) + '分';
+      }
+
+      return durationSec + '秒';
+    }
+
   }
 }

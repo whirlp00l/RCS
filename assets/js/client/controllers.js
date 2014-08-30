@@ -4,7 +4,9 @@ angular
   .controller('signInCtrl', ['$scope', '$state', '$log', 'rcsAPI', 'rcsAuth', 'ERROR_MESSAGE', signInCtrl])
   .controller('listRestaurantCtrl', ['$scope', '$state', listRestaurantCtrl])
   .controller('newRestaurantCtrl', ['$scope', newRestaurantCtrl])
-  .controller('monitorCtrl', ['$scope', monitorCtrl])
+  .controller('monitorCtrl', ['$scope', '$materialToast', monitorCtrl])
+  .controller('monitorTableCtrl', ['$scope', monitorTableCtrl])
+  .controller('monitorRequestCtrl', ['$scope', monitorRequestCtrl])
   .controller('authorMenuCtrl', ['$scope', authorMenuCtrl])
   .controller('assignAdminCtrl', ['$scope', assignAdminCtrl]);
 
@@ -161,13 +163,41 @@ function newRestaurantCtrl($scope) {
   }
 }
 
-function monitorCtrl($scope) {
+function monitorCtrl ($scope, $materialToast) {
+  $scope.simpleToast = simpleToast;
+  $scope.safeApply = safeApply;
+
+  function simpleToast (content) {
+    $materialToast({
+      template: '<material-toast class="rcs">' + content + '</material-toast>',
+      duration: 1000,
+      position: 'buttom right'
+    });
+  }
+
+  function safeApply (fn) {
+      try {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+          if(fn && (typeof(fn) === 'function')) {
+            fn();
+          }
+        } else {
+          this.$apply(fn);
+        }
+      }
+      catch (err) {
+
+      }
+    }
+}
+
+function monitorTableCtrl($scope) {
   $scope.maxTableRow = 10;
   $scope.maxTableCol = 10;
 
   $scope.editingTable = false;
   $scope.tables = initializeTables();
-  $scope.requests = initializeRequests();
 
   $scope.clickToggleEditting = clickToggleEditting;
 
@@ -180,55 +210,6 @@ function monitorCtrl($scope) {
       }
     }
 
-    tables[0][0] = {
-      TableName: 'A4',
-      TableType: 'A',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
-    tables[0][1] = {
-      TableName: 'A5',
-      TableType: 'A',
-      Status: 'ordering',
-      ActiveRequestCount: 0
-    };
-
-    tables[0][3] = {
-      TableName: 'A6',
-      TableType: 'A',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
-    tables[0][7] = {
-      TableName: 'A7',
-      TableType: 'A',
-      Status: 'paid',
-      ActiveRequestCount: 0
-    };
-
-    tables[0][9] = {
-      TableName: 'A9',
-      TableType: 'A',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
-    tables[1][9] = {
-      TableName: 'A8',
-      TableType: 'A',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
-    tables[2][7] = {
-      TableName: 'A10',
-      TableType: 'A',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
     tables[2][3] = {
       id: 1,
       TableName: 'A1',
@@ -239,70 +220,117 @@ function monitorCtrl($scope) {
       ActiveRequestCount: 0
     };
 
-    tables[5][2] = {
+    tables[2][4] = {
       id: 2,
       TableName: 'A2',
       TableType: 'A',
       Status: 'paying',
-      MapRow: 5,
-      MapCol: 2,
+      MapRow: 2,
+      MapCol: 4,
       ActiveRequestCount: 1
     };
 
-    tables[5][1] = {
+    tables[2][5] = {
       id: 3,
       TableName: 'A3',
       TableType: 'A',
       Status: 'paid',
-      MapRow: 5,
-      MapCol: 1,
+      MapRow: 2,
+      MapCol: 5,
+      BookName: 'Shuyu',
+      BookDateTime: new Date(),
       ActiveRequestCount: 2
-    };
-
-    tables[9][9] = {
-      TableName: 'C1',
-      TableType: 'C',
-      Status: 'empty',
-      ActiveRequestCount: 0
-    };
-
-    tables[9][0] = {
-      TableName: 'C2',
-      TableType: 'C',
-      Status: 'empty',
-      ActiveRequestCount: 0
     };
 
     return tables;
   }
 
+  function clickToggleEditting () {
+    $scope.editingTable = !$scope.editingTable;
+  }
+}
+
+function monitorRequestCtrl ($scope) {
+  $scope.selectedIndex = 0;
+  $scope.requests = initializeRequests();
+
+  $scope.ifHasActiveRequest = ifHasActiveRequest;
+  $scope.ifUnclosed = ifUnclosed;
+  $scope.ifClosed = ifClosed;
+
   function initializeRequests () {
     var requests = [{
-      id: 1,
       Type: 'call',
+      Status: 'new',
+      Importance: 0,
+      createdAt: new Date(),
+      ClosedAt: new Date(),
+      PayType: null,
+      PayAmount: null,
+      OrderItems: null,
       Table: {
-        TableName: 'A1',
+        TableName: 'A3'
       }
     }, {
-      id: 2,
       Type: 'pay',
+      Status: 'inProgress',
+      Importance: 1,
+      createdAt: new Date(),
+      ClosedAt: new Date(),
+      PayType: 'cash',
+      PayAmount: 100,
+      OrderItems: null,
       Table: {
-        TableName: 'B1',
+        TableName: 'A2'
       }
     }, {
-      id: 3,
       Type: 'order',
+      Status: 'new',
+      Importance: 0,
+      createdAt: new Date(),
+      ClosedAt: new Date(),
+      PayType: null,
+      PayAmount: null,
+      OrderItems: [1, 1, 1],
       Table: {
-        TableName: 'B2',
+        TableName: 'A2'
+      }
+    }, {
+      Type: 'order',
+      Status: 'closed',
+      Importance: 0,
+      createdAt: new Date(),
+      ClosedAt: new Date(),
+      PayType: null,
+      PayAmount: null,
+      OrderItems: [1, 1, 1],
+      Table: {
+        TableName: 'A2'
       }
     }];
 
     return requests;
   }
 
-  function clickToggleEditting () {
-    $scope.editingTable = !$scope.editingTable;
+  function ifHasActiveRequest () {
+    var requests = $scope.requests;
+    for (var i = requests.length - 1; i >= 0; i--) {
+      if ($scope.ifUnclosed(requests[i])) {
+        return true;
+      }
+    }
+
+    return false;
   }
+
+  function ifClosed (request) {
+    return request.Status == "closed";
+  }
+
+  function ifUnclosed (request) {
+    return !$scope.ifClosed(request);
+  }
+
 }
 
 function authorMenuCtrl($scope) {
