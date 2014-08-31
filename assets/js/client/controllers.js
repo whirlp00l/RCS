@@ -7,7 +7,7 @@ angular
   .controller('monitorCtrl', ['$scope', '$materialToast', monitorCtrl])
   .controller('monitorTableCtrl', ['$scope', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$scope', monitorRequestCtrl])
-  .controller('authorMenuCtrl', ['$scope', authorMenuCtrl])
+  .controller('authorMenuCtrl', ['$scope', '$timeout', '$materialDialog', authorMenuCtrl])
   .controller('assignAdminCtrl', ['$scope', assignAdminCtrl]);
 
 // controllers
@@ -333,8 +333,257 @@ function monitorRequestCtrl ($scope) {
 
 }
 
-function authorMenuCtrl($scope) {
-  // body...
+function authorMenuCtrl($scope, $timeout, $materialDialog) {
+  $scope.selectedIndex = 0;
+  $scope.menuTypes = [];
+  $scope.newType = '';
+  $scope.menuItems = [];
+  $scope.newMenuItem = null;
+
+  $scope.onTabSelected = onTabSelected;
+  $scope.ifValidNewType = ifValidNewType;
+  $scope.ifValidItem = ifValidItem;
+  $scope.ifDirty = ifDirty;
+  $scope.clickDiscardChange = clickDiscardChange;
+  $scope.clickNewType = clickNewType;
+  $scope.clickUpdateItem = clickUpdateItem;
+  $scope.clickDeleteItem = clickDeleteItem;
+  $scope.clickNewItem = clickNewItem;
+  $scope.clickResetNewItem = clickResetNewItem;
+
+  var master = {menuItems: []};
+
+  initializeMenu();
+  clickResetNewItem();
+
+  function initializeMenu () {
+    // >>mock
+    var menu = [{
+      Name: '米饭',
+      Type: '主食',
+      Price: 5,
+      PremiumPrice: 3
+    }, {
+      Name: '凉拌青笋',
+      Type: '凉菜',
+      Price: 15,
+      PremiumPrice: 12
+    }, {
+      Name: '可乐',
+      Type: '饮料',
+      Price: 10,
+      PremiumPrice: 8
+    }, {
+      Name: '雪碧',
+      Type: '饮料',
+      Price: 10,
+      PremiumPrice: 8
+    }, {
+      Name: '水煮鱼',
+      Type: '热菜',
+      Price: 50,
+      PremiumPrice: 45
+    }]
+
+    // <<mock
+    $scope.menuItems = menu;
+
+    for (var i = 0 ; i < menu.length; i++) {
+      var type = menu[i].Type;
+      if ($scope.menuTypes.indexOf(type) == -1) {
+        $scope.menuTypes.push(type);
+      }
+
+      master.menuItems.push(angular.copy(menu[i]))
+    }
+  }
+
+  function clickResetNewItem () {
+    $scope.newMenuItem = {
+      Name: '',
+      Type: $scope.menuTypes[$scope.selectedIndex],
+      Price: '',
+      PremiumPrice: ''
+    };
+  }
+
+  function onTabSelected () {
+    $scope.selectedIndex = this.$index;
+    for (var i = $scope.menuItems.length - 1; i >= 0; i--) {
+      $scope.menuItems[i] = angular.copy(master.menuItems[i]);
+    };
+    $scope.newMenuItem.Type = $scope.menuTypes[$scope.selectedIndex];
+  }
+
+  function ifValidNewType () {
+    if ($scope.newType == '') {
+      return false;
+    }
+
+    var i = $scope.menuTypes.indexOf($scope.newType);
+    if (i != -1) {
+      $scope.selectedIndex = i;
+      return false;
+    }
+
+    return true;
+  }
+
+  function clickNewType () {
+    if (!$scope.ifValidNewType()) {
+      return;
+    }
+
+    $scope.menuTypes.push($scope.newType);
+    $scope.newType = '';
+
+    $timeout(function () {
+      $scope.selectedIndex = $scope.menuTypes.length - 1;
+      $scope.newMenuItem.Type = $scope.menuTypes[$scope.selectedIndex];
+    });
+  }
+
+  function ifDirty (menuItem) {
+    var i = $scope.menuItems.indexOf(menuItem);
+    return !angular.equals(menuItem, master.menuItems[i]);
+  }
+
+  function clickDiscardChange (menuItem) {
+    var i = $scope.menuItems.indexOf(menuItem);
+    $scope.menuItems[i] = angular.copy(master.menuItems[i]);
+  }
+
+  function clickUpdateItem (menuItem) {
+    var i = $scope.menuItems.indexOf(menuItem);
+
+    // >>> mock
+    var updatedMenuItem = angular.copy(menuItem);
+    $scope.menuItems[i] = updatedMenuItem;
+    master.menuItems[i] = angular.copy(updatedMenuItem);
+    return;
+    // <<< mock
+
+    rcsAPI.MenuItem.update(
+      $scope.restaurantId,
+      menuItem.id,
+      menuItem.Type,
+      menuItem.Price,
+      menuItem.PremiumPrice == '' ? null : menuItem.PremiumPrice
+    )
+    .success(function(data) {
+      var updatedMenuItem = data.MenuItem;
+      $scope.menuItems[i] = updatedMenuItem;
+      master.menuItems[i] = angular.copy(updatedMenuItem);
+    })
+    .error(function (data, status) {
+      if (status === 400) {
+        alert(data.validationErrors || 400);
+      } else {
+        alert(status);
+      }
+    });
+  }
+
+  function clickDeleteItem (menuItem, event) {
+    var i = $scope.menuItems.indexOf(menuItem);
+    var authorMenuScope = $scope;
+
+    var dialogDelete = {
+      templateUrl: 'template/dialogDeleteTemplate',
+      targetEvent: event,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        $scope.deleteFrom = '菜单';
+        $scope.deleteItem = menuItem.Name + '(' + menuItem.Type + ')';
+        $scope.clickDelete = clickDelete;
+        $scope.clickCancel = clickCancel;
+
+        function clickDelete () {
+          // >>> mock
+          $hideDialog();
+          authorMenuScope.menuItems.splice(i, 1);
+          master.menuItems.splice(i, 1);
+          return;
+          // <<< mock
+
+          rcsAPI.MenuItem.delete(
+            menuItem.Restaurant,
+            menuItem.id
+          )
+          .success(function(data) {
+            $hideDialog();
+            authorMenuScope.menuItems.splice(i, 1);
+            master.menuItems.splice(i, 1);
+          })
+          .error(function (data, status) {
+            if (status === 400) {
+              alert(data.validationErrors || 400);
+            } else {
+              alert(status);
+            }
+          });
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    };
+    $materialDialog(dialogDelete);
+  }
+
+  function ifValidItem (menuItem) {
+    if (!menuItem || !menuItem.Name || !menuItem.Type || !menuItem.Price) {
+      return false;
+    }
+
+    menuItem.Price = parseFloat(menuItem.Price);
+    if (!angular.isNumber(menuItem.Price) || menuItem.Price < 0) {
+      return false;
+    }
+
+    if (menuItem.PremiumPrice) {
+      menuItem.PremiumPrice = parseFloat(menuItem.PremiumPrice);
+      if (!angular.isNumber(menuItem.PremiumPrice) || menuItem.PremiumPrice > menuItem.Price)
+      return false;
+    }
+
+    return true;
+  }
+
+  function clickNewItem () {
+    if (!$scope.ifValidItem($scope.newMenuItem)) {
+      return;
+    }
+
+    /// >>> mock
+    var newMenuItem = angular.copy($scope.newMenuItem);
+    $scope.menuItems.push(newMenuItem);
+    master.menuItems.push(angular.copy(newMenuItem));
+    $scope.clickResetNewItem();
+    return;
+    /// <<< mock
+
+    rcsAPI.MenuItem.create(
+      $scope.restaurantId,
+      $scope.newMenuItem.Name,
+      $scope.newMenuItem.Type,
+      $scope.newMenuItem.Price,
+      $scope.newMenuItem.PremiumPrice == '' ? null : $scope.newMenuItem.PremiumPrice
+    )
+    .success(function(data) {
+      var newMenuItem = data.MenuItem;
+      $scope.menuItems.push(newMenuItem);
+      master.menuItems.push(angular.copy(newMenuItem));
+      $scope.clickResetNewItem();
+    })
+    .error(function (data, status) {
+      if (status === 400) {
+        alert(data.validationErrors || 400);
+      } else {
+        alert(status);
+      }
+    });
+  }
 }
 
 function assignAdminCtrl($scope) {

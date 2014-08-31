@@ -1,0 +1,8 @@
+material-dialog.width-md(id="dialog-delete")
+  .dialog-content.height-md
+    span 从<b>{{deleteFrom}}</b>中删除<b>{{deleteItem}}</b>?
+  .dialog-actions(layout="horizontal")
+    material-button.material-button-raised.material-theme-light(
+      ng-click="clickDelete()") 确认删除
+    material-button.material-button-colored(
+      ng-click="clickCancel()") 取消

@@ -10,13 +10,11 @@
 
 #monitor .pane-tables {
   width: 800px;
-  font-size: 18px;
 }
 
 #monitor .pane-requests {
   width: 300px;
-  font-size: 18px;
-  margin-left: 30px;
+  margin-left: 20px;
 }
 
 #monitor .tooltip {
