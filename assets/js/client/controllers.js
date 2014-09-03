@@ -8,7 +8,7 @@ angular
   .controller('monitorTableCtrl', ['$scope', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$scope', monitorRequestCtrl])
   .controller('authorMenuCtrl', ['$scope', '$timeout', '$materialDialog', authorMenuCtrl])
-  .controller('assignAdminCtrl', ['$scope', assignAdminCtrl]);
+  .controller('assignAdminCtrl', ['$scope', '$materialDialog', assignAdminCtrl]);
 
 // controllers
 function pageCtrl($rootScope, $scope, $state, $materialSidenav) {
@@ -146,7 +146,7 @@ function newRestaurantCtrl($scope) {
   }
 
   function ifDisableAddAdmin () {
-    return !$scope.newAdmin;
+    return !$scope.newAdmin || $scope.admins.indexOf($scope.newAdmin) != -1;
   }
 
   function addAdmin () {
@@ -154,7 +154,7 @@ function newRestaurantCtrl($scope) {
       return;
     }
 
-    if ($scope.admins.indexOf($scope.newAdmin) != -1) {
+    if (ifDisableAddAdmin()) {
       return alert('无法重复添加用户:' + $scope.newAdmin);
     }
 
@@ -489,7 +489,7 @@ function authorMenuCtrl($scope, $timeout, $materialDialog) {
     var authorMenuScope = $scope;
 
     var dialogDelete = {
-      templateUrl: 'template/dialogDeleteTemplate',
+      templateUrl: 'template/dialog-deleteTemplate',
       targetEvent: event,
       controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
         $scope.deleteFrom = '菜单';
@@ -586,6 +586,131 @@ function authorMenuCtrl($scope, $timeout, $materialDialog) {
   }
 }
 
-function assignAdminCtrl($scope) {
-  // body...
+function assignAdminCtrl($scope, $materialDialog) {
+  // scope fields
+  $scope.adminRows = [];
+  $scope.newAdmin = '';
+
+  // scope methods
+  $scope.ifDisableAddAdmin = ifDisableAddAdmin;
+  $scope.clickRemoveAdmin = clickRemoveAdmin;
+  $scope.clickAddAdmin = clickAddAdmin;
+
+  // local
+  var admins = [];
+  var getAdminRows = getAdminRows;
+
+  // initialize (async)
+  initializeAdmins();
+
+  // defines
+  function initializeAdmins () {
+    /// >>> mock
+    for (var i = 10 - 1; i >= 0; i--) {
+      admins.push({Email: 'admin' + i});
+    }
+    /// <<< mock
+
+    $scope.adminRows = getAdminRows();
+  }
+
+  function getAdminRows () {
+    var adminRows = [];
+    var row = 0;
+    var rowItemLimit = 4;
+    var rowItemCount = 0;
+
+    for (var i = admins.length - 1; i >= 0; i--) {
+      if (!adminRows[row]) {
+        adminRows[row] = [];
+      }
+
+      adminRows[row].push(admins[i]);
+      if (++rowItemCount == rowItemLimit) {
+        row++;
+        rowItemCount = 0;
+      }
+    };
+
+    return adminRows;
+  }
+
+  function ifDisableAddAdmin () {
+    if (!$scope.newAdmin) {
+      return true;
+    }
+
+    for (var i = admins.length - 1; i >= 0; i--) {
+      if (admins[i].Email == $scope.newAdmin) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function clickRemoveAdmin (admin, event) {
+    var assignAdminScope = $scope;
+
+    var dialogDelete = {
+      templateUrl: 'template/dialog-deleteTemplate',
+      targetEvent: event,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        $scope.deleteFrom = '管理员';
+        $scope.deleteItem = admin.Email;
+        $scope.clickDelete = clickDelete;
+        $scope.clickCancel = clickCancel;
+
+        function clickDelete () {
+          // >>> mock
+          $hideDialog();
+          admins.splice(admins.indexOf(admin), 1);
+          assignAdminScope.adminRows = getAdminRows();
+          return;
+          // <<< mock
+
+          rcsAPI.Restaurant.removeAdmin(
+            $scope.restaurantId,
+            admin.Email
+          )
+          .success(function () {
+            $hideDialog();
+            admins.splice(admins.indexOf(admin), 1);
+            assignAdminScope.adminRows = getAdminRows();
+          })
+          .error(function (data, status) {
+            if (status === 400) {
+              alert(data.validationErrors || 400);
+            } else {
+              alert(status);
+            }
+          });
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    };
+    $materialDialog(dialogDelete);
+
+  }
+
+  function clickAddAdmin () {
+    if (!$scope.newAdmin) {
+      return;
+    }
+
+    if (ifDisableAddAdmin()) {
+      return alert('无法重复添加用户:' + $scope.newAdmin);
+    }
+
+    /// >>> mock
+    var newAdmin = {Email: $scope.newAdmin};
+    /// <<< mock
+
+    admins.push(newAdmin);
+    $scope.adminRows = getAdminRows();
+    $scope.newAdmin = '';
+  }
 }

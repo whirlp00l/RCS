@@ -59,6 +59,7 @@ function rcsTable ($rootScope, TABLE_STATUS) {
     $scope.ifBooked = ifBooked;
     $scope.ifHasRequest = ifHasRequest;
     $scope.getTableName = getTableName;
+    $scope.getTooltip = getTooltip;
 
     var getTableStatusText = getTableStatusText;
     var getTableUpdateDurationMin = getTableUpdateDurationMin;
