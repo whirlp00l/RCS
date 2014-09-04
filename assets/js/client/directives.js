@@ -1,8 +1,8 @@
 angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb])
-  .directive('rcsTable', ['$rootScope', 'TABLE_STATUS', rcsTable])
-  .directive('rcsRequest', ['$rootScope', 'REQUEST_STATUS', 'REQUEST_TYPE', rcsRequest]);
+  .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
+  .directive('rcsRequest', ['rcsSession', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
 
 // directives
 function breadcrumb ($state, $stateParams, $interpolate) {
@@ -34,11 +34,10 @@ function breadcrumb ($state, $stateParams, $interpolate) {
   }
 }
 
-function rcsTable ($rootScope, TABLE_STATUS) {
+function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STATUS) {
   return {
     link: link,
     $scope: {
-      table: '=',
       editingTable: '=',
       simpleToast: '&',
       safeApply: '&'
@@ -49,6 +48,10 @@ function rcsTable ($rootScope, TABLE_STATUS) {
   };
 
   function link ($scope, $element, $attrs) {
+    // scope fields
+    $scope.table = null;
+
+    // scope methods
     $scope.clickManageTable = clickManageTable;
     $scope.clickEditTable = clickEditTable;
     $scope.ifNull = ifNull;
@@ -61,48 +64,97 @@ function rcsTable ($rootScope, TABLE_STATUS) {
     $scope.getTableName = getTableName;
     $scope.getTooltip = getTooltip;
 
+    // locals
+    var mapRow = $scope.$parent.$index;
+    var mapCol = $scope.$index;
+    var getTable = getTable;
     var getTableStatusText = getTableStatusText;
     var getTableUpdateDurationMin = getTableUpdateDurationMin;
+    var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, mapRow, mapCol);
+    // events
+    $rootScope.$on(tableEvent, initializeTable)
+
+    // initialize
+    initializeTable();
+
+    // defines
+    function initializeTable () {
+      $scope.table = rcsSession.getTable(mapRow, mapCol);
+      $scope.safeApply();
+    }
 
     function clickManageTable () {
       if ($scope.ifNull()) return;
       $scope.safeApply();
-      $scope.simpleToast('manageTable:' + $scope.table.TableName);
+      $scope.simpleToast('manageTable:' + $scope.getTableName());
     }
 
     function clickEditTable() {
-      var mapRow = $scope.$parent.$index;
-      var mapCol = $scope.$index;
+      // TODO: add dialog for create
+      if ($scope.ifNull()) {
+        var newTable = {
+          TableName: 'A' + mapRow + mapCol,
+          TableType: 'A',
+          Status: 'empty',
+          ActiveRequestCount: 0,
+          MapRow: mapRow,
+          MapCol: mapCol
+        };
 
-      $scope.table = {
-        TableName: 'A' + mapRow + mapCol,
-        TableType: 'A',
-        Status: 'empty',
-        ActiveRequestCount: 0,
-        MapRow: mapRow,
-        MapCol: mapCol
-      };
+        rcsSession.createTable(mapRow, mapCol, newTable,
+          function success () {
+            $scope.simpleToast('已添加餐桌:' + newTable.TableName);
+          },
+          function error () {
+            alert('错误:添加餐桌');
+          });
+      } else {
+        var rcsTableScope = $scope;
+        var table = $scope.table;
 
-      $scope.safeApply();
-      $scope.simpleToast('editTable:' + mapRow + ',' + mapCol);
-      // $scope.simpleToast
+        var dialogDelete = {
+          templateUrl: 'template/dialog-deleteTemplate',
+          targetEvent: event,
+          controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+            $scope.deleteFrom = '餐桌';
+            $scope.deleteItem = table.TableName + '(' + table.TableType + ')';
+            $scope.clickDelete = clickDelete;
+            $scope.clickCancel = clickCancel;
+
+            function clickDelete () {
+              $hideDialog();
+              rcsSession.deleteTable(table,
+                function success () {
+                  rcsTableScope.simpleToast('已删除餐桌:' + table.TableName);
+                }, function error () {
+                  alert('错误:删除餐桌');
+                });
+            }
+
+            function clickCancel () {
+              $hideDialog();
+            }
+          }]
+        };
+        $materialDialog(dialogDelete);
+      }
     }
 
     function ifNull () {
-      return $scope.table === 'null';
+      return !$scope.table;
     }
 
     function ifEmpty () {
-      return $scope.table !== 'null' && $scope.table.Status == TABLE_STATUS.empty;
+      return $scope.table && $scope.table.Status == TABLE_STATUS.empty;
     }
 
     function ifServing () {
       !$scope.ifEmpty() && !$scope.ifPaid()
-      return $scope.table !== 'null' && !$scope.ifEmpty() && !$scope.ifPaid();
+      return $scope.table && !$scope.ifEmpty() && !$scope.ifPaid();
     }
 
     function ifPaid () {
-      return $scope.table !== 'null' && $scope.table.Status == TABLE_STATUS.paid;
+      return $scope.table && $scope.table.Status == TABLE_STATUS.paid;
     }
 
     function ifLinked () {
@@ -211,7 +263,7 @@ function rcsTable ($rootScope, TABLE_STATUS) {
   }
 }
 
-function rcsRequest ($rootScope, REQUEST_STATUS, REQUEST_TYPE) {
+function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
   return {
     link: link,
     $scope: {
@@ -225,23 +277,29 @@ function rcsRequest ($rootScope, REQUEST_STATUS, REQUEST_TYPE) {
   };
 
   function link ($scope, $element, $attrs) {
+    // scope fields
     $scope.requestStatus = REQUEST_STATUS;
     $scope.requestType = REQUEST_TYPE;
 
+    // scope methods
     $scope.clickRequest = clickRequest;
     $scope.getTooltip = getTooltip;
     $scope.getRequestText = getRequestText;
     $scope.getRequestAdditionalText = getRequestAdditionalText;
 
+    // locals
     var getRequestTypeText = getRequestTypeText;
     var getRequestCreateDurationText = getRequestCreateDurationText;
 
+    // defines
     function clickRequest () {
-      if ($scope.request.Status == REQUEST_STATUS.new) {
-        $scope.request.Status = REQUEST_STATUS.inProgress;
-      } else if ($scope.request.Status == REQUEST_STATUS.inProgress) {
-        $scope.request.Status = REQUEST_STATUS.closed;
+      var request = $scope.request;
+      if (request.Status == REQUEST_STATUS.new) {
+        rcsSession.startRequest(request);
+      } else if (request.Status == REQUEST_STATUS.inProgress) {
+        rcsSession.closeRequest(request);
       }
+
       return $scope.simpleToast(getRequestText() + ' ' + getRequestAdditionalText());
     }
 
@@ -270,15 +328,15 @@ function rcsRequest ($rootScope, REQUEST_STATUS, REQUEST_TYPE) {
       switch (request.Type) {
         case REQUEST_TYPE.pay:
           switch (request.PayType) {
-            case 'cash':
+            case PAY_TYPE.cash:
               if (request.PayAmount && request.PayAmount != '') {
                 text = '准备支付现金:{0}元'.format(request.PayAmount);
               }
               break;
-            case 'card':
+            case PAY_TYPE.card:
               text = '准备刷卡'
               break;
-            case 'alipay':
+            case PAY_TYPE.alipay:
               text = '使用支付宝'
               break;
           }

@@ -4,14 +4,14 @@ div(id="page" layout="horizontal" layout-fill)
       material-toolbar.material-theme-light
         .material-toolbar-tools <b>餐厅管理系统</b>
       material-content(flex)
-        a(ng-repeat="navEntry in navEntries | filter:canNav"
+        a(ng-repeat="navEntry in navEntries | filter:ifCanNav"
           ui-sref="{{navEntry.name}}" ui-sref-active="active")
           material-button.nav-entry
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")
             | &nbsp;{{navEntry.data.title}}
-      material-button.nav-entry
-        b {{currentUser}}
-      material-button.nav-entry(id="signout" ng-click="clickSignOut()")
+      material-button.nav-entry(ng-if="ifSignedIn()===true")
+        b {{getCurrentUser()}}
+      material-button.nav-entry(id="signout" ng-if="ifSignedIn()===true" ng-click="clickSignOut()")
         i.fa.fa-sign-out.fa-2x
         | 退出登录
   div(layout="vertical" layout-fill)
@@ -21,8 +21,10 @@ div(id="page" layout="horizontal" layout-fill)
           span.fa.fa-th-list.fa-2x
         breadcrumb
         .div(flex)
-        material-button <b>{{currentRestaurant}}</b>
-        material-button(ng-click="clickSelectRestaurant()") (返回餐厅选择)
+        material-button(ng-if="ifSelectedRestaurant()===true")
+          b {{getCurrentRestaurant()}}
+        material-button(ng-if="ifSelectedRestaurant()===true" ng-click="clickSelectRestaurant()")
+          u 返回餐厅选择
     material-content(layout="vertical" layout-fill scroll-y)
       //- nested ui-view is not working well in jade
       <div ui-view layout="vertical" layout-fill></div>

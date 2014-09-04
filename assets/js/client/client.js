@@ -68,7 +68,7 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
         templateUrl: '/template/page-restaurant-list',
         controller: 'listRestaurantCtrl',
         data: {
-          icon: 'info-circle',
+          icon: 'cutlery',
           title: '餐厅列表'
         }
       }, {
@@ -77,7 +77,7 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
         templateUrl: '/template/page-restaurant-new',
         controller: 'newRestaurantCtrl',
         data: {
-          icon: 'info-circle',
+          icon: 'plus-square',
           title: '新建餐厅'
         }
       }]

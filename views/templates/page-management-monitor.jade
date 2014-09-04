@@ -17,7 +17,7 @@ div(id="monitor" flex layout="vertical" layout-fill)
           div(ng-switch-when="true" layout="horizontal" layout-align="center")
            b 编辑餐桌
         div(flex="10")
-      div(ng-repeat="tableRow in tables track by $index" layout="horizontal" layout-align="center")
+      div(ng-repeat="tableRow in tableRows track by $index" layout="horizontal" layout-align="center")
         rcs-table(flex ng-repeat="table in tableRow track by $index")
 
     .pane.pane-requests.material-whiteframe-z3(id="requests" ng-controller="monitorRequestCtrl")
@@ -34,7 +34,7 @@ div(id="monitor" flex layout="vertical" layout-fill)
           material-tab-label
             i.fa.fa-history
               b &nbsp;历史
-      //- h3.text-center(ng-if="ifHasActiveRequest()==false")
+      h3.text-center(ng-if="selectedIndex == 0 && ifHasActiveRequest()==false")
         i.fa.fa-check
         | 没有未完成请求
       material-list(ng-if="selectedIndex == 0")

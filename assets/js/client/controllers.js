@@ -1,47 +1,75 @@
 angular
   .module('rcs')
-  .controller('pageCtrl', ['$rootScope', '$scope', '$state', '$materialSidenav', pageCtrl])
-  .controller('signInCtrl', ['$scope', '$state', '$log', 'rcsAPI', 'rcsAuth', 'ERROR_MESSAGE', signInCtrl])
-  .controller('listRestaurantCtrl', ['$scope', '$state', listRestaurantCtrl])
-  .controller('newRestaurantCtrl', ['$scope', newRestaurantCtrl])
-  .controller('monitorCtrl', ['$scope', '$materialToast', monitorCtrl])
+  .controller('pageCtrl', ['$rootScope', '$scope', '$state', '$materialSidenav', 'rcsSession', pageCtrl])
+  .controller('signInCtrl', ['$scope', '$state', '$log', 'rcsSession', 'ERROR_MESSAGE', signInCtrl])
+  .controller('listRestaurantCtrl', ['$scope', '$state', 'rcsSession', listRestaurantCtrl])
+  .controller('newRestaurantCtrl', ['$scope', 'rcsSession', newRestaurantCtrl])
+  .controller('monitorCtrl', ['$scope', '$state', '$materialToast', 'rcsSession', monitorCtrl])
   .controller('monitorTableCtrl', ['$scope', monitorTableCtrl])
-  .controller('monitorRequestCtrl', ['$scope', monitorRequestCtrl])
+  .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
   .controller('authorMenuCtrl', ['$scope', '$timeout', '$materialDialog', authorMenuCtrl])
   .controller('assignAdminCtrl', ['$scope', '$materialDialog', assignAdminCtrl]);
 
 // controllers
-function pageCtrl($rootScope, $scope, $state, $materialSidenav) {
-  // as home is an abstract state, the current state will be one child of it
-  $scope.currentUser = 'Shuyu Cao';
-  $scope.currentRestaurant = 'KFC-fake';
-  $scope.clickToggleNav = toggleNav;
-  // $scope.clickCloseNav = closeNav;
-  $scope.clickSignOut = signOut;
-  $scope.clickSelectRestaurant = selectRestaurant;
-  $scope.canNav = canNav;
+function pageCtrl($rootScope, $scope, $state, $materialSidenav, rcsSession) {
+  // scope fields
+  $scope.navEntries = $state.current.parent.children;
 
-  updateNavEntries();
+  // scope methods
+  $scope.getCurrentUser = getCurrentUser;
+  $scope.getCurrentRestaurant = getCurrentRestaurant;
+  $scope.clickToggleNav = clickToggleNav;
+  $scope.clickSignOut = clickSignOut;
+  $scope.clickSelectRestaurant = clickSelectRestaurant;
+  $scope.ifSignedIn = ifSignedIn;
+  $scope.ifSelectedRestaurant = ifSelectedRestaurant;
+  $scope.ifCanNav = ifCanNav;
+
+  // events
   $rootScope.$on('$stateChangeSuccess', updateNavEntries);
 
-  function toggleNav () {
+  // defines
+  function getCurrentUser () {
+    if (!$scope.ifSignedIn()) {
+      return null;
+    }
+
+    return rcsSession.getSignedInUser().Email;
+  }
+
+  function getCurrentRestaurant () {
+    if (!$scope.ifSelectedRestaurant()) {
+      return null;
+    }
+
+    return rcsSession.getSelectedRestaurant().RestaurantName;
+  }
+
+  function clickToggleNav () {
     $materialSidenav('left').toggle();
   }
 
-  // function closeNav () {
-  //   $materialSidenav('left').close();
-  // }
-
-  function signOut () {
-    // TODO: real sign out
-    $state.go('page.signin');
+  function clickSignOut () {
+    rcsSession.signOut(function () {
+      $state.go('page.signin');
+    });
   }
 
-  function selectRestaurant () {
-    $state.go('page.restaurant.list');
+  function clickSelectRestaurant () {
+    rcsSession.unselectRestaurant(function () {
+      $state.go('page.restaurant.list');
+    });
   }
 
-  function canNav (navEntry) {
+  function ifSignedIn () {
+    return rcsSession.getSignedInUser() != null;
+  }
+
+  function ifSelectedRestaurant () {
+    return rcsSession.getSelectedRestaurant() != null;
+  }
+
+  function ifCanNav (navEntry) {
     return !navEntry.abscract;
   }
 
@@ -50,32 +78,35 @@ function pageCtrl($rootScope, $scope, $state, $materialSidenav) {
   }
 }
 
-function signInCtrl ($scope, $state, $log, rcsAPI, rcsAuth, ERROR_MESSAGE) {
+function signInCtrl ($scope, $state, $log, rcsSession, ERROR_MESSAGE) {
+  // scope fields
   $scope.signUpShown = false;
   $scope.selectedIndex = 0;
   $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '' };
-  $scope.signIn = {email: '', pwd: ''};
+  $scope.signIn = { email: '', pwd: '' };
 
+  // scope methods
   $scope.showSignUp = showSignUp;
   $scope.clickSignIn = clickSignIn;
   $scope.clickSignUp = clickSignUp;
   $scope.clickCloseSignUp = closeSignUp;
 
-  function showSignUp (argument) {
+
+  // defines
+  function showSignUp () {
     $scope.signUpShown = true;
   }
 
   function clickSignIn () {
-    rcsAuth.login({
-      email: $scope.signIn.email,
-      password: $scope.signIn.pwd
-    })
-    .success(function () {
-      $state.go('page.restaurant.list');
-    })
-    .error(function () {
-      alert('login failed')
-    });
+    rcsSession.signIn(
+      $scope.signIn.email,
+      $scope.signIn.pwd,
+      function () {
+        $state.go('page.restaurant.list');
+      },
+      function () {
+        alert('login failed');
+      });
   }
 
   function clickSignUp () {
@@ -100,24 +131,41 @@ function signInCtrl ($scope, $state, $log, rcsAPI, rcsAuth, ERROR_MESSAGE) {
   }
 }
 
-function listRestaurantCtrl ($scope, $state) {
+function listRestaurantCtrl ($scope, $state, rcsSession) {
+  // scope fields
   $scope.selectedIndex = -1;
-  $scope.restaurants = [{
-    name: 'KFC-fake', description: 'this is a test'
-  }, {
-    name: 'KFC-fake2', description: 'this is another test'
-  }]
+  $scope.restaurants = null;
 
-  $scope.clickSelectRestaurant = selectRestaurant;
-  $scope.clickGoTo = goTo;
+  // scope methods
+  $scope.clickRestaurant = clickRestaurant;
+  $scope.clickGoTo = clickGoTo;
 
-  function selectRestaurant (index) {
+  // initialize
+  if (!rcsSession.getSignedInUser()) {
+    $state.go('page.signin');
+  }
+
+  initializeRestaurants();
+
+  // defines
+  function initializeRestaurants () {
+    // >>> mock
+    $scope.restaurants = [{
+      name: 'MZDP', description: 'this is a test'
+    }, {
+      name: 'MZDP-2', description: 'this is another test'
+    }];
+    // <<< mock
+  }
+
+  function clickRestaurant (index) {
     $scope.selectedIndex = index;
   }
 
-  function goTo () {
-    // session service: restaurant changed
-    $state.go('page.management.monitor');
+  function clickGoTo () {
+    rcsSession.selectRestaurant(function () {
+      $state.go('page.management.monitor');
+    });
   }
 }
 
@@ -130,8 +178,8 @@ function newRestaurantCtrl($scope) {
   $scope.ifDisableCreate = ifDisableCreate;
   $scope.ifDisableAddAdmin = ifDisableAddAdmin;
   $scope.clickCreate = create;
-  $scope.clickDeleteAdmin = deleteAdmin;
-  $scope.clickAddAdmin = addAdmin;
+  $scope.clickDeleteAdmin = clickDeleteAdmin;
+  $scope.clickAddAdmin = clickAddAdmin;
 
   function ifDisableCreate () {
     return !$scope.name;
@@ -141,7 +189,7 @@ function newRestaurantCtrl($scope) {
     alert('create');
   }
 
-  function deleteAdmin (index) {
+  function clickDeleteAdmin (index) {
     $scope.admins.splice(index, 1);
   }
 
@@ -149,7 +197,7 @@ function newRestaurantCtrl($scope) {
     return !$scope.newAdmin || $scope.admins.indexOf($scope.newAdmin) != -1;
   }
 
-  function addAdmin () {
+  function clickAddAdmin () {
     if (!$scope.newAdmin) {
       return;
     }
@@ -163,10 +211,17 @@ function newRestaurantCtrl($scope) {
   }
 }
 
-function monitorCtrl ($scope, $materialToast) {
+function monitorCtrl ($scope, $state, $materialToast, rcsSession) {
+  // scope methods
   $scope.simpleToast = simpleToast;
   $scope.safeApply = safeApply;
 
+  // initialize
+  if (!rcsSession.getSelectedRestaurant()) {
+    $state.go('page.restaurant.list');
+  }
+
+  // defines
   function simpleToast (content) {
     $materialToast({
       template: '<material-toast class="rcs">' + content + '</material-toast>',
@@ -176,73 +231,43 @@ function monitorCtrl ($scope, $materialToast) {
   }
 
   function safeApply (fn) {
-      try {
-        var phase = this.$root.$$phase;
-        if(phase == '$apply' || phase == '$digest') {
-          if(fn && (typeof(fn) === 'function')) {
-            fn();
-          }
-        } else {
-          this.$apply(fn);
+    try {
+      var phase = this.$root.$$phase;
+      if(phase == '$apply' || phase == '$digest') {
+        if(fn && (typeof(fn) === 'function')) {
+          fn();
         }
-      }
-      catch (err) {
-
+      } else {
+        this.$apply(fn);
       }
     }
+    catch (err) {
+
+    }
+  }
 }
 
 function monitorTableCtrl($scope) {
+  // scope feilds
   $scope.maxTableRow = 10;
   $scope.maxTableCol = 10;
-
   $scope.editingTable = false;
-  $scope.tables = initializeTables();
+  $scope.tableRows = initializeTables();
 
+  // scope method
   $scope.clickToggleEditting = clickToggleEditting;
 
+  // defines
   function initializeTables () {
-    var tables = new Array($scope.maxTableRow);
+    var tableRows = new Array($scope.maxTableRow);
     for (var i = 0; i < $scope.maxTableRow; i++) {
-      tables[i] = new Array($scope.maxTableCol);
+      tableRows[i] = new Array($scope.maxTableCol);
       for (var j = 0; j < $scope.maxTableCol; j++) {
-       tables[i][j] = 'null';
+       tableRows[i][j] = 'null';
       }
     }
 
-    tables[2][3] = {
-      id: 1,
-      TableName: 'A1',
-      TableType: 'A',
-      Status: 'empty',
-      MapRow: 2,
-      MapCol: 3,
-      ActiveRequestCount: 0
-    };
-
-    tables[2][4] = {
-      id: 2,
-      TableName: 'A2',
-      TableType: 'A',
-      Status: 'paying',
-      MapRow: 2,
-      MapCol: 4,
-      ActiveRequestCount: 1
-    };
-
-    tables[2][5] = {
-      id: 3,
-      TableName: 'A3',
-      TableType: 'A',
-      Status: 'paid',
-      MapRow: 2,
-      MapCol: 5,
-      BookName: 'Shuyu',
-      BookDateTime: new Date(),
-      ActiveRequestCount: 2
-    };
-
-    return tables;
+    return tableRows;
   }
 
   function clickToggleEditting () {
@@ -250,66 +275,26 @@ function monitorTableCtrl($scope) {
   }
 }
 
-function monitorRequestCtrl ($scope) {
+function monitorRequestCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
+  // scope fields
   $scope.selectedIndex = 0;
-  $scope.requests = initializeRequests();
+  $scope.requests = null;
 
+  // scope method
   $scope.ifHasActiveRequest = ifHasActiveRequest;
   $scope.ifUnclosed = ifUnclosed;
   $scope.ifClosed = ifClosed;
 
-  function initializeRequests () {
-    var requests = [{
-      Type: 'call',
-      Status: 'new',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: null,
-      PayAmount: null,
-      OrderItems: null,
-      Table: {
-        TableName: 'A3'
-      }
-    }, {
-      Type: 'pay',
-      Status: 'inProgress',
-      Importance: 1,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: 'cash',
-      PayAmount: 100,
-      OrderItems: null,
-      Table: {
-        TableName: 'A2'
-      }
-    }, {
-      Type: 'order',
-      Status: 'new',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: null,
-      PayAmount: null,
-      OrderItems: [1, 1, 1],
-      Table: {
-        TableName: 'A2'
-      }
-    }, {
-      Type: 'order',
-      Status: 'closed',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: null,
-      PayAmount: null,
-      OrderItems: [1, 1, 1],
-      Table: {
-        TableName: 'A2'
-      }
-    }];
+  // events
+  $rootScope.$on(RCS_EVENT.requestsUpdate, initializeRequests)
 
-    return requests;
+  // initialize
+  initializeRequests();
+
+  // defines
+  function initializeRequests () {
+    $scope.requests = rcsSession.getRequests();
+    $scope.safeApply();
   }
 
   function ifHasActiveRequest () {
@@ -330,16 +315,17 @@ function monitorRequestCtrl ($scope) {
   function ifUnclosed (request) {
     return !$scope.ifClosed(request);
   }
-
 }
 
 function authorMenuCtrl($scope, $timeout, $materialDialog) {
+  // scope fields
   $scope.selectedIndex = 0;
-  $scope.menuTypes = [];
+  $scope.menuTypes = null;
   $scope.newType = '';
-  $scope.menuItems = [];
+  $scope.menuItems = null;
   $scope.newMenuItem = null;
 
+  // scope methods
   $scope.onTabSelected = onTabSelected;
   $scope.ifValidNewType = ifValidNewType;
   $scope.ifValidItem = ifValidItem;
@@ -351,13 +337,16 @@ function authorMenuCtrl($scope, $timeout, $materialDialog) {
   $scope.clickNewItem = clickNewItem;
   $scope.clickResetNewItem = clickResetNewItem;
 
+  // locals
   var master = {menuItems: []};
 
+  // initialize
   initializeMenu();
   clickResetNewItem();
 
+  // defines
   function initializeMenu () {
-    // >>mock
+    // >>> mock
     var menu = [{
       Name: '米饭',
       Type: '主食',
@@ -385,8 +374,9 @@ function authorMenuCtrl($scope, $timeout, $materialDialog) {
       PremiumPrice: 45
     }]
 
-    // <<mock
+    // <<< mock
     $scope.menuItems = menu;
+    $scope.menuTypes = [];
 
     for (var i = 0 ; i < menu.length; i++) {
       var type = menu[i].Type;
@@ -588,7 +578,7 @@ function authorMenuCtrl($scope, $timeout, $materialDialog) {
 
 function assignAdminCtrl($scope, $materialDialog) {
   // scope fields
-  $scope.adminRows = [];
+  $scope.adminRows = null;
   $scope.newAdmin = '';
 
   // scope methods
@@ -596,11 +586,11 @@ function assignAdminCtrl($scope, $materialDialog) {
   $scope.clickRemoveAdmin = clickRemoveAdmin;
   $scope.clickAddAdmin = clickAddAdmin;
 
-  // local
+  // locals
   var admins = [];
   var getAdminRows = getAdminRows;
 
-  // initialize (async)
+  // initialize
   initializeAdmins();
 
   // defines

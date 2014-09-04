@@ -8,10 +8,8 @@ angular
     notAuthenticated: 'auth-not-authenticated',
     notAuthorized: 'auth-not-authorized'
   })
-  .constant('RCS_EVENTS', {
-    editModeOn: 'edit-mode-on',
-    editModeOff: 'edit-mode-off',
-    tablesUpdate: 'tables-update',
+  .constant('RCS_EVENT', {
+    tableUpdate: 'table-update',
     requestsUpdate: 'requests-update',
   })
   .constant('USER_ROLES', {
@@ -46,6 +44,11 @@ angular
     waterText: '请求加水',
     order: 'order',
     orderText: '提交点菜'
+  })
+  .constant('PAY_TYPE', {
+    cash: 'cash',
+    card: 'card',
+    alipay: 'alipay'
   })
   .constant('TABLE_STATUS', {
     empty: 'empty',

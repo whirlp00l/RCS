@@ -9,7 +9,7 @@ div(id="restaurant-list" flex layout="vertical" layout-fill)
         i.fa.fa-arrow-right.fa-2x
       material-radio-group(ng-model="selectedIndex")
         material-list(ng-repeat="restaurant in restaurants")
-          material-item(ng-click="clickSelectRestaurant($index)")
+          material-item(ng-click="clickRestaurant($index)")
             .material-tile-left
               material-radio-button(ng-class="{'material-checked':selectedIndex==$index}" noink)
             .material-tile-content
