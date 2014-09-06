@@ -20,6 +20,7 @@ module.exports = {
   create: function(req, res){
     var currentUser = req.session.user;
     var restaurantName = req.body.RestaurantName;
+    var description = req.body.Description;
 
     sails.log.debug('Restaurant/create');
 
@@ -45,6 +46,7 @@ module.exports = {
       if (!adminEmails || adminEmails.length == 0) {
         Restaurant.create({
           RestaurantName: restaurantName,
+          Description: description,
           Manager: managerUserId
         }).exec(function (err, restaurant){
           if (err) {
@@ -74,6 +76,7 @@ module.exports = {
               sails.log.debug('Ready to create restaurant...')
               Restaurant.create({
                 RestaurantName: restaurantName,
+                Description: description,
                 Manager: managerUserId
               }).exec(function (err, restaurant){
                 if (err) {
@@ -240,6 +243,7 @@ module.exports = {
         restaurants.push({
           id: user.ManagedRestaurant[i].id,
           RestaurantName: user.ManagedRestaurant[i].RestaurantName,
+          Description: user.ManagedRestaurant[i].Description,
           Permission: 'manage'
         });
       };
@@ -248,6 +252,7 @@ module.exports = {
         restaurants.push({
           id: user.AdministeredRestaurant[i].id,
           RestaurantName: user.AdministeredRestaurant[i].RestaurantName,
+          Description: user.AdministeredRestaurant[i].Description,
           Permission: 'admin'
         });
       };

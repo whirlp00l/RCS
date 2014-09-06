@@ -11,7 +11,7 @@ angular
     '$stateProvider',
     '$logProvider',
     'stateHelperProvider',
-    // 'USER_ROLES',
+    'USER_ROLE',
     config
   ])
   .run(['$rootScope', '$state', '$stateParams', run]);
@@ -25,7 +25,7 @@ angular
   // ]);
 
 
-function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperProvider) {
+function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperProvider, USER_ROLE) {
   $logProvider.debugEnabled(true);
 
   $urlRouterProvider.otherwise('/about');
@@ -35,6 +35,11 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
     abscract: true,
     templateUrl: '/template/page',
     controller: 'pageCtrl',
+    resolve: {
+      handshake: function (rcsSession) {
+        return rcsSession.handshake();
+      }
+    },
     data: {
       title: ''
     },
@@ -78,7 +83,8 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
         controller: 'newRestaurantCtrl',
         data: {
           icon: 'plus-square',
-          title: '新建餐厅'
+          title: '新建餐厅',
+          authorization: [USER_ROLE.manager]
         }
       }]
     }, {
@@ -113,7 +119,8 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
         controller: 'assignAdminCtrl',
         data: {
           icon: 'users',
-          title: '分配管理员'
+          title: '分配管理员',
+          authorization: [USER_ROLE.manager]
         }
       }]
     }]

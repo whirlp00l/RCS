@@ -12,7 +12,7 @@ angular
     tableUpdate: 'table-update',
     requestsUpdate: 'requests-update',
   })
-  .constant('USER_ROLES', {
+  .constant('USER_ROLE', {
     any: '*',
     manager: 'manager',
     admin: 'admin'

@@ -1,6 +1,6 @@
 #user .pane {
   width: 400px;
-  min-height: 300px;
+  min-height: 200px;
   padding-left: 20px;
   padding-right: 20px;
   margin-bottom: 40px;
@@ -38,4 +38,12 @@
 
 #user material-tab-label.active {
   color: #f1f1f1;
+}
+
+#user #userInfo .material-tile-left {
+  width: 80px;
+}
+
+#user #userInfo .material-tile-content {
+  margin-right: 0px;
 }

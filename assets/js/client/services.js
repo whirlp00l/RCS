@@ -1,14 +1,17 @@
 angular
   .module('rcs')
-  .factory('rcsSession', ['$rootScope', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
+  .factory('rcsHttp', ['$http', '$state', '$log', rcsHttp])
+  .factory('rcsSession', ['$rootScope', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
 
-function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
+function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
   var sessionService = {
+    handshake: handshake,
     signIn: signIn,
     signOut: signOut,
     selectRestaurant: selectRestaurant,
     unselectRestaurant: unselectRestaurant,
     getSignedInUser: getSignedInUser,
+    ifSignedInUserAuthorized: ifSignedInUserAuthorized,
     getSelectedRestaurant: getSelectedRestaurant,
     getTable: getTable,
     getRequests: getRequests,
@@ -18,7 +21,7 @@ function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
     closeRequest: closeRequest
   };
 
-  var signInUser = null;
+  var signedInUser = null;
   var selectedRestaurant = null;
   var getRequest = getRequest;
 
@@ -29,42 +32,79 @@ function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
 
   var requests = [];
 
-  // signInUser = {Email: 'admin1', Role: 'admin'};
+  // initialize
+
+  // signedInUser = {Email: 'admin1', Role: 'admin'};
   // selectedRestaurant = {id: 1, RestaurantName: 'MZDP'};
 
   // initialize rcsSocket
 
+  // defines
+  function handshake () {
+    return rcsHttp.User.handshake()
+      .success(function (res) {
+        signedInUser = null;
+        if (res) {
+          signedInUser = res;
+        }
+      });
+  }
+
   function signIn (email, password, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
     // >>> mock
-    signInUser = {Email: 'admin1', Role: 'admin'};
+    // signedInUser = {Email: 'admin1', Role: 'admin'};
     // << mock
 
-    if (angular.isFunction(successAction)) {
-      successAction();
-    }
-
-    return;
-
-    if (angular.isFunction(errorAction)) {
-      errorAction();
-    }
+    rcsHttp.User.signIn(email, password)
+      .success(function (res) {
+        signedInUser = res;
+        successAction();
+      })
+      .error(errorAction);
   }
 
-  function signOut (successAction) {
+  function signOut (successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
     // >>> mock
-    signInUser = null;
+    // signedInUser = null;
     // << mock
-    unselectRestaurant();
 
-    if (angular.isFunction(successAction)) {
-      successAction();
-    }
+    rcsHttp.User.signOut()
+      .success(function () {
+        unselectRestaurant();
+        signedInUser = null;
+        successAction();
+      })
+      .error(errorAction);
   }
 
-  function selectRestaurant (successAction) {
-    // >>> mock
-    selectedRestaurant = {id: 1, RestaurantName: 'MZDP'};
+  function selectRestaurant (restaurant, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
 
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    selectedRestaurant = restaurant;
+
+    // >>> mock
     tables[2][3] = {
       id: 1,
       TableName: 'A1',
@@ -149,9 +189,7 @@ function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
 
     // socket connect
     // subscribe
-    if (angular.isFunction(successAction)) {
-      successAction();
-    }
+    successAction();
   }
 
   function unselectRestaurant (successAction) {
@@ -173,7 +211,19 @@ function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
   }
 
   function getSignedInUser () {
-    return signInUser;
+    return signedInUser;
+  }
+
+  function ifSignedInUserAuthorized (allowedAuthorizations) {
+    if (!signedInUser || !signedInUser.Role) {
+      return false;
+    }
+
+    if (!angular.isArray(allowedAuthorizations)) {
+      allowedAuthorizations = [allowedAuthorizations];
+    }
+
+    return allowedAuthorizations.indexOf(signedInUser.Role) != -1;
   }
 
   function getSelectedRestaurant () {
@@ -237,4 +287,199 @@ function rcsSession ($rootScope, RCS_EVENT, REQUEST_STATUS) {
   }
 
   return sessionService;
+}
+
+function rcsHttp ($http, $state, $log) {
+  var httpService = {};
+
+  var errorAction = function (data, status) {
+    $log.error(data || 'request failed');
+    if (status == 403) {
+      $state.go('page.signin');
+    }
+  }
+
+  rcsHttp.Restaurant = {
+    list: function () {
+      return $http
+        .post('Restaurant/list')
+        .error(errorAction);
+    },
+    create: function (restaurantName, description, admins) {
+      if (!angular.isArray(admins)) {
+        admins = [admins];
+      }
+      return $http
+        .post('Restaurant/create', {
+          RestaurantName: restaurantName,
+          Description: description,
+          Admins: admins
+        })
+        .error(errorAction);
+    },
+    addAdmin: function (restaurantId, admin) {
+      return $http
+        .post('Restaurant/addAdmin', {
+          RestaurantId: restaurantId,
+          Admin: admin
+        })
+        .error(errorAction);
+    },
+    removeAdmin: function (restaurantId, admin) {
+      return $http
+        .post('Restaurant/removeAdmin', {
+          RestaurantId: restaurantId,
+          Admin: admin
+        })
+        .error(errorAction);
+    },
+    listAdmin: function (restaurantId) {
+      return $http
+        .post('Restaurant/listAdmin', {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    listMenu: function (restaurantId) {
+      return $http
+        .post('Restaurant/listMenu', {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    }
+  }
+
+  rcsHttp.User = {
+    signIn: function (email, password) {
+      return $http
+        .post('User/login', {
+          Email: email,
+          Password: password
+        })
+        .error(errorAction);
+    },
+    signOut: function () {
+      return $http
+        .post('User/logout')
+        .error(errorAction);
+    },
+    create: function (email, password, role, key) {
+      return $http
+        .post('User/create', {
+          Email: email,
+          Password: password,
+          Role: role,
+          Key: key
+        })
+        .error(errorAction);
+    },
+    handshake: function () {
+      return $http
+        .post('User/handshake')
+        .error(errorAction);
+    }
+  }
+
+  rcsHttp.Table = {
+    create: function (restaurantId, tableName, tableType, mapRow, mapCol) {
+      return $http
+        .post('/Table/create', {
+          RestaurantId: restaurantId,
+          TableName: tableName,
+          TableType: tableType,
+          MapRow: mapRow,
+          MapCol: mapCol
+        })
+        .error(errorAction);
+    },
+    delete: function (tableId) {
+      return $http
+        .post('Table/delete/' + tableId)
+        .error(errorAction);
+    },
+    reset: function (tableId) {
+      return $http
+        .post('Table/reset/' + tableId)
+        .error(errorAction);
+    },
+    book: function (tableId, bookName, bookCell, bookDateTime) {
+      return $http
+        .post('Table/book/' + tableId, {
+          BookName: bookName,
+          BookCell: bookCell,
+          BookDateTime: bookDateTime
+        })
+        .error(errorAction);
+    },
+    cancelBook: function (tableId) {
+      return $http
+        .post('Table/cancelBook/' + tableId)
+        .error(errorAction);
+    },
+    removeLink: function (tableId) {
+      return $http
+        .post('Table/removeLink/' + tableId)
+        .error(errorAction);
+    },
+    modifyOrder: function (tableId, orderItems) {
+      return $http
+        .post('Table/modifyOrder/' + tableId, {
+          orderItems: orderItems
+        })
+        .error(errorAction);
+    }
+  }
+
+  rcsHttp.Request = {
+    list: function (restaurantId) {
+      return $http
+        .post('Request/list', {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    start: function (requestId) {
+      return $http
+        .post('Request/start/' + requestId)
+        .error(errorAction);
+    },
+    close: function (requestId) {
+      return $http
+        .post('Request/close/' + requestId)
+        .error(errorAction);
+    }
+  }
+
+  rcsHttp.MenuItem = {
+    create: function (restaurantId, name, type, price, premiumPrice) {
+      return $http
+        .post('MenuItem/create', {
+          Name: name,
+          Type: type,
+          Price: price,
+          PremiumPrice: premiumPrice,
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    update: function (restaurantId, menuItemId, type, price, premiumPrice) {
+      return $http
+        .post('MenuItem/update/' + menuItemId, {
+          Type: type,
+          Price: price,
+          PremiumPrice: premiumPrice,
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    delete: function (restaurantId, menuItemId) {
+      return $http
+        .post('MenuItem/delete/' + menuItemId, {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    }
+  }
+
+  return rcsHttp;
 }

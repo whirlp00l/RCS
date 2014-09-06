@@ -9,7 +9,7 @@ div(id="page" layout="horizontal" layout-fill)
           material-button.nav-entry
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")
             | &nbsp;{{navEntry.data.title}}
-      material-button.nav-entry(ng-if="ifSignedIn()===true")
+      material-button.nav-entry(ng-if="ifSignedIn()===true" ng-click="clickUser()")
         b {{getCurrentUser()}}
       material-button.nav-entry(id="signout" ng-if="ifSignedIn()===true" ng-click="clickSignOut()")
         i.fa.fa-sign-out.fa-2x

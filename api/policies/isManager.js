@@ -8,6 +8,8 @@
  */
 module.exports = function(req, res, next) {
 
+  sails.log('policy - isManager: req.session.user.Role = ' + req.session.user.Role);
+
   if (req.session.user.Role && req.session.user.Role == 'manager') {
     return next();
   } else {

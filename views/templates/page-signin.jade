@@ -1,12 +1,17 @@
 div(id="user" flex layout="vertical" layout-fill)
-  .text-center
+  .text-center(ng-if="ifSignedIn() == false")
     h2 登录餐厅管理系统
     h3
-      a(href="" ng-click="showSignUp()") (注册新用户)
+      a(href="" ng-click="clickShowSignUp()") (注册新用户)
+
+  .text-center(ng-if="ifSignedIn() == true")
+    h2 已登录
+    h3
+      a(href="" ng-click="clickSignOut()") (退出登录)
 
   div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
 
-    .pane.material-whiteframe-z3(ng-show="signUpShown")
+    .pane.material-whiteframe-z3(ng-if="ifSignedIn() == false" ng-show="signUpShown")
       a.fa.fa-times.right-conner(ng-click="clickCloseSignUp()")
       h3.text-center 请输入注册信息
       .material-input-group.material-input-group-theme-light
@@ -21,15 +26,15 @@ div(id="user" flex layout="vertical" layout-fill)
 
       h3.text-center 请选择用户类型
       material-tabs(selected="selectedIndex" nobar tabs-align="bottom")
-        material-tab(ng-class="{active:selectedIndex == 0}" label="餐厅员工")
-        material-tab(ng-class="{active:selectedIndex == 1}" label="餐厅经理")
+        material-tab(ng-class="{active:selectedIndex == 0}" label="餐厅员工" on-select="onTabSelected()")
+        material-tab(ng-class="{active:selectedIndex == 1}" label="餐厅经理" on-select="onTabSelected()")
       .material-input-group.material-input-group-theme-light(ng-if="selectedIndex==1")
         label(for="3") 注册码 (input 'key' for test)
         input(id="3" type="text" ng-model="signUp.key" ng-required="true")
       material-button.material-button-raised.material-theme-light(ng-click="clickSignUp()") 注册
 
 
-    .pane.material-whiteframe-z3(layout="vertical")
+    .pane.material-whiteframe-z3(ng-if="ifSignedIn() == false" layout="vertical")
       h3.text-center 请输入登录信息
       .material-input-group.material-input-group-theme-light
         label(for="4") 用户邮箱
@@ -38,3 +43,18 @@ div(id="user" flex layout="vertical" layout-fill)
         label(for="5") 密码
         input(id="5" type="password" ng-model="signIn.pwd" ng-required="true")
       material-button.material-button-raised.material-theme-light(ng-click="clickSignIn()") 登录
+
+    .pane.material-whiteframe-z3(ng-if="ifSignedIn() == true")
+      h3.text-center 用户信息
+      material-list(id="userInfo")
+        material-item
+          .material-tile-left
+            b 邮箱
+          .material-tile-content
+            h3 {{getSignedInUser().Email}}
+        material-item
+          .material-tile-left
+            b 权限
+          .material-tile-content
+            h3 {{getSignedInUserRoleText()}}
+      material-button.material-button-raised.material-theme-light(ng-click="clickGoToRestaurants()") 前往餐厅管理

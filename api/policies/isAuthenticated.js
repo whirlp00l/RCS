@@ -9,7 +9,7 @@
  */
 module.exports = function(req, res, next) {
 
-  // console.log('isAuthenticated?');
+  sails.log('policy - isAuthenticated: req.session.user = ' + req.session.user);
 
   if (req.session.user) {
     User.findOneById(req.session.user.id).exec(function (err, user){

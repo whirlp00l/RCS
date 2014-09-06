@@ -20,6 +20,10 @@ module.exports = {
       notEmpty: true
     },
 
+    Description: {
+      type: 'string'
+    },
+
     Manager: { // Many to one
       model: 'user',
       via: 'ManagedRestaurant'
