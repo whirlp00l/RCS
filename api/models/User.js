@@ -23,8 +23,8 @@ module.exports = {
   attributes: {
     Email : {
       type: 'string',
-      required: true
-      // ,email: true
+      required: true,
+      email: true
     },
 
     Password: {
@@ -37,6 +37,10 @@ module.exports = {
       type: 'string',
       required: true,
       in: ['admin', 'manager']
+    },
+
+    Name: {
+      type: 'string'
     },
 
     ManagedRestaurant: { // One to many

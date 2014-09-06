@@ -18,7 +18,8 @@ angular
     admin: 'admin'
   })
   .constant('ERROR_MESSAGE', {
-    passwordMismatch: '密码确认有误 请重新输入'
+    emailInvalid: '请输入正确的注册邮箱',
+    passwordMismatch: '两次输入密码不匹配 请重新输入'
   })
   .constant('TEXT', {
     removeAdmin: {

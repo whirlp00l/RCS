@@ -10,7 +10,7 @@ div(id="page" layout="horizontal" layout-fill)
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")
             | &nbsp;{{navEntry.data.title}}
       material-button.nav-entry(ng-if="ifSignedIn()===true" ng-click="clickUser()")
-        b {{getCurrentUser()}}
+        b {{getCurrentUser().Name}}
       material-button.nav-entry(id="signout" ng-if="ifSignedIn()===true" ng-click="clickSignOut()")
         i.fa.fa-sign-out.fa-2x
         | 退出登录
@@ -21,7 +21,7 @@ div(id="page" layout="horizontal" layout-fill)
           span.fa.fa-th-list.fa-2x
         breadcrumb
         .div(flex)
-        material-button(ng-if="ifSelectedRestaurant()===true")
+        material-button(ng-if="ifSelectedRestaurant()===true" ng-click="clickRestaurant()")
           b {{getCurrentRestaurant()}}
         material-button(ng-if="ifSelectedRestaurant()===true" ng-click="clickSelectRestaurant()")
           u 返回餐厅选择

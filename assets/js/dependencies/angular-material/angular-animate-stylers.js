@@ -15,7 +15,7 @@ angular.module('ngAnimateStylers', ['ngAnimateSequence'])
     });
 
     //Web Animations API
-    $$animateStylerProvider.register('webAnimations', ['$window', '$sniffer',   
+    $$animateStylerProvider.register('webAnimations', ['$window', '$sniffer',
                                                function($window,   $sniffer) {
       // TODO(matias): figure out other styles to add here
       var specialStyles = 'transform,transition,animation'.split(',');
@@ -52,15 +52,18 @@ angular.module('ngAnimateStylers', ['ngAnimateSequence'])
             pre = angular.extend(pre, computeStartingStyles(node, missingProperties));
           }
 
-          var animation = node.animate([pre, post], {
-            duration : duration,
-            delay : delay,
-            iterations : iterations
-          });
-          animation.onfinish = function() {
-            element.css(finalStyles); 
-            done();
-          };
+          try {
+            var animation = node.animate([pre, post], {
+              duration : duration,
+              delay : delay,
+              iterations : iterations
+            });
+            animation.onfinish = function() {
+              element.css(finalStyles);
+              done();
+            };
+          }
+          catch(e) {}
         }
       };
 

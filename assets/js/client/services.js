@@ -41,6 +41,14 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
 
   // defines
   function handshake () {
+    // >>> test
+    // return rcsHttp.User.signIn('manager1@rcs.com', 'mgr123')
+    //   .success(function (res) {
+    //     signedInUser = res;
+    //     selectedRestaurant = {id: 21, RestaurantName: 'KFC'};
+    //   })
+    // <<< test
+
     return rcsHttp.User.handshake()
       .success(function (res) {
         signedInUser = null;
@@ -58,10 +66,6 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     if (!angular.isFunction(errorAction)) {
       errorAction = function () {};
     }
-
-    // >>> mock
-    // signedInUser = {Email: 'admin1', Role: 'admin'};
-    // << mock
 
     rcsHttp.User.signIn(email, password)
       .success(function (res) {
@@ -317,19 +321,19 @@ function rcsHttp ($http, $state, $log) {
         })
         .error(errorAction);
     },
-    addAdmin: function (restaurantId, admin) {
+    addAdmin: function (restaurantId, adminEmail) {
       return $http
         .post('Restaurant/addAdmin', {
           RestaurantId: restaurantId,
-          Admin: admin
+          Admin: adminEmail
         })
         .error(errorAction);
     },
-    removeAdmin: function (restaurantId, admin) {
+    removeAdmin: function (restaurantId, adminEmail) {
       return $http
         .post('Restaurant/removeAdmin', {
           RestaurantId: restaurantId,
-          Admin: admin
+          Admin: adminEmail
         })
         .error(errorAction);
     },
@@ -363,13 +367,14 @@ function rcsHttp ($http, $state, $log) {
         .post('User/logout')
         .error(errorAction);
     },
-    create: function (email, password, role, key) {
+    create: function (email, password, role, key, name) {
       return $http
         .post('User/create', {
           Email: email,
           Password: password,
           Role: role,
-          Key: key
+          Key: key,
+          Name: name
         })
         .error(errorAction);
     },

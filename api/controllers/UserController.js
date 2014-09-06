@@ -52,7 +52,8 @@ module.exports = {
             sails.log.debug('User/login: req.session.user := ' + req.session.user.Email);
             return res.json({
               Email: user.Email,
-              Role: user.Role
+              Role: user.Role,
+              Name: user.Name
             });
           } else {
             req.session.user = null;
@@ -77,6 +78,7 @@ module.exports = {
     var email = req.body.Email;
     var password = req.body.Password;
     var role = req.body.Role;
+    var name = req.body.Name;
 
     if (!email || !password || !role) {
       return res.badRequest('Missing required fields.')
@@ -99,7 +101,8 @@ module.exports = {
       User.create({
         Email: email,
         Password: password,
-        Role: role
+        Role: role,
+        Name: name
       }).exec(function (err, user) {
         if (err) {
           return res.serverError(err);

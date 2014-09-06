@@ -54,7 +54,8 @@ module.exports = {
               Name: menuItem.Name,
               Type: menuItem.Type,
               Price: menuItem.Price,
-              PremiumPrice: menuItem.PremiumPrice
+              PremiumPrice: menuItem.PremiumPrice,
+              Restaurant: restaurantId
             },
             Restaurant: {
               MenuVersion: version

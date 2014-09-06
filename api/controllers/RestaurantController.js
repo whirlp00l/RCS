@@ -137,7 +137,7 @@ module.exports = {
         };
 
         User.findOneByEmail(adminEmail).exec(function (err, user) {
-          if (!user) {
+          if (!user || user.Role != 'admin') {
             return res.badRequest('Invalid adminEmail = ' + adminEmail);
           }
 
@@ -148,7 +148,7 @@ module.exports = {
             }
 
             return res.json({
-              Admins: restaurant.Admins
+              Admin: user
             });
           });
         });
@@ -224,7 +224,10 @@ module.exports = {
 
         var admins = [];
         for (var i = restaurant.Admins.length - 1; i >= 0; i--) {
-          admins.push(restaurant.Admins[i].Email);
+          admins.push({
+            Email: restaurant.Admins[i].Email,
+            Name: restaurant.Admins[i].Name
+          });
         };
 
         return res.json({
