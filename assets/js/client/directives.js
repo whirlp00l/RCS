@@ -283,9 +283,10 @@ function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
 
     // scope methods
     $scope.clickRequest = clickRequest;
-    $scope.getTooltip = getTooltip;
-    $scope.getRequestText = getRequestText;
     $scope.getRequestAdditionalText = getRequestAdditionalText;
+    $scope.getRequestText = getRequestText;
+    $scope.getTooltip = getTooltip;
+    $scope.ifImportant = ifImportant;
 
     // locals
     var getRequestTypeText = getRequestTypeText;
@@ -315,6 +316,10 @@ function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
         getRequestTypeText(request),
         getRequestCreateDurationText(request)
       );
+    }
+
+    function ifImportant () {
+      return $scope.request.Importance == 1;
     }
 
     function getRequestText () {

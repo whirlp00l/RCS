@@ -18,7 +18,7 @@
 }
 
 #monitor .tooltip {
-  width: 200px;
+  width: 165px;
   height: 120px;
   text-align: left;
 }
@@ -171,5 +171,10 @@
 }
 
 #requests .rcs-request .material-tile-left .fa {
+  font-size: 28px;
+}
+
+#requests .rcs-request .fa-flag {
+  color: #8a1717;
   font-size: 28px;
 }

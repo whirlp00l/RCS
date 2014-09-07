@@ -16,17 +16,18 @@ module.exports.sockets = {
   // mixes in socket.io events for your routes and blueprints automatically.
   onConnect: function(session, socket) {
     sails.log.debug('sockets: onConnect socket.id = ' + socket.id);
-    if (socket.connected) {
-      sails.log.debug('sockets: client already connected');
-    } else {
-      sails.log.debug('sockets: client authenticated?');
-      if (session.user) {
-        return sails.log.debug('sockets: authenticated: ' + session.user.Email + ', ' + session.user.Role);
-      } else {
-        sails.log.debug('socket client not login. Disconnect it.')
-        socket.disconnect();
-      }
-    }
+    // if (socket.connected) {
+    //   sails.log.debug('sockets: client already connected');
+    // } else {
+    //   sails.log.debug('sockets: client authenticated?');
+    //   if (session.user) {
+    //     return sails.log.debug('sockets: authenticated: ' + session.user.Email + ', ' + session.user.Role);
+    //   } else {
+    //     sails.log.debug('socket client not login. Disconnect it.')
+    //     socket.disconnect();
+    //   }
+    // }
+
     // By default: do nothing
     // This is a good place to subscribe a new socket to a room, inform other users that
     // someone new has come online, or any other custom socket.io logic
@@ -34,8 +35,9 @@ module.exports.sockets = {
 
   // This custom onDisconnect function will be run each time a socket disconnects
   onDisconnect: function(session, socket) {
-    sails.log.debug('socket client disconnected: id = ' + socket.id);
+    sails.log.debug('socket: onDisconnect: socket.id = ' + socket.id);
     socket.disconnect();
+
     // By default: do nothing
     // This is a good place to broadcast a disconnect message, or any other custom socket.io logic
   },

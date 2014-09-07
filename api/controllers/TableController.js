@@ -115,7 +115,10 @@ module.exports = {
           };
 
           Restaurant.message(table.Restaurant, {
-            removeTableId:table.id,
+            removeTable: {
+              MapRow: table.MapRow,
+              MapCol: table.MapCol
+            },
             removeRequestId: requestIds
           });
 

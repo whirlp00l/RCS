@@ -292,6 +292,7 @@ module.exports = {
         // unsubscribe the requesting socket to the 'message' context of other restaurants
         Restaurant.unsubscribe(req, req.session.subscribedRestaurant, ['message']);
         sails.log.debug('Socket client [' + req.socket.id + '] has unsubscribed from Restaurant [' + req.session.subscribedRestaurant.RestaurantName + '].');
+        req.session.subscribedRestaurant = null;
       }
 
       // subscribe the requesting socket to the 'message' context of the restaurant
@@ -343,6 +344,26 @@ module.exports = {
         return res.json({subscribedTo: sails.sockets.socketRooms(req.socket)});
       });
     });
+  },
+
+  unsubscribe: function (req, res) {
+    if (!req.isSocket) {
+      return res.badRequest('request is not from Socket IO.');
+    }
+
+    sails.log('Restaurant/unsubscribe');
+    var room = null;
+
+    if (req.session.subscribedRestaurant) {
+      room = sails.sockets.socketRooms(req.socket);
+      // unsubscribe the requesting socket to the 'message' context of other restaurants
+      Restaurant.unsubscribe(req, req.session.subscribedRestaurant, ['message']);
+      sails.log.debug('Socket client [' + req.socket.id + '] has unsubscribed from Restaurant [' + req.session.subscribedRestaurant.RestaurantName + '].');
+      req.session.subscribedRestaurant = null;
+    }
+
+    return res.json({unsubscribedTo: room});
+
   },
 
   checkMenuVersion: function (req, res) {

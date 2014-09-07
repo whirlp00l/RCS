@@ -1,9 +1,10 @@
 angular
   .module('rcs')
-  .factory('rcsHttp', ['$http', '$state', '$log', rcsHttp])
-  .factory('rcsSession', ['$rootScope', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
+  .factory('rcsHttp', ['$rootScope', '$http', '$state', '$log', 'RCS_EVENT', rcsHttp])
+  .factory('rcsSession', ['$rootScope', '$log', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
 
-function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
+function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
+  // service methods
   var sessionService = {
     handshake: handshake,
     signIn: signIn,
@@ -18,35 +19,138 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     createTable: createTable,
     deleteTable: deleteTable,
     startRequest: startRequest,
-    closeRequest: closeRequest
+    closeRequest: closeRequest,
+    ifSocketReady: ifSocketReady
   };
 
+  // locals
   var signedInUser = null;
   var selectedRestaurant = null;
   var getRequest = getRequest;
-
   var tables = new Array(10);
   for (var i = 0; i < 10; i++) {
     tables[i] = new Array(10);
   }
-
   var requests = [];
+  var rcsSocket = null;
+  var rcsSocketDataReady = false;
+  var emitTableEvent = emitTableEvent;
 
   // initialize
+  $rootScope.$on(RCS_EVENT.forbidden, function () {
+    signedInUser = null;
+  });
 
-  // signedInUser = {Email: 'admin1', Role: 'admin'};
-  // selectedRestaurant = {id: 1, RestaurantName: 'MZDP'};
+  // connect (force new connection, passing null as the 1st to let socket use the default url)
+  $log.debug("rcsSocket: connecting...");
+  rcsSocket = io.connect(null, { 'force new connection': true });
 
-  // initialize rcsSocket
+  // listen
+  rcsSocket.on('connect', function () {
+    $log.debug("rcsSocket: just connected!");
+    rcsSocketConnected = true;
+  });
+
+  rcsSocket.on('init', function (msg) {
+    $log.debug('rcsSocket: received init');
+    $log.debug(msg);
+
+    for (var i = msg.table.length - 1; i >= 0; i--) {
+      var table = msg.table[i];
+      tables[table.MapRow][table.MapCol] = table;
+    }
+    requests = msg.request;
+
+    rcsSocketDataReady = true;
+  });
+
+  rcsSocket.on('restaurant', onRestaurantMessage);
 
   // defines
+  function onRestaurantMessage (msg) {
+
+    $log.debug('rcsSocket: received restaurant message');
+    $log.debug(msg);
+
+    if (msg.verb != 'messaged') {
+      return $log.debug('rcsSocket: unsopported verb [' + msg.verb + '].');
+    }
+
+    var data = msg.data;
+
+    // handle new-table
+    if (data.newTable) {
+      var table = data.newTable;
+      tables[table.MapRow][table.MapCol] = table;
+      emitTableEvent(table.MapRow, table.MapCol);
+    }
+
+    // handle new-request
+    if (data.newRequest) {
+      requests.push(data.newRequest);
+      $rootScope.$emit(RCS_EVENT.requestsUpdate);
+    }
+
+    // handle remove-table
+    if (data.removeTable) {
+      var table = data.removeTable;
+      tables[table.MapRow][table.MapCol] = null;
+      emitTableEvent(table.MapRow, table.MapCol);
+    }
+
+    // handle remove-request
+    if (data.removeRequestId) {
+      if (!angular.isArray(data.removeRequestId)) {
+        data.removeRequestId = [data.removeRequestId];
+      }
+
+      var removedCount = 0;
+      for (var i = requests.length - 1; i >= 0; i--) {
+        if (data.removeRequestId.indexOf(requests[i].id) != -1) {
+          requests.splice(i, 1);
+          if (++removedCount == data.removeRequestId.length) {
+            break;
+          }
+        }
+      }
+
+      $rootScope.$emit(RCS_EVENT.requestsUpdate);
+    }
+
+    // handle set-table
+    if (data.setTable) {
+      var table = data.setTable;
+      tables[table.MapRow][table.MapCol] = table;
+      emitTableEvent(table.MapRow, table.MapCol);
+    }
+
+    // handle set-request
+    if (data.setRequest) {
+      var requestToUpdate = data.setRequest;
+
+      for (var i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].id == requestToUpdate.id) {
+          requests[i] = requestToUpdate;
+          break;
+        }
+      }
+
+      $rootScope.$emit(RCS_EVENT.requestsUpdate);
+    }
+  }
+
+  function emitTableEvent (mapRow, mapCol) {
+    var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, mapRow, mapCol);
+    $rootScope.$emit(tableEvent);
+  }
+
   function handshake () {
     // >>> test
     // return rcsHttp.User.signIn('manager1@rcs.com', 'mgr123')
     //   .success(function (res) {
     //     signedInUser = res;
-    //     selectedRestaurant = {id: 21, RestaurantName: 'KFC'};
-    //   })
+    //     // selectedRestaurant = {id: 21, RestaurantName: 'KFC'};
+    //   });
     // <<< test
 
     return rcsHttp.User.handshake()
@@ -108,98 +212,110 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
 
     selectedRestaurant = restaurant;
 
+    // subscribe to restaurant message event
+    return rcsSocket.get(
+      '/Restaurant/subscribe',
+      {RestaurantId: selectedRestaurant.id},
+      function (result) {
+        if (result && result.subscribedTo) {
+          successAction();
+        } else {
+          errorAction();
+        }
+      });
+
     // >>> mock
-    tables[2][3] = {
-      id: 1,
-      TableName: 'A1',
-      TableType: 'A',
-      Status: 'empty',
-      MapRow: 2,
-      MapCol: 3,
-      ActiveRequestCount: 0
-    };
-    tables[2][4] = {
-      id: 2,
-      TableName: 'A2',
-      TableType: 'A',
-      Status: 'paying',
-      MapRow: 2,
-      MapCol: 4,
-      ActiveRequestCount: 1
-    };
-    tables[2][5] = {
-      id: 3,
-      TableName: 'A3',
-      TableType: 'A',
-      Status: 'paid',
-      MapRow: 2,
-      MapCol: 5,
-      BookName: 'Shuyu',
-      BookDateTime: new Date(),
-      ActiveRequestCount: 2
-    };
+    // tables[2][3] = {
+    //   id: 1,
+    //   TableName: 'A1',
+    //   TableType: 'A',
+    //   Status: 'empty',
+    //   MapRow: 2,
+    //   MapCol: 3,
+    //   ActiveRequestCount: 0
+    // };
+    // tables[2][4] = {
+    //   id: 2,
+    //   TableName: 'A2',
+    //   TableType: 'A',
+    //   Status: 'paying',
+    //   MapRow: 2,
+    //   MapCol: 4,
+    //   ActiveRequestCount: 1
+    // };
+    // tables[2][5] = {
+    //   id: 3,
+    //   TableName: 'A3',
+    //   TableType: 'A',
+    //   Status: 'paid',
+    //   MapRow: 2,
+    //   MapCol: 5,
+    //   BookName: 'Shuyu',
+    //   BookDateTime: new Date(),
+    //   ActiveRequestCount: 2
+    // };
 
-    requests = [{
-      id: 1,
-      Type: 'call',
-      Status: 'new',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: null,
-      PayAmount: null,
-      OrderItems: null,
-      Table: {
-        TableName: 'A3'
-      }
-    }, {
-      id: 2,
-      Type: 'pay',
-      Status: 'inProgress',
-      Importance: 1,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: 'cash',
-      PayAmount: 100,
-      OrderItems: null,
-      Table: {
-        TableName: 'A2'
-      }
-    }, {
-      id: 3,
-      Type: 'order',
-      Status: 'new',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      PayType: null,
-      PayAmount: null,
-      OrderItems: [1, 1, 1],
-      Table: {
-        TableName: 'A2'
-      }
-    }, {
-      id: 4,
-      Type: 'water',
-      Status: 'closed',
-      Importance: 0,
-      createdAt: new Date(),
-      ClosedAt: new Date(),
-      Table: {
-        TableName: 'A2'
-      }
-    }];
+    // requests = [{
+    //   id: 1,
+    //   Type: 'call',
+    //   Status: 'new',
+    //   Importance: 0,
+    //   createdAt: new Date(),
+    //   ClosedAt: new Date(),
+    //   PayType: null,
+    //   PayAmount: null,
+    //   OrderItems: null,
+    //   Table: {
+    //     TableName: 'A3'
+    //   }
+    // }, {
+    //   id: 2,
+    //   Type: 'pay',
+    //   Status: 'inProgress',
+    //   Importance: 1,
+    //   createdAt: new Date(),
+    //   ClosedAt: new Date(),
+    //   PayType: 'cash',
+    //   PayAmount: 100,
+    //   OrderItems: null,
+    //   Table: {
+    //     TableName: 'A2'
+    //   }
+    // }, {
+    //   id: 3,
+    //   Type: 'order',
+    //   Status: 'new',
+    //   Importance: 0,
+    //   createdAt: new Date(),
+    //   ClosedAt: new Date(),
+    //   PayType: null,
+    //   PayAmount: null,
+    //   OrderItems: [1, 1, 1],
+    //   Table: {
+    //     TableName: 'A2'
+    //   }
+    // }, {
+    //   id: 4,
+    //   Type: 'water',
+    //   Status: 'closed',
+    //   Importance: 0,
+    //   createdAt: new Date(),
+    //   ClosedAt: new Date(),
+    //   Table: {
+    //     TableName: 'A2'
+    //   }
+    // }];
     // <<< mock
-
-    // socket connect
-    // subscribe
-    successAction();
   }
 
   function unselectRestaurant (successAction) {
-    // >>> mock
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    rcsSocket.get('/Restaurant/unsubscribe');
+
     selectedRestaurant = null;
-    // << mock
 
     tables = new Array(10);
     for (var i = 0; i < 10; i++) {
@@ -207,11 +323,8 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     }
 
     requests = [];
-    // unsubscribe
-    // socket disconnect
-    if (angular.isFunction(successAction)) {
-      successAction();
-    }
+
+    return successAction();
   }
 
   function getSignedInUser () {
@@ -246,9 +359,6 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     // >>> mock
     tables[row][col] = table;
     // <<< mock
-
-    var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, row, col);
-    $rootScope.$emit(tableEvent);
 
     if (angular.isFunction(successAction)) {
       successAction();
@@ -290,15 +400,20 @@ function rcsSession ($rootScope, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     };
   }
 
+  function ifSocketReady () {
+    return rcsSocketDataReady;
+  }
+
   return sessionService;
 }
 
-function rcsHttp ($http, $state, $log) {
+function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
   var httpService = {};
 
   var errorAction = function (data, status) {
     $log.error(data || 'request failed');
     if (status == 403) {
+      $rootScope.$emit(RCS_EVENT.forbidden);
       $state.go('page.signin');
     }
   }
