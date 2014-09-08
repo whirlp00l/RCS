@@ -4,8 +4,6 @@ angular
   .factory('rcsSession', ['$rootScope', '$log', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
 
 function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
-  var test = false;
-
   // service methods
   var sessionService = {
     handshake: handshake,
@@ -23,6 +21,10 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     getMenuItems: getMenuItems,
     createTable: createTable,
     deleteTable: deleteTable,
+    resetTable: resetTable,
+    unlinkTable: unlinkTable,
+    bookTable: bookTable,
+    unbookTable: unbookTable,
     startRequest: startRequest,
     closeRequest: closeRequest,
     ifSocketReady: ifSocketReady
@@ -187,17 +189,6 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
   }
 
   function handshake () {
-    if (test) {
-      return rcsHttp.User.signIn('manager1@rcs.com', 'mgr123')
-      .success(function (res) {
-        signedInUser = res;
-
-        selectedRestaurant = {id: 21, RestaurantName: 'KFC'};
-
-        return selectRestaurant(selectedRestaurant);
-      });
-    }
-
     return rcsHttp.User.handshake()
       .success(function (res) {
         signedInUser = null;
@@ -333,27 +324,82 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     return angular.copy(menuItems);
   }
 
-  function createTable (row, col, table, successAction, errorAction) {
-    // >>> mock
-    tables[row][col] = table;
-    // <<< mock
-
-    if (angular.isFunction(successAction)) {
-      successAction();
+  function createTable (row, col, tableName, tableType, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
     }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.create(
+      selectedRestaurant.id,
+      tableName,
+      tableType,
+      row,
+      col).success(successAction).error(errorAction);
   }
 
   function deleteTable (table, successAction, errorAction) {
-    // >>> mock
-    tables[table.MapRow][table.MapCol] = null;
-    // <<< mock
-
-    var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, table.MapRow, table.MapCol);
-    $rootScope.$emit(tableEvent);
-
-    if (angular.isFunction(successAction)) {
-      successAction();
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
     }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.delete(table.id).success(successAction).error(errorAction);
+  }
+
+  function resetTable (table, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.reset(table.id).success(successAction).error(errorAction);
+  }
+
+  function unlinkTable (table, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.removeLink(table.id).success(successAction).error(errorAction);
+  }
+
+  function bookTable (table, bookName, bookCell, bookDateTime, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.book(table.id, bookName, bookCell, bookDateTime)
+      .success(successAction).error(errorAction);
+  }
+
+  function unbookTable (table, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Table.cancelBook(table.id).success(successAction).error(errorAction);
   }
 
   function startRequest (request, successAction, errorAction) {

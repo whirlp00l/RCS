@@ -50,7 +50,7 @@ module.exports = {
       return res.badRequest('Missing required fields.')
     }
 
-    Restaurant.findOneById(restaurantId).populateAll('Table').exec(function (err, restaurant) {
+    Restaurant.findOneById(restaurantId).populate('Tables').exec(function (err, restaurant) {
       if (err) {
         return res.serverError(err);
       }

@@ -21,6 +21,9 @@ material-dialog(id="dialog-viewRequestOrder")
 
   .dialog-actions(layout="horizontal")
     material-button.material-button-raised.material-theme-light(
+      ng-if="allowAction == true"
       flex="80" ng-click="clickConfirmOrder()") 已下单, 关闭请求
     material-button.material-button-colored(
-      flex="20" ng-click="clickCancel()") 取消
+      flex="20" ng-click="clickCancel()")
+      span(ng-if="allowAction == true") 取消
+      span(ng-if="allowAction == false") 关闭

@@ -3,8 +3,7 @@ angular
     'ui.router',
     'ui.router.stateHelper',
     'ui.bootstrap',
-    'ngMaterial',
-    'ui.date'
+    'ngMaterial'
   ])
   .config([
     '$urlRouterProvider',

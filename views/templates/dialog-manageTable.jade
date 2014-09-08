@@ -1,0 +1,117 @@
+material-dialog(id="dialog-manageTable")
+  .dialog-content.height-md
+    h4.text-center 餐桌 <b>{{table.TableName}}</b>
+
+    material-tabs(selected="selectedIndex" nobar)
+      material-tab(
+        ng-class="{active:selectedIndex == $index}"
+        disabled="false")
+        material-tab-label
+          b 基本属性
+      material-tab(
+        ng-class="{active:selectedIndex == $index}"
+        disabled="false")
+        material-tab-label
+          b 点菜 {{getOrderInfo()}}
+      material-tab(
+        ng-class="{active:selectedIndex == $index}"
+        disabled="false")
+        material-tab-label
+          b 预订 {{getBookingInfo()}}
+
+    material-list(ng-if="selectedIndex == 0")
+      material-item
+        .material-tile-left
+          | 餐桌类型
+        .material-tile-content
+          b {{table.TableType}}
+        .material-tile-right
+      material-item
+        .material-tile-left
+          | 当前状态
+        .material-tile-content
+          b {{getTableStatusText()}}
+          h3 (更新时间: {{table.StatusUpdateAt | date:'medium'}})
+      material-item
+        .material-tile-left
+          | 关联信息
+          material-button.material-button-colored(
+            ng-show="ifLinked() == true" ng-click="clickUnlink()")
+            i.fa.fa-unlink
+            | &nbsp;解除
+        .material-tile-content
+          b {{getLinkingInfo()}}
+          h3(ng-show="ifLinked() == true") (关联时间: {{table.LinkTime | date:'medium'}})
+
+    material-list(ng-if="selectedIndex == 1")
+      material-item.list-header
+        .material-tile-left
+          b 类型
+        .material-tile-content
+          b 菜品
+        .material-tile-right
+          b 数量
+      material-item(ng-repeat="orderItem in orderItems | orderBy:['type'] track by $index")
+        .material-tile-left
+          | {{orderItem.type}}
+        .material-tile-content
+          h2 {{orderItem.name}}
+          h3 {{orderItem.price}}元
+        .material-tile-right
+          | x{{orderItem.count}}
+
+    div(ng-if="selectedIndex == 2")
+      material-list(ng-show="ifBooked() == true")
+        material-item
+          .material-tile-left
+            | 预订顾客
+          .material-tile-content
+            b {{table.BookName}}
+          .material-tile-right()
+            material-button.material-button-colored(
+              ng-click="clickUnbook()") 取消预订
+        material-item
+          .material-tile-left
+            | 联系方式
+          .material-tile-content
+            b {{table.BookCell}}
+        material-item
+          .material-tile-left
+            | 预订时间
+          .material-tile-content
+            b {{table.BookDateTime | date:'medium'}}
+      material-list(id="newBook" ng-show="ifBooked() == false")
+        material-item
+          .material-tile-left
+            b 预订顾客
+          .material-tile-content
+            .material-input-group.material-input-group-theme-light
+              input(type="text" ng-model="newBook.name" placeholder="请输入")
+        material-item
+          .material-tile-left
+            b 联系方式
+          .material-tile-content
+            .material-input-group.material-input-group-theme-light
+              input(type="text" ng-model="newBook.cell" placeholder="请输入")
+        material-item
+          .material-tile-left
+            b 预订日期
+          .material-tile-content
+            datepicker.well.well-sm(ng-model="newBook.date" min-date="minDate" show-weeks="false")
+        material-item
+          .material-tile-left
+            b 预订时间
+          .material-tile-content
+            timepicker(ng-model="newBook.time" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian")
+  .dialog-actions(layout="horizontal")
+    material-button.material-button-raised.material-theme-light(
+      ng-if="selectedIndex == 0"
+      flex="80" ng-click="clickReset()") 翻桌(重置状态)
+    material-button.material-button-raised.material-theme-light(
+      ng-if="selectedIndex == 2 && ifBooked() == false"
+      flex="80" ng-click="clickBook()" ng-disabled="ifDisableBook()") 确认预订
+    material-button.material-button-raised.material-theme-light(
+      ng-if="selectedIndex == 2 && ifBooked() == true"
+      flex="80" ng-click="clickUnbook()") 取消预订
+    material-button.material-button-colored(
+      flex="20" ng-click="clickCancel()") 关闭

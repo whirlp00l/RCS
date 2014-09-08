@@ -8,7 +8,7 @@ div(id="admin" flex layout="vertical" layout-fill)
         p 同步数据...
 
       div(ng-show="adminRows != null")
-        h3.text-center 当前管理员
+        h3.text-center(ng-show="adminRows.length != 0") 当前管理员
         div(ng-repeat="adminRow in adminRows track by $index" layout="horizontal" layout-align="center")
           .admin(ng-repeat="admin in adminRow" layout="vertical" layout-align="center center")
             material-button.material-button-fab.material-button-raised(

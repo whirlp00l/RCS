@@ -71,6 +71,10 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
     var getTableStatusText = getTableStatusText;
     var getTableUpdateDurationMin = getTableUpdateDurationMin;
     var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, mapRow, mapCol);
+    var makeOrderGroupFilter = makeOrderGroup();
+    var toastTable = toastTable;
+    var errorAction = errorAction;
+
     // events
     $rootScope.$on(tableEvent, initializeTable)
 
@@ -78,57 +82,223 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
     initializeTable();
 
     // defines
+    function toastTable (operationText, table) {
+      $scope.simpleToast('{0}: <b>{1}</b> ({2})'.format(operationText, table.TableName, table.TableType), 1500);
+    }
+
+    function errorAction (res, status) {
+      if (status === 400) {
+        alert(res || 400);
+      } else {
+        alert(status);
+      }
+    }
+
     function initializeTable () {
       $scope.table = rcsSession.getTable(mapRow, mapCol);
       $scope.safeApply();
     }
 
-    function clickManageTable () {
+    function clickManageTable (event) {
       if ($scope.ifNull()) return;
-      $scope.safeApply();
-      $scope.simpleToast('manageTable:' + $scope.getTableName());
+
+      var tableScope = $scope;
+      var dialogManageTable = {
+        templateUrl: 'template/dialog-manageTable',
+        targetEvent: event,
+        controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+          // scope fields
+          $scope.selectedIndex = 0;
+          $scope.table = angular.copy(tableScope.table);
+          $scope.orderItems = makeOrderGroupFilter(
+            $scope.table.OrderItems,
+            rcsSession.getMenuItems());
+          $scope.newBook = {
+            name: '',
+            cell: '',
+            date: new Date(),
+            time: getMidOfNextHour()
+          };
+          $scope.minDate = new Date();
+          $scope.hstep = 1;
+          $scope.mstep = 5;
+          $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+          $scope.format = $scope.formats[1];
+
+          // scope methods
+          $scope.clickBook = clickBook;
+          $scope.clickCancel = clickCancel;
+          $scope.clickReset = clickReset;
+          $scope.clickUnbook = clickUnbook;
+          $scope.clickUnlink = clickUnlink;
+          $scope.getBookingInfo = getBookingInfo;
+          $scope.getLinkingInfo = getLinkingInfo;
+          $scope.getOrderInfo = getOrderInfo;
+          $scope.getTableStatusText = getTableStatusText;
+          $scope.ifBooked = ifBooked;
+          $scope.ifDisableBook = ifDisableBook;
+          $scope.ifLinked = ifLinked;
+
+          // locals
+          var getMidOfNextHour = getMidOfNextHour;
+
+          // defines
+          function getMidOfNextHour () {
+            var time = new Date();
+            time.setHours(time.getHours() + 1);
+            time.setMinutes(30);
+            time.setSeconds(0);
+            return time;
+          }
+
+          function getBookingInfo () {
+            if (!$scope.ifBooked()) {
+              return '[无]';
+            }
+
+            return '[{0}]'.format($scope.table.BookName);
+          }
+
+          function getOrderInfo () {
+            if (!$scope.table.OrderItems) {
+              return '[无]';
+            }
+
+            return '[{0}]'.format($scope.table.OrderItems.length);
+          }
+
+          function getLinkingInfo () {
+            if (!$scope.ifLinked()) {
+              return '未关联平板';
+            }
+
+            return '已关联平板[{0}]'.format($scope.table.LinkedTabletId);
+          }
+
+          function ifDisableBook () {
+            var newBook = $scope.newBook;
+            if (!newBook.name || !newBook.cell || !newBook.date || !newBook.time) {
+              return true;
+            }
+
+            return false;
+          }
+
+          function clickReset () {
+            rcsSession.resetTable($scope.table, function success (resTable) {
+              $hideDialog();
+              toastTable('翻桌', resTable);
+            }, errorAction);
+          }
+
+          function clickUnlink () {
+            rcsSession.unlinkTable($scope.table, function success (resTable) {
+              $scope.table = resTable;
+              toastTable('解除关联', resTable);
+            }, errorAction);
+          }
+
+          function clickBook () {
+            if ($scope.ifDisableBook()) return;
+
+            var newBook = $scope.newBook;
+            var newBookDateTime = new Date('{0}T{1}Z'.format(
+              newBook.date.format('yyyy-mm-dd'),
+              newBook.time.format('HH:MM:00', true)
+            ));
+
+            rcsSession.bookTable(
+              $scope.table, newBook.name, newBook.cell, newBookDateTime,
+              function success (resTable) {
+                $scope.table = resTable;
+                toastTable('预订', resTable);
+                $scope.newBook = {
+                  name: '',
+                  cell: '',
+                  date: new Date(),
+                  time: getMidOfNextHour()
+                };
+              }, errorAction);
+          }
+
+          function clickUnbook () {
+            rcsSession.unbookTable($scope.table, function success (resTable) {
+              $scope.table = resTable;
+              toastTable('取消预订', resTable);
+            }, errorAction);
+          }
+
+          function clickCancel () {
+            $hideDialog();
+          }
+        }]
+      };
+
+      $materialDialog(dialogManageTable);
     }
 
-    function clickEditTable() {
-      // TODO: add dialog for create
+    function clickEditTable(event) {
       if ($scope.ifNull()) {
-        var newTable = {
-          TableName: 'A' + mapRow + mapCol,
-          TableType: 'A',
-          Status: 'empty',
-          ActiveRequestCount: 0,
-          MapRow: mapRow,
-          MapCol: mapCol
+        var tableScope = $scope;
+        var dialogCreateTable = {
+          templateUrl: 'template/dialog-createTable',
+          targetEvent: event,
+          controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+            // scope fields
+            $scope.newTable = { name:null, type:'普通' };
+
+            // scope methods
+            $scope.clickCancel = clickCancel;
+            $scope.clickCreate = clickCreate;
+            $scope.ifDisableCreate = ifDisableCreate;
+
+            // defines
+            function clickCreate () {
+              if ($scope.ifDisableCreate()) return;
+
+              var newTable = $scope.newTable;
+              rcsSession.createTable(mapRow, mapCol, newTable.name, newTable.type,
+                function success (resTable) {
+                  $hideDialog();
+                  toastTable('添加餐桌', resTable);
+                }, errorAction);
+            }
+
+            function clickCancel () {
+              $hideDialog();
+            }
+
+            function ifDisableCreate () {
+              var newTable = $scope.newTable;
+              return !newTable.name || !newTable.type;
+            }
+          }]
         };
 
-        rcsSession.createTable(mapRow, mapCol, newTable,
-          function success () {
-            $scope.simpleToast('已添加餐桌:' + newTable.TableName);
-          },
-          function error () {
-            alert('错误:添加餐桌');
-          });
+        $materialDialog(dialogCreateTable);
       } else {
-        var rcsTableScope = $scope;
-        var table = $scope.table;
+        var tableScope = $scope;
+        var table = angular.copy(tableScope.table);
 
         var dialogDelete = {
           templateUrl: 'template/dialog-deleteTemplate',
           targetEvent: event,
           controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+            // scope fields
             $scope.deleteFrom = '餐桌';
             $scope.deleteItem = table.TableName + '(' + table.TableType + ')';
-            $scope.clickDelete = clickDelete;
-            $scope.clickCancel = clickCancel;
 
+            // scope methods
+            $scope.clickCancel = clickCancel;
+            $scope.clickDelete = clickDelete;
+
+            // defines
             function clickDelete () {
               $hideDialog();
               rcsSession.deleteTable(table,
                 function success () {
-                  rcsTableScope.simpleToast('已删除餐桌:' + table.TableName);
-                }, function error () {
-                  alert('错误:删除餐桌');
-                });
+                  toastTable('删除餐桌', table);
+                }, errorAction);
             }
 
             function clickCancel () {
@@ -163,7 +333,7 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
       }
 
       var table = $scope.table;
-      return (table.LinkTime);
+      return (table.LinkTime && table.LinkTime != '');
     }
 
     function ifBooked () {
@@ -204,8 +374,8 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
       var bookingInfo = '';
       if ($scope.ifBooked()) {
         bookingInfo = (
-          '<div class="rcs-tooltip">' +
-            '预订: {0} {1}' +
+          '<br><div class="rcs-tooltip">' +
+            '预订: {0}<br>{1}' +
           '</div>'
           ).format(
             table.BookName,
@@ -214,11 +384,10 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
       }
 
       var linkInfo =
-        '<div class="rcs-tooltip"><i class="{0}"></i>{1}</div>'.format(
+        '<br><div class="rcs-tooltip"><i class="{0}"></i>{1}</div>'.format(
           $scope.ifLinked() ? 'fa fa-link' :'fa fa-unlink',
           $scope.ifLinked() ? '&nbsp;已关联' :'&nbsp;未关联');
 
-      // return 'Hello';
       return (
         '<div class="rcs-tooltip">' +
           '类型: {0}<br>状态: {1}<br>({2}分钟前更新)' +
@@ -295,24 +464,46 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
     var getRequestTypeText = getRequestTypeText;
     var getRequestCreateDurationText = getRequestCreateDurationText;
     var makeOrderGroupFilter = makeOrderGroup();
-    var toast = toast;
+    var toastRequest = toastRequest;
+    var errorAction = errorAction;
 
     // defines
+    function toastRequest (operationText) {
+      var text = '{0}: <b>{1}</b> {2}'.format(
+          operationText,
+          $scope.request.Table.TableName,
+          getRequestText());
+
+      if (getRequestAdditionalText()) {
+        text += ' ({0})'.format(getRequestAdditionalText());
+      }
+
+      $scope.simpleToast(text, 1500);
+    }
+
+    function errorAction (res, status) {
+      if (status === 400) {
+        alert(res || 400);
+      } else {
+        alert(status);
+      }
+    }
+
     function clickRequest (event) {
       switch ($scope.request.Status) {
         case REQUEST_STATUS.new:
-          processRequest(event);
+          processRequest(event, true);
           break;
         case REQUEST_STATUS.inProgress:
-          closeRequest(event);
+          closeRequest(event, true);
           break;
         case REQUEST_STATUS.closed:
-          viewRequest(event);
+          processRequest(event, false);
           break;
       }
     }
 
-    function processRequest (event) {
+    function processRequest (event, allowAction) {
       switch ($scope.request.Type) {
         case REQUEST_TYPE.order:
           var requestScope = $scope;
@@ -321,23 +512,23 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
             targetEvent: event,
             controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
               // scope fields
-              $scope.request = requestScope.request;
+              $scope.request = angular.copy(requestScope.request);
               $scope.orderItems = makeOrderGroupFilter(
                 requestScope.request.OrderItems,
                 rcsSession.getMenuItems());
+              $scope.allowAction = allowAction;
 
               // scope methods
               $scope.clickConfirmOrder = function() {
+                if (!allowAction) return;
+
                 var request = $scope.request;
 
                 rcsSession.closeRequest(request,
                   function success () {
                     $hideDialog();
-                    toast('关闭请求');
-                  },
-                  function error () {
-                    alert('something wrong');
-                  });
+                    toastRequest('关闭请求');
+                  }, errorAction);
               };
 
               $scope.clickCancel = function () {
@@ -349,28 +540,26 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
           $materialDialog(dialogViewRequestOrder);
           break;
         case REQUEST_TYPE.pay:
+          if (!allowAction) return;
+
           rcsSession.startRequest($scope.request,
             function success () {
-              toast('处理请求');
-            },
-            function error () {
-              alert('something wrong');
-            });
+              toastRequest('处理请求');
+            }, errorAction);
           break;
         case REQUEST_TYPE.call:
         case REQUEST_TYPE.water:
+          if (!allowAction) return;
+
           rcsSession.closeRequest($scope.request,
             function success () {
-              toast('关闭请求');
-            },
-            function error () {
-              alert('something wrong');
-            });
+              toastRequest('关闭请求');
+            }, errorAction);
           break;
       }
     }
 
-    function closeRequest (event) {
+    function closeRequest (event, allowAction) {
       switch ($scope.request.Type) {
         case REQUEST_TYPE.pay:
           var requestScope = $scope;
@@ -380,10 +569,11 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
             targetEvent: event,
             controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
               // scope fields
-              $scope.request = requestScope.request;
+              $scope.request = angular.copy(requestScope.request);
               $scope.orderItems = makeOrderGroupFilter(
                 rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
                 rcsSession.getMenuItems());
+              $scope.allowAction = allowAction;
 
               $scope.totalPrice = 0;
               for (var i = $scope.orderItems.length - 1; i >= 0; i--) {
@@ -393,14 +583,13 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
 
               // scope methods
               $scope.clickConfirmPayment = function () {
+                if (!allowAction) return;
+
                 rcsSession.closeRequest($scope.request,
                   function success () {
                     $hideDialog();
-                    toast('关闭请求');
-                  },
-                  function error () {
-                    alert('something wrong');
-                  });
+                    toastRequest('关闭请求');
+                  }, errorAction);
               };
 
               $scope.clickCancel = function () {
@@ -416,17 +605,6 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
 
     function viewRequest (event) {
       return;
-    }
-
-    function toast (operationText) {
-      $scope.simpleToast(
-        '{0}: <b>{1}</b> {2} ({3})'.format(
-          operationText,
-          $scope.request.Table.TableName,
-          getRequestText(),
-          getRequestAdditionalText()
-          ),
-        1500);
     }
 
     function getTooltip () {
@@ -460,17 +638,21 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
           switch (request.PayType) {
             case PAY_TYPE.cash:
               if (request.PayAmount && request.PayAmount != '') {
-                var orderItems = makeOrderGroupFilter(
-                  rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
-                  rcsSession.getMenuItems());
-                var totalPrice = 0;
-                if (orderItems) {
-                  for (var i = orderItems.length - 1; i >= 0; i--) {
-                    totalPrice += orderItems[i].price * orderItems[i].count;
+                if (request.Status != REQUEST_STATUS.closed) {
+                  var orderItems = makeOrderGroupFilter(
+                    rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
+                    rcsSession.getMenuItems());
+                  var totalPrice = 0;
+                  if (orderItems) {
+                    for (var i = orderItems.length - 1; i >= 0; i--) {
+                      totalPrice += orderItems[i].price * orderItems[i].count;
+                    }
                   }
-                }
 
-                text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - totalPrice);
+                  text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - totalPrice);
+                } else {
+                  text = '支付{0}元'.format(request.PayAmount);
+                }
               }
               break;
             case PAY_TYPE.card:

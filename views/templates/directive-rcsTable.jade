@@ -15,7 +15,7 @@
 material-button.rcs-table(
   ng-if="editingTable===false"
   ng-class=useModeClass
-  ng-click="clickManageTable()"
+  ng-click="clickManageTable($event)"
   tooltip-placement="left"
   tooltip-popup-delay="100"
   tooltip-html-unsafe="{{getTooltip()}}")
@@ -23,7 +23,7 @@ material-button.rcs-table(
   .rcs-table-text {{getTableName()}}
 material-button.rcs-table(
   ng-if="editingTable===true"
-  ng-click="clickEditTable()"
+  ng-click="clickEditTable($event)"
   ng-class=editModeClass)
   .rcs-table-mark.fa.fa-plus(ng-show="ifNull()===true")
   .rcs-table-text(ng-show="ifNull()===false") {{getTableName()}}

@@ -1,0 +1,24 @@
+material-dialog(id="dialog-createTable")
+  .dialog-content.height-md
+    h4 新建餐桌
+
+    material-list
+      material-item
+        .material-tile-left
+          b 名称
+        .material-tile-content
+          .material-input-group.material-input-group-theme-light
+            input(type="text" ng-model="newTable.name" placeholder="如:普通15")
+      material-item
+        .material-tile-left
+          b 类型
+        material-radio-group.material-tile-content(ng-model="newTable.type")
+          material-radio-button(value="普通" aria-label="普通") 普通
+          material-radio-button(value="大桌" aria-label="大桌") 大桌
+          material-radio-button(value="包间" aria-label="包间") 包间
+
+  .dialog-actions(layout="horizontal")
+    material-button.material-button-raised.material-theme-light(
+      flex="80" ng-click="clickCreate()" ng-disabled="ifDisableCreate()") 创建餐桌
+    material-button.material-button-colored(
+      flex="20" ng-click="clickCancel()") 取消

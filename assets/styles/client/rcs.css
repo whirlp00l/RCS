@@ -1,6 +1,7 @@
 html {
   overflow: hidden;
 }
+
 body *
 {
    font-family: "Microsoft YaHei", Helvetica, Arial, sans-serif;
@@ -11,12 +12,17 @@ body *
    font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
 }
 
-/*material-content[layout-fill] .material-content {
-  height: 95%;
-}*/
-
 .full-width {
   width: 100%;
+}
+
+.text-unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .fa.right-conner {
@@ -25,27 +31,6 @@ body *
   left: 10px;
   top: 10px;
 }
-
-/*.rcs-theme-red {
-  background-color: #8a1717 !important;
-  color: #f1f1f1 !important;
-  border-color: #8a1717 !important;
-}
-
-.rcs-theme-dark {
-  background-color: #e6e6e6 !important;
-  color: #111111 !important;
-}
-
-.rcs-theme-light {
-  background-color: #f9f9f9 !important;
-  color: #111111 !important;
-}
-*/
-/*.rcs-theme-yellow {
-  background-color: #cba353;
-  color: #f1f1f1;
-}*/
 
 .material-button-fab.right-conner {
   float: right;

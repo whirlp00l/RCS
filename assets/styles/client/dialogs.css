@@ -2,7 +2,11 @@
 #dialog-viewRequestOrder material-list,
 #dialog-viewRequestOrder material-button,
 #dialog-confirmPayment material-list,
-#dialog-confirmPayment material-button {
+#dialog-confirmPayment material-button,
+#dialog-createTable material-list,
+#dialog-createTable material-button,
+#dialog-manageTable material-list,
+#dialog-manageTable material-button {
   font-size: 18px;
 }
 
@@ -13,20 +17,141 @@
 }
 
 #dialog-viewRequestOrder,
-#dialog-confirmPayment {
+#dialog-confirmPayment,
+#dialog-createTable {
   width: 350px;
 }
 
 #dialog-viewRequestOrder .material-tile-left,
-#dialog-confirmPayment .material-tile-left {
+#dialog-confirmPayment .material-tile-left,
+#dialog-createTable .material-tile-left {
   width: 80px;
 }
 
 #dialog-viewRequestOrder .list-header .material-tile-content,
 #dialog-viewRequestOrder .list-header .material-tile-left,
 #dialog-confirmPayment .list-header .material-tile-content,
-#dialog-confirmPayment .list-header .material-tile-left {
+#dialog-confirmPayment .list-header .material-tile-left,
+#dialog-manageTable .list-header .material-tile-content,
+#dialog-manageTable .list-header .material-tile-left {
   padding-top: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #4285f4;
+}
+
+#dialog-createTable .material-input-group,
+#dialog-manageTable .material-input-group {
+  margin: 0;
+}
+
+#dialog-createTable .material-tile-content input {
+  width: 100%;
+}
+
+#dialog-createTable .material-tile-content,
+#dialog-manageTable #newBook .material-tile-content {
+  border-bottom: none;
+  padding: 0;
+  padding-top: 5px;
+}
+
+#dialog-createTable .dialog-content {
+  overflow: visible;
+}
+
+#dialog-createTable material-radio-button .material-on {
+  background-color: #4285f4;
+}
+
+#dialog-manageTable {
+  width: 500px;
+  margin-top: 80px;
+}
+
+#dialog-manageTable .material-tile-left {
+  width: 120px;
+}
+
+#dialog-manageTable .dialog-content {
+  padding-top: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dialog-manageTable material-tabs .material-ink-ripple {
+  color: #fff
+}
+
+#dialog-manageTable material-tab {
+  background-color: #e6e6e6;
+}
+
+#dialog-manageTable material-tab.active {
+  background-color: #4285f4;
+}
+
+#dialog-manageTable material-tab-label {
+  font-weight: bold;
+  color: #818181;
+  font-size: 16px;
+}
+
+#dialog-manageTable material-tab-label.active {
+  color: #f1f1f1;
+}
+
+#dialog-manageTable material-item {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+#dialog-manageTable .material-tile-content .material-input-group input {
+  width: 260px;
+}
+
+#dialog-manageTable .btn-link {
+  color: #4285f4;
+}
+
+#dialog-manageTable .btn-info {
+  background: #4285f4;
+  color: #fff;
+  border-color: #4285f4;
+}
+
+#dialog-manageTable .text-info {
+  font-style: italic
+}
+
+#dialog-manageTable .btn-info .text-info {
+  color: #fff;
+}
+
+#dialog-manageTable td,
+#dialog-manageTable th {
+  padding: 1px;
+}
+
+#dialog-manageTable .well {
+  background-image: none;
+  background: transparent;
+  border: none;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+#dialog-manageTable table {
+  width: 0;
+  margin-bottom: 0;
+}
+
+#dialog-manageTable .form-control {
+  border: none;
+  border-radius: initial;
+}
+
+#dialog-manageTable .form-control:focus {
+  border: none;
+  box-shadow: none;
+  border-bottom: 2px solid #4285f4;
 }

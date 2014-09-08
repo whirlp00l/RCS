@@ -1,7 +1,7 @@
 material-dialog(id="dialog-confirmPayment")
   .dialog-content.height-md
-    h4 确认餐桌 <b>{{request.Table.TableName}}</b> 已完成支付
-    h4(ng-show="totalPrice==0") 该桌应未点餐
+    h4 确认餐桌 <b>{{request.Table.TableName}}</b> 已<b>完成支付</b>
+    h4(ng-show="totalPrice==0") 该桌未点餐
     h4(ng-show="totalPrice!=0") 该桌应支付 <b>{{totalPrice}}</b> 元
 
     material-list(ng-show="totalPrice!=0")
@@ -23,6 +23,9 @@ material-dialog(id="dialog-confirmPayment")
 
   .dialog-actions(layout="horizontal")
     material-button.material-button-raised.material-theme-light(
+      ng-if="allowAction == true"
       flex="80" ng-click="clickConfirmPayment()") 已付款，关闭请求
     material-button.material-button-colored(
-      flex="20" ng-click="clickCancel()") 取消
+      flex="20" ng-click="clickCancel()")
+      span(ng-if="allowAction == true") 取消
+      span(ng-if="allowAction == false") 关闭

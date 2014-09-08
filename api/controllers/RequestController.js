@@ -210,7 +210,7 @@ function createOrder (req, res, table, restaurantId, type) {
           OrderItems: orderItems
         };
 
-
+        table.Status = 'ordering';
 
         return createRequest(res, request, table);
       }
