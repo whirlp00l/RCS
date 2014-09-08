@@ -2,7 +2,7 @@ angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb])
   .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
-  .directive('rcsRequest', ['rcsSession', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
+  .directive('rcsRequest', ['$materialDialog', 'rcsSession', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
 
 // directives
 function breadcrumb ($state, $stateParams, $interpolate) {
@@ -263,7 +263,7 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
   }
 }
 
-function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
+function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
   return {
     link: link,
     $scope: {
@@ -289,19 +289,144 @@ function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
     $scope.ifImportant = ifImportant;
 
     // locals
+    var processRequest = processRequest;
+    var closeRequest = closeRequest;
+    var viewRequest = viewRequest;
     var getRequestTypeText = getRequestTypeText;
     var getRequestCreateDurationText = getRequestCreateDurationText;
+    var makeOrderGroupFilter = makeOrderGroup();
+    var toast = toast;
 
     // defines
-    function clickRequest () {
-      var request = $scope.request;
-      if (request.Status == REQUEST_STATUS.new) {
-        rcsSession.startRequest(request);
-      } else if (request.Status == REQUEST_STATUS.inProgress) {
-        rcsSession.closeRequest(request);
+    function clickRequest (event) {
+      switch ($scope.request.Status) {
+        case REQUEST_STATUS.new:
+          processRequest(event);
+          break;
+        case REQUEST_STATUS.inProgress:
+          closeRequest(event);
+          break;
+        case REQUEST_STATUS.closed:
+          viewRequest(event);
+          break;
       }
+    }
 
-      return $scope.simpleToast(getRequestText() + ' ' + getRequestAdditionalText());
+    function processRequest (event) {
+      switch ($scope.request.Type) {
+        case REQUEST_TYPE.order:
+          var requestScope = $scope;
+          var dialogViewRequestOrder = {
+            templateUrl: 'template/dialog-viewRequestOrder',
+            targetEvent: event,
+            controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+              // scope fields
+              $scope.request = requestScope.request;
+              $scope.orderItems = makeOrderGroupFilter(
+                requestScope.request.OrderItems,
+                rcsSession.getMenuItems());
+
+              // scope methods
+              $scope.clickConfirmOrder = function() {
+                var request = $scope.request;
+
+                rcsSession.closeRequest(request,
+                  function success () {
+                    $hideDialog();
+                    toast('关闭请求');
+                  },
+                  function error () {
+                    alert('something wrong');
+                  });
+              };
+
+              $scope.clickCancel = function () {
+                $hideDialog();
+              }
+            }]
+          };
+
+          $materialDialog(dialogViewRequestOrder);
+          break;
+        case REQUEST_TYPE.pay:
+          rcsSession.startRequest($scope.request,
+            function success () {
+              toast('处理请求');
+            },
+            function error () {
+              alert('something wrong');
+            });
+          break;
+        case REQUEST_TYPE.call:
+        case REQUEST_TYPE.water:
+          rcsSession.closeRequest($scope.request,
+            function success () {
+              toast('关闭请求');
+            },
+            function error () {
+              alert('something wrong');
+            });
+          break;
+      }
+    }
+
+    function closeRequest (event) {
+      switch ($scope.request.Type) {
+        case REQUEST_TYPE.pay:
+          var requestScope = $scope;
+
+          var dialogConfirmPayment = {
+            templateUrl: 'template/dialog-confirmPayment',
+            targetEvent: event,
+            controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+              // scope fields
+              $scope.request = requestScope.request;
+              $scope.orderItems = makeOrderGroupFilter(
+                rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
+                rcsSession.getMenuItems());
+
+              $scope.totalPrice = 0;
+              for (var i = $scope.orderItems.length - 1; i >= 0; i--) {
+                // TODO: check if to use premium price
+                $scope.totalPrice += $scope.orderItems[i].price * $scope.orderItems[i].count;
+              }
+
+              // scope methods
+              $scope.clickConfirmPayment = function () {
+                rcsSession.closeRequest($scope.request,
+                  function success () {
+                    $hideDialog();
+                    toast('关闭请求');
+                  },
+                  function error () {
+                    alert('something wrong');
+                  });
+              };
+
+              $scope.clickCancel = function () {
+                $hideDialog();
+              }
+            }]
+          };
+
+          $materialDialog(dialogConfirmPayment);
+          break;
+      }
+    }
+
+    function viewRequest (event) {
+      return;
+    }
+
+    function toast (operationText) {
+      $scope.simpleToast(
+        '{0}: <b>{1}</b> {2} ({3})'.format(
+          operationText,
+          $scope.request.Table.TableName,
+          getRequestText(),
+          getRequestAdditionalText()
+          ),
+        1500);
     }
 
     function getTooltip () {
@@ -335,7 +460,17 @@ function rcsRequest (rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
           switch (request.PayType) {
             case PAY_TYPE.cash:
               if (request.PayAmount && request.PayAmount != '') {
-                text = '准备支付现金:{0}元'.format(request.PayAmount);
+                var orderItems = makeOrderGroupFilter(
+                  rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
+                  rcsSession.getMenuItems());
+                var totalPrice = 0;
+                if (orderItems) {
+                  for (var i = orderItems.length - 1; i >= 0; i--) {
+                    totalPrice += orderItems[i].price * orderItems[i].count;
+                  }
+                }
+
+                text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - totalPrice);
               }
               break;
             case PAY_TYPE.card:

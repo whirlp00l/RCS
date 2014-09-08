@@ -43,3 +43,10 @@
 #page #signout {
   margin-bottom: 20px;
 }
+
+material-toast.rcs.right {
+  font-size: 18px;
+  right: 30px;
+  width: 50%;
+  z-index: 10;
+}

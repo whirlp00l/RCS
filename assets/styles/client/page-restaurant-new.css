@@ -17,10 +17,6 @@
   left: -5px;
 }
 
-#restaurant-new #admin-list .material-tile-content {
-  margin-right: 0px;
-}
-
 #restaurant-new #admin-list material-button {
   width: 30px;
 }

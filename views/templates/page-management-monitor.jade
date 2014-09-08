@@ -1,6 +1,10 @@
 div(id="monitor" flex layout="vertical" layout-fill)
 
-  div.text-unselectable(layout="horizontal" layout-align="center" layout-padding)
+  .text-center.loading(ng-if="loaded == false")
+      i.fa.fa-spin.fa-refresh.fa-4x
+      h2 同步数据...
+
+  div.text-unselectable(ng-if="loaded == true" layout="horizontal" layout-align="center" layout-padding)
     .pane.pane-tables.material-whiteframe-z3(id="tables" ng-controller="monitorTableCtrl")
 
       div.header(layout="horizontal")

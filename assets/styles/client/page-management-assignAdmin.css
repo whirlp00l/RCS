@@ -23,10 +23,6 @@
   font-size: 24px;
 }
 
-#admin #newAdmin .material-tile-content {
-  margin-right: 0px;
-}
-
 #admin #newAdmin material-button {
   width: 30px;
 }

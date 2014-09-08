@@ -1,0 +1,32 @@
+#dialog-delete *,
+#dialog-viewRequestOrder material-list,
+#dialog-viewRequestOrder material-button,
+#dialog-confirmPayment material-list,
+#dialog-confirmPayment material-button {
+  font-size: 18px;
+}
+
+#dialog-delete material-button {
+  width: 100%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+#dialog-viewRequestOrder,
+#dialog-confirmPayment {
+  width: 350px;
+}
+
+#dialog-viewRequestOrder .material-tile-left,
+#dialog-confirmPayment .material-tile-left {
+  width: 80px;
+}
+
+#dialog-viewRequestOrder .list-header .material-tile-content,
+#dialog-viewRequestOrder .list-header .material-tile-left,
+#dialog-confirmPayment .list-header .material-tile-content,
+#dialog-confirmPayment .list-header .material-tile-left {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #4285f4;
+}

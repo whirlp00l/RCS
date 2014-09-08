@@ -8,6 +8,10 @@
   font-size: 18px;
 }
 
+#monitor .loading {
+  margin-top: 20px;
+}
+
 #monitor .pane-tables {
   width: 800px;
 }

@@ -12,7 +12,8 @@ angular
     tableUpdate: 'table-update',
     requestsUpdate: 'requests-update',
     menuItemsUpdate: 'menuItems-update',
-    forbidden: '403'
+    forbidden: '403',
+    socketReady: 'socket-ready'
   })
   .constant('USER_ROLE', {
     any: '*',

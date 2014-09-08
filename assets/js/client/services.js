@@ -16,7 +16,9 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     getSignedInUser: getSignedInUser,
     ifSignedInUserAuthorized: ifSignedInUserAuthorized,
     getSelectedRestaurant: getSelectedRestaurant,
+    getTables: getTables,
     getTable: getTable,
+    getTableByName: getTableByName,
     getRequests: getRequests,
     getMenuItems: getMenuItems,
     createTable: createTable,
@@ -67,6 +69,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     menuItems = msg.menuItems;
 
     rcsSocketDataReady = true;
+    $rootScope.$emit(RCS_EVENT.socketReady);
   });
 
   rcsSocket.on('restaurant', onRestaurantMessage);
@@ -191,114 +194,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
 
         selectedRestaurant = {id: 21, RestaurantName: 'KFC'};
 
-        tables[2][3] = {
-          id: 1,
-          TableName: 'A1',
-          TableType: 'A',
-          Status: 'empty',
-          MapRow: 2,
-          MapCol: 3,
-          ActiveRequestCount: 0
-        };
-        tables[2][4] = {
-          id: 2,
-          TableName: 'A2',
-          TableType: 'A',
-          Status: 'paying',
-          MapRow: 2,
-          MapCol: 4,
-          ActiveRequestCount: 1
-        };
-        tables[2][5] = {
-          id: 3,
-          TableName: 'A3',
-          TableType: 'A',
-          Status: 'paid',
-          MapRow: 2,
-          MapCol: 5,
-          BookName: 'Shuyu',
-          BookDateTime: new Date(),
-          ActiveRequestCount: 2
-        };
-
-        requests = [{
-          id: 1,
-          Type: 'call',
-          Status: 'new',
-          Importance: 0,
-          createdAt: new Date(),
-          ClosedAt: new Date(),
-          PayType: null,
-          PayAmount: null,
-          OrderItems: null,
-          Table: {
-            TableName: 'A3'
-          }
-        }, {
-          id: 2,
-          Type: 'pay',
-          Status: 'inProgress',
-          Importance: 1,
-          createdAt: new Date(),
-          ClosedAt: new Date(),
-          PayType: 'cash',
-          PayAmount: 100,
-          OrderItems: null,
-          Table: {
-            TableName: 'A2'
-          }
-        }, {
-          id: 3,
-          Type: 'order',
-          Status: 'new',
-          Importance: 0,
-          createdAt: new Date(),
-          ClosedAt: new Date(),
-          PayType: null,
-          PayAmount: null,
-          OrderItems: [1, 1, 1],
-          Table: {
-            TableName: 'A2'
-          }
-        }, {
-          id: 4,
-          Type: 'water',
-          Status: 'closed',
-          Importance: 0,
-          createdAt: new Date(),
-          ClosedAt: new Date(),
-          Table: {
-            TableName: 'A2'
-          }
-        }];
-
-        menuItems = [{
-          Name: '米饭',
-          Type: '主食',
-          Price: 5,
-          PremiumPrice: 3
-        }, {
-          Name: '凉拌青笋',
-          Type: '凉菜',
-          Price: 15,
-          PremiumPrice: 12
-        }, {
-          Name: '可乐',
-          Type: '饮料',
-          Price: 10,
-          PremiumPrice: 8
-        }, {
-          Name: '雪碧',
-          Type: '饮料',
-          Price: 10,
-          PremiumPrice: 8
-        }, {
-          Name: '水煮鱼',
-          Type: '热菜',
-          Price: 50,
-          PremiumPrice: 45
-        }]
-
+        return selectRestaurant(selectedRestaurant);
       });
     }
 
@@ -413,8 +309,24 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     return angular.copy(requests);
   }
 
+  function getTables () {
+    return angular.copy(tables);
+  }
+
   function getTable (row, col) {
     return angular.copy(tables[row][col]);
+  }
+
+  function getTableByName (name) {
+    for (var row = tables.length - 1; row >= 0; row--) {
+      for (var col = tables[row].length - 1; col >= 0; col--) {
+        if (tables[row][col] && tables[row][col].TableName == name) {
+          return tables[row][col];
+        }
+      }
+    }
+
+    return null;
   }
 
   function getMenuItems () {
@@ -444,18 +356,28 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     }
   }
 
-  function startRequest (request) {
-    // >>> mock
-    getRequest(request.id).Status = REQUEST_STATUS.inProgress;
-    // <<< mock
-    $rootScope.$emit(RCS_EVENT.requestsUpdate);
+  function startRequest (request, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Request.start(request.id).success(successAction).error(errorAction);
   }
 
-  function closeRequest (request) {
-    // >>> mock
-    getRequest(request.id).Status = REQUEST_STATUS.closed;
-    // <<< mock
-    $rootScope.$emit(RCS_EVENT.requestsUpdate);
+  function closeRequest (request, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Request.close(request.id).success(successAction).error(errorAction);
   }
 
   function getRequest (id) {

@@ -4,8 +4,8 @@ angular
   .controller('signInCtrl', ['$scope', '$state', 'rcsHttp', 'rcsSession', 'ERROR_MESSAGE', signInCtrl])
   .controller('listRestaurantCtrl', ['$scope', '$state', 'rcsHttp', 'rcsSession', listRestaurantCtrl])
   .controller('newRestaurantCtrl', ['$scope', '$state', 'rcsHttp', 'rcsSession', newRestaurantCtrl])
-  .controller('monitorCtrl', ['$scope', '$state', 'rcsSession', monitorCtrl])
-  .controller('monitorTableCtrl', ['$scope', monitorTableCtrl])
+  .controller('monitorCtrl', ['$rootScope', '$scope', '$state', 'rcsSession', 'RCS_EVENT', monitorCtrl])
+  .controller('monitorTableCtrl', ['$scope', 'rcsSession', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
   .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', authorMenuCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
@@ -299,9 +299,18 @@ function newRestaurantCtrl($scope, $state, rcsHttp, rcsSession) {
   }
 }
 
-function monitorCtrl ($scope, $state, rcsSession) {
+function monitorCtrl ($rootScope, $scope, $state, rcsSession, RCS_EVENT) {
+  // scope fields
+  $scope.loaded = rcsSession.ifSocketReady();
+
   // scope methods
   $scope.safeApply = safeApply;
+
+  // event
+  $rootScope.$on(RCS_EVENT.socketReady, function () {
+    $scope.loaded = true;
+    $scope.safeApply();
+  })
 
   // initialize
   if (!rcsSession.getSelectedRestaurant()) {
@@ -326,15 +335,26 @@ function monitorCtrl ($scope, $state, rcsSession) {
   }
 }
 
-function monitorTableCtrl($scope) {
+function monitorTableCtrl($scope, rcsSession) {
   // scope feilds
-  $scope.editingTable = false;
+  $scope.editingTable = true;
   $scope.maxTableCol = 10;
   $scope.maxTableRow = 10;
   $scope.tableRows = initializeTables();
 
   // scope method
   $scope.clickToggleEditting = clickToggleEditting;
+
+  // initialize
+  // get into edit mode unless there is table
+  var tables = rcsSession.getTables();
+  for (var row = tables.length - 1; row >= 0; row--) {
+    for (var col = tables[row].length - 1; col >= 0; col--) {
+      if (tables[row][col]) {
+        $scope.editingTable = false;
+      }
+    }
+  }
 
   // defines
   function initializeTables () {
