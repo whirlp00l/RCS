@@ -448,35 +448,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
 
         clickResetNewItem();
       });
-
-    // >>> mock
-    // var menu = [{
-    //   Name: '米饭',
-    //   Type: '主食',
-    //   Price: 5,
-    //   PremiumPrice: 3
-    // }, {
-    //   Name: '凉拌青笋',
-    //   Type: '凉菜',
-    //   Price: 15,
-    //   PremiumPrice: 12
-    // }, {
-    //   Name: '可乐',
-    //   Type: '饮料',
-    //   Price: 10,
-    //   PremiumPrice: 8
-    // }, {
-    //   Name: '雪碧',
-    //   Type: '饮料',
-    //   Price: 10,
-    //   PremiumPrice: 8
-    // }, {
-    //   Name: '水煮鱼',
-    //   Type: '热菜',
-    //   Price: 50,
-    //   PremiumPrice: 45
-    // }]
-    // <<< mock
   }
 
   function clickResetNewItem () {

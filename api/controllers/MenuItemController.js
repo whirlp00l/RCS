@@ -47,6 +47,8 @@ module.exports = {
           return res.serverError(err);
         }
 
+        Restaurant.message(restaurantId, {newMenuItem: menuItem});
+
         bumpRestaurantMenuVersion(res, restaurantId, function (version) {
           return res.json({
             MenuItem: {
@@ -103,6 +105,9 @@ module.exports = {
           return res.serverError(err);
         }
 
+        menuItem.Restaurant = restaurantId;
+        Restaurant.message(restaurantId, {setMenuItem: menuItem});
+
         bumpRestaurantMenuVersion(res, restaurantId, function (version) {
           return res.json({
             MenuItem: {
@@ -110,7 +115,8 @@ module.exports = {
               Name: menuItem.Name,
               Type: menuItem.Type,
               Price: menuItem.Price,
-              PremiumPrice: menuItem.PremiumPrice
+              PremiumPrice: menuItem.PremiumPrice,
+              Restaurant: restaurantId
             },
             Restaurant: {
               MenuVersion: version
@@ -141,6 +147,8 @@ module.exports = {
         if (err) {
           return res.serverError(err);
         }
+
+        Restaurant.message(restaurantId, {removeMenuItemId: menuItem.id});
 
         bumpRestaurantMenuVersion(res, restaurantId, function (version) {
           return res.json({

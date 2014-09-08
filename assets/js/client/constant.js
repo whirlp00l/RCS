@@ -11,6 +11,7 @@ angular
   .constant('RCS_EVENT', {
     tableUpdate: 'table-update',
     requestsUpdate: 'requests-update',
+    menuItemsUpdate: 'menuItems-update',
     forbidden: '403'
   })
   .constant('USER_ROLE', {

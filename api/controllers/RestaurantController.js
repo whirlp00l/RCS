@@ -277,7 +277,7 @@ module.exports = {
     var currentUser = req.session.user;
     var restaurantId = req.body.RestaurantId;
 
-    Restaurant.findOneById(restaurantId).exec(function (err, restaurant){
+    Restaurant.findOneById(restaurantId).populate('Menu').exec(function (err, restaurant){
       if (err) {
         return res.serverError(err);
       }
@@ -295,6 +295,8 @@ module.exports = {
         req.session.subscribedRestaurant = null;
       }
 
+      var menuItems = restaurant.Menu;
+      delete restaurant.Menu;
       // subscribe the requesting socket to the 'message' context of the restaurant
       Restaurant.subscribe(req, restaurant, ['message']);
       req.session.subscribedRestaurant = restaurant;
@@ -332,7 +334,8 @@ module.exports = {
         var socketId = sails.sockets.id(req.socket);
         sails.sockets.emit(socketId, 'init', {
           table: tables,
-          request: requests
+          request: requests,
+          menuItems: menuItems
         });
 
         // notify other subscribers for new comer
