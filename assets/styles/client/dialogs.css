@@ -63,6 +63,11 @@
   background-color: #4285f4;
 }
 
+#dialog-manageTable .dialog-actions {
+  min-height: 40px;
+  margin-bottom: 5px;
+}
+
 #dialog-manageTable {
   width: 500px;
   margin-top: 80px;

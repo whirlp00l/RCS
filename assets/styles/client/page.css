@@ -7,6 +7,10 @@
   padding-left: 40px;
 }
 
+#page a {
+  color: #4285f4;
+}
+
 #page material-button.nav-entry span,
 #page material-button.nav-entry b {
   font-size: 18px;

@@ -8,7 +8,7 @@ div.text-unselectable(id="monitor" flex layout="vertical" layout-fill)
     .pane.pane-tables.material-whiteframe-z3(id="tables" ng-controller="monitorTableCtrl")
 
       div.header(layout="horizontal")
-        material-button.material-button-raised.material-theme-light(flex="10" ng-click="clickToggleEditting()")
+        material-button.material-button-colored(flex="10" ng-click="clickToggleEditting()")
           span(ng-if="editingTable") 完成
           span(ng-if="!editingTable") 编辑
         div(flex="80" ng-switch="editingTable")
