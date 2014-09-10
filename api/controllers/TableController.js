@@ -166,31 +166,19 @@ module.exports = {
     }
 
     Table.findOneByLinkedTabletId(tabletId).exec(function (err, linkedTable) {
-      if (linkedTable && linkedTable.id != tableId) {
-        return res.badRequest('Tablet [' + tabletId + '] has already been linked to Table [' + linkedTable.TableName + '].');
+      // remove link from previous linked table if exists
+      if (linkedTable) {
+        linkedTable
+        updateTable(req, res, linkedTable.id, {
+          LinkedTabletId: null,
+          LinkTime: null,
+          Token: null
+        }, function () {
+          return linkTable(req, res, tableId, tabletId);
+        });
       }
 
-      Table.findOneById(tableId).exec(function (err, table) {
-        if (err) {
-          return res.serverError(err);
-        }
-
-        if (!table) {
-          return res.badRequest('Table [' + tableId + '] is invalid.');
-        }
-
-        updateTable(req, res, tableId, {
-          LinkedTabletId: tabletId,
-          LinkTime: new Date(),
-          Token: require('node-uuid').v4()
-        }, function (table) {
-          return res.json({
-            id: table.id,
-            Token: table.Token,
-            LinkedTabletId: table.LinkedTabletId
-          });
-        });
-      });
+      return linkTable(req, res, tableId, tabletId);
     });
   },
 
@@ -379,5 +367,34 @@ var updateOrder = function (req, res, isNew) {
         }
       });
     };
+  });
+}
+
+function linkTable (req, res, tableId, tabletId) {
+  Table.findOneById(tableId).exec(function (err, table) {
+    if (err) {
+      return res.serverError(err);
+    }
+
+    if (!table) {
+      return res.badRequest('Table [' + tableId + '] is invalid.');
+    }
+
+    // block link request when the target table is linked to other tablet
+    if (table.LinkedTabletId && table.LinkedTabletId != tabletId) {
+      return res.badRequest('Table [' + table.TableName + '] is already linked to other tablet.');
+    }
+
+    updateTable(req, res, tableId, {
+      LinkedTabletId: tabletId,
+      LinkTime: new Date(),
+      Token: require('node-uuid').v4()
+    }, function (table) {
+      return res.json({
+        id: table.id,
+        Token: table.Token,
+        LinkedTabletId: table.LinkedTabletId
+      });
+    });
   });
 }
