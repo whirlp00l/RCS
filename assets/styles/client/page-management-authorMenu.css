@@ -7,6 +7,7 @@
   margin-bottom: 40px;
   font-size: 18px;
   display: inherit;
+  background-color: #ffffff;
 }
 
 #author .header material-button {
@@ -17,7 +18,7 @@
 }
 
 #author .header input {
-  border-color: #4285f4;
+  border-color: #8A1717;
   border-bottom-width: 2px;
   height: 30px;
   padding: 0;
@@ -29,11 +30,11 @@
 }
 
 #author material-tab {
-  background-color: #e6e6e6;
+  background-color: #D3CFCA;
 }
 
 #author material-tab.active {
-  background-color: #4285f4;
+  background-color: #8A1717;
 }
 
 #author material-tab-label {
@@ -70,6 +71,6 @@
 
 #author .material-tile-content input:focus,
 #author .material-tile-content input.dirty {
-  border-color: #4285f4;
+  border-color: #8A1717;
   border-bottom-width: 2px;
 }

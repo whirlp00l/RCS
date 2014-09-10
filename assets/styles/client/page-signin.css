@@ -5,6 +5,7 @@
   padding-right: 20px;
   margin-bottom: 40px;
   font-size: 18px;
+  background-color: #ffffff;
 }
 
 #user .pane material-button {
@@ -12,34 +13,19 @@
   height: 40px;
   line-height: 32px;
   margin-bottom: 15px;
+  left: 25%;
+  width: 50%;
+}
+
+#user .pane label,
+#user .pane input {
   width: 100%;
-}
-
-#user .pane label, #user .pane input{
-  width: 100%;
-}
-
-#user material-tabs .material-ink-ripple {
-  color: #fff
-}
-
-#user material-tab {
-  background-color: #e6e6e6;
-}
-
-#user material-tab.active {
-  background-color: #4285f4;
-}
-
-#user material-tab-label {
-  font-weight: bold;
-  color: #818181;
-}
-
-#user material-tab-label.active {
-  color: #f1f1f1;
 }
 
 #user #userInfo .material-tile-left {
   width: 80px;
+}
+
+#user material-radio-button {
+  margin: 0px;
 }

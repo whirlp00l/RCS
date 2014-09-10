@@ -6,6 +6,7 @@
   padding-right: 10px;
   margin-bottom: 40px;
   font-size: 18px;
+  background-color: #ffffff;
 }
 
 #monitor .loading {
@@ -141,21 +142,25 @@
 }
 
 #requests material-tabs .material-ink-ripple {
-  color: #fff
+  color: #f1f1f1
 }
 
 #requests material-tab {
-  background-color: #e6e6e6;
+  background-color: #D3CFCA;
 }
 
 #requests material-tab.active {
-  background-color: #4285f4;
+  background-color: #E5E0D8;
 }
 
 #requests material-tab-label {
-  font-weight: bold;
   color: #818181;
   font-size: 18px;
+}
+
+#requests material-tab.active material-tab-label {
+  font-weight: bold;
+  color: #8A1717;
 }
 
 #requests material-tab-label.active {
@@ -164,7 +169,7 @@
 
 #requests material-ink-bar {
   height: 5px;
-  background: #3f51b5;
+  background: #8A1717;
   position: absolute;
   margin-top: -5px;
   width: 50% !important;
@@ -181,4 +186,8 @@
 #requests .rcs-request .fa-flag {
   color: #8a1717;
   font-size: 28px;
+}
+
+#requests .rcs-request .material-tile-right .fa-spinner {
+  color: #8a1717;
 }

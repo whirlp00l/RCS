@@ -7,16 +7,16 @@ body *
    font-family: "Microsoft YaHei", Helvetica, Arial, sans-serif;
 }
 
-.font-en
+#rcs .font-en
 {
    font-family: 'Comic Sans MS', 'Segoe UI', Calibri, sans-serif;
 }
 
-.full-width {
+#rcs .full-width {
   width: 100%;
 }
 
-.text-unselectable {
+#rcs .text-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -25,20 +25,59 @@ body *
   user-select: none;
 }
 
-.fa.right-conner {
+#rcs .fa.right-conner {
   float: right;
   position: relative;
   left: 10px;
   top: 10px;
 }
 
-.material-button-fab.right-conner {
+#rcs .material-button-fab.right-conner {
   float: right;
   position: relative;
   left: 40px;
   top: -25px;
 }
 
-.material-tile-content {
+#rcs .material-tile-content {
   margin-right: 0px;
+}
+
+#rcs .material-input-group-theme-light.material-input-has-value label,
+#rcs .material-input-group-theme-light.material-input-focused label {
+  color: #606060;
+}
+
+#rcs .material-input-group-theme-light.material-input-has-value input,
+#rcs .material-input-group-theme-light.material-input-focused input {
+  border-color: #606060;
+}
+
+#rcs material-button.hover:hover {
+  color: #8a1717;
+}
+
+#rcs material-button.material-theme-light {
+  background-color: #8A1717 !important;
+}
+
+#rcs material-button[disabled] {
+  background-color: #eaeaea !important;
+  cursor: not-allowed;
+}
+
+#rcs material-button.material-button-colored {
+  color: #8A1717 !important;
+}
+
+#rcs material-radio-button .material-on {
+  background-color: #8A1717;
+}
+
+#rcs canvas.material-ink-ripple {
+  color: #606060;
+}
+
+#rcs material-button.material-theme-light canvas.material-ink-ripple {
+  color: #f1f1f1;
 }

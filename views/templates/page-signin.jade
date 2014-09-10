@@ -2,12 +2,14 @@ div(id="user" flex layout="vertical" layout-fill)
   .text-center(ng-if="ifSignedIn() == false")
     h2 登录餐厅管理系统
     h3
-      a(href="" ng-click="clickShowSignUp()") (注册新用户)
+      material-button.material-button-colored(ng-click="clickShowSignUp()")
+        u 注册新用户
 
   .text-center(ng-if="ifSignedIn() == true")
     h2 已登录
     h3
-      a(href="" ng-click="clickSignOut()") (退出登录)
+      material-button.material-button-colored(ng-click="clickSignOut()")
+        u 退出登录
 
   div(layout-lg="horizontal" layout="vertical" layout-align-lg="space-around start" layout-align="space-around center")
 
@@ -28,10 +30,10 @@ div(id="user" flex layout="vertical" layout-fill)
         input(id="6" type="text" ng-model="signUp.name" ng-required="true")
 
       h3.text-center 请选择用户类型
-      material-tabs(selected="selectedIndex" nobar tabs-align="bottom")
-        material-tab(ng-class="{active:selectedIndex == 0}" label="餐厅员工" on-select="onTabSelected()")
-        material-tab(ng-class="{active:selectedIndex == 1}" label="餐厅经理" on-select="onTabSelected()")
-      .material-input-group.material-input-group-theme-light(ng-if="selectedIndex==1")
+      material-radio-group(ng-model="signUp.role" layout="horizontal" layout-align="space-around")
+        material-radio-button(value="admin" aria-label="餐厅员工") 餐厅员工
+        material-radio-button(value="manager" aria-label="餐厅经理") 餐厅经理
+      .material-input-group.material-input-group-theme-light(ng-if="signUp.role == 'manager'")
         label(for="3") 注册码 (input 'key' for test)
         input(id="3" type="text" ng-model="signUp.key" ng-required="true")
       material-button.material-button-raised.material-theme-light(ng-click="clickSignUp(signUpFormn)") 注册

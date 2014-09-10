@@ -7,8 +7,26 @@
   padding-left: 40px;
 }
 
+#page material-content.background {
+  background-color: #f8f4ee;
+}
+
+#page material-toolbar.material-theme-light {
+  background-color: #E5E0D8 !important;
+  color: #606060 !important;
+}
+
+#page material-toolbar.material-theme-dark {
+  background-color: #D3CFCA !important;
+  color: #606060 !important;
+}
+
 #page a {
-  color: #4285f4;
+  color: #606060;
+}
+
+#page a:hover {
+  color: #8A1717;
 }
 
 #page material-button.nav-entry span,
@@ -33,6 +51,10 @@
 
 #page .breadcrumb > .active {
   color: inherit;
+}
+
+#page .breadcrumb > li + li:before {
+  color: #606060;
 }
 
 #page material-sidenav {

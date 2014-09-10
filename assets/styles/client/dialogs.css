@@ -36,7 +36,7 @@
 #dialog-manageTable .list-header .material-tile-left {
   padding-top: 15px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #4285f4;
+  border-bottom: 1px solid #8A1717;
 }
 
 #dialog-createTable .material-input-group,
@@ -57,10 +57,6 @@
 
 #dialog-createTable .dialog-content {
   overflow: visible;
-}
-
-#dialog-createTable material-radio-button .material-on {
-  background-color: #4285f4;
 }
 
 #dialog-manageTable .dialog-actions {
@@ -88,11 +84,11 @@
 }
 
 #dialog-manageTable material-tab {
-  background-color: #e6e6e6;
+  background-color: #D3CFCA;
 }
 
 #dialog-manageTable material-tab.active {
-  background-color: #4285f4;
+  background-color: #8A1717;
 }
 
 #dialog-manageTable material-tab-label {
@@ -115,13 +111,13 @@
 }
 
 #dialog-manageTable .btn-link {
-  color: #4285f4;
+  color: #8A1717;
 }
 
 #dialog-manageTable .btn-info {
-  background: #4285f4;
+  background: #8A1717;
   color: #fff;
-  border-color: #4285f4;
+  border-color: #8A1717;
 }
 
 #dialog-manageTable .text-info {
@@ -158,5 +154,5 @@
 #dialog-manageTable .form-control:focus {
   border: none;
   box-shadow: none;
-  border-bottom: 2px solid #4285f4;
+  border-bottom: 2px solid #8A1717;
 }

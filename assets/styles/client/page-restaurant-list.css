@@ -12,6 +12,7 @@
   margin-bottom: 40px;
   font-size: 18px;
   display: inherit;
+  background-color: #ffffff;
 }
 
 #restaurant-list .material-tile-content {
@@ -21,10 +22,6 @@
 #restaurant-list .material-button-fab.right-conner .fa {
   position: relative;
   top: -5px;
-}
-
-#restaurant-list material-radio-button .material-on {
-  background-color: #4285f4;
 }
 
 /*

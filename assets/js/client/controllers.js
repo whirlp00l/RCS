@@ -10,6 +10,15 @@ angular
   .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', authorMenuCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
 
+// shared
+function requestErrorAction (res, status) {
+  if (status === 400) {
+    alert(res || 400);
+  } else {
+    alert(status);
+  }
+}
+
 // controllers
 function pageCtrl($rootScope, $scope, $state, $materialSidenav, $materialToast, rcsSession) {
   // this is the 'root' of all the app ctrls
@@ -110,9 +119,8 @@ function pageCtrl($rootScope, $scope, $state, $materialSidenav, $materialToast, 
 
 function signInCtrl ($scope, $state, rcsHttp, rcsSession, ERROR_MESSAGE) {
   // scope fields
-  $scope.selectedIndex = 0;
   $scope.signIn = { email: '', pwd: '' };
-  $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '', name: '' };
+  $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '', name: '', role: 'admin' };
   $scope.signUpShown = false;
 
   // scope methods
@@ -125,13 +133,8 @@ function signInCtrl ($scope, $state, rcsHttp, rcsSession, ERROR_MESSAGE) {
   $scope.getSignedInUser = getSignedInUser;
   $scope.getSignedInUserRoleText = getSignedInUserRoleText;
   $scope.ifSignedIn = ifSignedIn;
-  $scope.onTabSelected = onTabSelected;
 
   // defines
-  function onTabSelected () {
-    $scope.selectedIndex = this.$index;
-  }
-
   function ifSignedIn () {
     return rcsSession.getSignedInUser() != null;
   }
@@ -179,7 +182,6 @@ function signInCtrl ($scope, $state, rcsHttp, rcsSession, ERROR_MESSAGE) {
 
   function clickSignUp () {
     var info = $scope.signUp;
-    info.role = (['admin', 'manager'])[$scope.selectedIndex];
 
     if (!info.email) {
       return alert(ERROR_MESSAGE.emailInvalid);
@@ -190,17 +192,18 @@ function signInCtrl ($scope, $state, rcsHttp, rcsSession, ERROR_MESSAGE) {
     }
 
     rcsHttp.User.create(info.email, info.pwd, info.role, info.key, info.name)
-      .success(function () {
+      .success(function success () {
         $scope.signIn.email = info.email;
         $scope.signIn.pwd = info.pwd;
         closeSignUp();
-        $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '', name: '' };
+        $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '', name: '', role: 'admin' };
       })
+      .error(requestErrorAction);
   }
 
   function closeSignUp () {
     $scope.signUpShown = false;
-    $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '' };
+    $scope.signUp = { email: '', pwd: '', pwdConfirmd: '', key: '', name: '', role: 'admin' };
   }
 }
 
@@ -227,6 +230,10 @@ function listRestaurantCtrl ($scope, $state, rcsHttp, rcsSession) {
     return rcsHttp.Restaurant.list()
       .success(function (res) {
         $scope.restaurants = res.Restaurants;
+
+        if ($scope.restaurants.length == 0 && rcsSession.getSignedInUser().Role == 'manager') {
+          return $state.go('page.restaurant.new');
+        }
       });
   }
 
