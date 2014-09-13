@@ -445,7 +445,7 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
   var httpService = {};
 
   var errorAction = function (data, status) {
-    $log.error(data || 'request failed');
+    $log.debug(data || 'request failed');
     if (status == 403) {
       $rootScope.$emit(RCS_EVENT.forbidden);
       $state.go('page.signin');
@@ -605,23 +605,25 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
   }
 
   rcsHttp.MenuItem = {
-    create: function (restaurantId, name, type, price, premiumPrice) {
+    create: function (restaurantId, name, type, price, premiumPrice, alias) {
       return $http
         .post('MenuItem/create', {
           Name: name,
           Type: type,
           Price: price,
           PremiumPrice: premiumPrice,
+          Alias: alias,
           RestaurantId: restaurantId
         })
         .error(errorAction);
     },
-    update: function (restaurantId, menuItemId, type, price, premiumPrice) {
+    update: function (restaurantId, menuItemId, type, price, premiumPrice, alias) {
       return $http
         .post('MenuItem/update/' + menuItemId, {
           Type: type,
           Price: price,
           PremiumPrice: premiumPrice,
+          Alias: alias,
           RestaurantId: restaurantId
         })
         .error(errorAction);

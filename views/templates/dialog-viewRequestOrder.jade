@@ -5,17 +5,17 @@ material-dialog(id="dialog-viewRequestOrder")
     material-list
       material-item.list-header
         .material-tile-left
-          b 类型
+          b 编号
         .material-tile-content
           b 菜品
         .material-tile-right
           b 数量
-      material-item(ng-repeat="orderItem in orderItems | orderBy:['type'] track by $index")
+      material-item(ng-repeat="orderItem in orderItems | orderBy:['alias'] track by $index")
         .material-tile-left
-          | {{orderItem.type}}
+          b {{orderItem.alias}}
         .material-tile-content
           h2 {{orderItem.name}}
-          h3 {{orderItem.price}}元
+          h3 {{orderItem.price}}元 ({{orderItem.type}})
         .material-tile-right
           | x{{orderItem.count}}
 

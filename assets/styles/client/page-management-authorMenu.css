@@ -74,3 +74,15 @@
   border-color: #8A1717;
   border-bottom-width: 2px;
 }
+
+#author .material-tile-content input[readonly]:focus {
+  border-color: transparent;
+  border-bottom-width: 0px;
+}
+
+#author form material-button {
+  padding: 0px;
+  padding-top: 5px;
+  text-align: left;
+  font-size: 0.85em;
+}

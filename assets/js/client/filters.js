@@ -22,21 +22,17 @@ function makeOrderGroup () {
       } else {
         for (var j = menuItems.length - 1; j >= 0; j--) {
           if (menuItems[j].id == itemId) {
-            var itemName = menuItems[j].Name;
-            var itemType = menuItems[j].Type;
-            var itemPrice = menuItems[j].Price;
-            var itemPremiumPrice = menuItems[j].PremiumPrice;
+            tempOrderGroup[itemId] = {
+              name: menuItems[j].Name,
+              type: menuItems[j].Type,
+              price: menuItems[j].Price,
+              premiumPrice: menuItems[j].PremiumPrice,
+              alias: menuItems[j].Alias,
+              count: 1
+            };
             break;
           }
         }
-
-        tempOrderGroup[itemId] = {
-          name: itemName,
-          type: itemType,
-          price: itemPrice,
-          premiumPrice: itemPremiumPrice,
-          count: 1
-        };
       }
     }
 

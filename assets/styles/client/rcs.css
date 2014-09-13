@@ -53,8 +53,13 @@ body *
   border-color: #606060;
 }
 
+#rcs material-button {
+  text-transform: none;
+}
+
 #rcs material-button.hover:hover {
   color: #8a1717;
+  font-weight: bold;
 }
 
 #rcs material-button.material-theme-light {

@@ -283,9 +283,7 @@ function newRestaurantCtrl($scope, $state, rcsHttp, rcsSession) {
         $scope.simpleToast('餐厅创建成功: <b>' + $scope.name + '</b>', 3000);
         $state.go('page.restaurant.list');
       })
-      .error(function (data) {
-        alert(data || 'request failed');
-      })
+      .error(requestErrorAction);
   }
 
   function clickDeleteAdmin (index) {
@@ -434,6 +432,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   // scope methods
   $scope.clickDeleteItem = clickDeleteItem;
   $scope.clickDiscardChange = clickDiscardChange;
+  $scope.clickItemType = clickItemType;
   $scope.clickNewItem = clickNewItem;
   $scope.clickNewType = clickNewType;
   $scope.clickResetNewItem = clickResetNewItem;
@@ -482,7 +481,8 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       Name: '',
       Type: $scope.menuTypes[$scope.selectedIndex],
       Price: '',
-      PremiumPrice: ''
+      PremiumPrice: '',
+      Alias: ''
     };
   }
 
@@ -536,6 +536,51 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
     $scope.menuItems[i] = angular.copy(master.menuItems[i]);
   }
 
+  function clickItemType (menuItem, event) {
+    var i = $scope.menuItems.indexOf(menuItem);
+    var authorMenuScope = $scope;
+
+    var dialogEditMenuItemType = {
+      templateUrl: 'template/dialog-editMenuItemType',
+      targetEvent: event,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        $scope.name = menuItem.Name;
+        $scope.types = authorMenuScope.menuTypes;
+        $scope.selectedType = menuItem.Type;
+        $scope.clickUpdateType = clickUpdateType;
+        $scope.clickCancel = clickCancel;
+
+        function clickUpdateType () {
+          if ($scope.selectedType == menuItem.Type) {
+            $hideDialog();
+          }
+
+          rcsHttp.MenuItem.update(
+            menuItem.Restaurant,
+            menuItem.id,
+            $scope.selectedType,
+            master.menuItems[i].Price,
+            master.menuItems[i].PremiumPrice,
+            master.menuItems[i].Alias
+          )
+          .success(function(res) {
+            var updatedMenuItem = res.MenuItem;
+            authorMenuScope.menuItems[i].Type = updatedMenuItem.Type;
+            master.menuItems[i] = angular.copy(updatedMenuItem);
+            authorMenuScope.selectedIndex =  authorMenuScope.menuTypes.indexOf(updatedMenuItem.Type);
+            $hideDialog();
+          })
+          .error(requestErrorAction);
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    }
+    $materialDialog(dialogEditMenuItemType)
+  }
+
   function clickUpdateItem (menuItem) {
     var i = $scope.menuItems.indexOf(menuItem);
 
@@ -551,20 +596,15 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       menuItem.id,
       menuItem.Type,
       menuItem.Price,
-      menuItem.PremiumPrice == '' ? null : menuItem.PremiumPrice
+      menuItem.PremiumPrice == '' ? null : menuItem.PremiumPrice,
+      menuItem.Alias == '' ? null: menuItem.Alias
     )
     .success(function(res) {
       var updatedMenuItem = res.MenuItem;
       $scope.menuItems[i] = updatedMenuItem;
       master.menuItems[i] = angular.copy(updatedMenuItem);
     })
-    .error(function (res, status) {
-      if (status === 400) {
-        alert(res || 400);
-      } else {
-        alert(status);
-      }
-    });
+    .error(requestErrorAction);
   }
 
   function clickDeleteItem (menuItem, event) {
@@ -597,13 +637,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
             authorMenuScope.menuItems.splice(i, 1);
             master.menuItems.splice(i, 1);
           })
-          .error(function (res, status) {
-            if (status === 400) {
-              alert(res || 400);
-            } else {
-              alert(status);
-            }
-          });
+          .error(requestErrorAction);
         }
 
         function clickCancel () {
@@ -652,20 +686,15 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       newMenuItem.Name,
       newMenuItem.Type,
       newMenuItem.Price,
-      newMenuItem.PremiumPrice == '' ? null : newMenuItem.PremiumPrice)
+      newMenuItem.PremiumPrice == '' ? null : newMenuItem.PremiumPrice,
+      newMenuItem.Alias == '' ? null: newMenuItem.Alias)
     .success(function(res) {
       var createdMenuItem = res.MenuItem;
       $scope.menuItems.push(createdMenuItem);
       master.menuItems.push(angular.copy(createdMenuItem));
       $scope.clickResetNewItem();
     })
-    .error(function (res, status) {
-      if (status === 400) {
-        alert(res || 400);
-      } else {
-        alert(status);
-      }
-    });
+    .error(requestErrorAction);
   }
 }
 
@@ -771,13 +800,7 @@ function assignAdminCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
             admins.splice(admins.indexOf(admin), 1);
             assignAdminScope.adminRows = getAdminRows();
           })
-          .error(function (res, status) {
-            if (status === 400) {
-              alert(res || 400);
-            } else {
-              alert(status);
-            }
-          });
+          .error(requestErrorAction);
         }
 
         function clickCancel () {
@@ -805,12 +828,6 @@ function assignAdminCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
         $scope.adminRows = getAdminRows();
         $scope.newAdminEmail = null;
       })
-      .error(function (res, status) {
-        if (status === 400) {
-          alert(res || 400);
-        } else {
-          alert(status);
-        }
-      });
+      .error(requestErrorAction);
   }
 }

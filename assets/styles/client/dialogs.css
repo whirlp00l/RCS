@@ -6,11 +6,13 @@
 #dialog-createTable material-list,
 #dialog-createTable material-button,
 #dialog-manageTable material-list,
-#dialog-manageTable material-button {
+#dialog-manageTable material-button,
+#dialog-editMenuType material-button {
   font-size: 18px;
 }
 
-#dialog-delete material-button {
+#dialog-delete material-button,
+#dialog-editMenuType material-button {
   width: 100%;
   margin-left: 5px;
   margin-right: 5px;
@@ -55,7 +57,8 @@
   padding-top: 5px;
 }
 
-#dialog-createTable .dialog-content {
+#dialog-createTable .dialog-content,
+#dialog-editMenuType .dialog-content {
   overflow: visible;
 }
 
@@ -155,4 +158,9 @@
   border: none;
   box-shadow: none;
   border-bottom: 2px solid #8A1717;
+}
+
+#dialog-editMenuType material-radio-button {
+  margin: 0px;
+  margin-left: 10px;
 }

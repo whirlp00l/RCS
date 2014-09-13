@@ -27,6 +27,7 @@
 
 #page a:hover {
   color: #8A1717;
+  font-weight: bold;
 }
 
 #page material-button.nav-entry span,

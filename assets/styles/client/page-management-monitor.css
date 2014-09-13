@@ -175,6 +175,18 @@
   width: 50% !important;
 }
 
+#requests .rcs-request {
+  cursor: pointer;
+}
+
+#requests .rcs-request:hover {
+  color: #8a1717;
+}
+
+#requests .rcs-request:hover .material-tile-content > h2 {
+  font-weight: bold;
+}
+
 #requests .rcs-request .material-tile-left {
   text-align: center;
 }

@@ -24,6 +24,14 @@
   top: -5px;
 }
 
+#restaurant-list material-item:hover .material-tile-content {
+  color: #8a1717;
+}
+
+#restaurant-list material-item:hover .material-tile-content > h2 {
+  font-weight: bold;
+}
+
 /*
 #restaurant-list .pane material-button {
   margin-top: 30px;

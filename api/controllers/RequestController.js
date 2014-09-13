@@ -176,7 +176,10 @@ module.exports = {
 
 function createOrder (req, res, table, restaurantId, type) {
   if (table.Status == 'paying' || table.Status == 'paid') {
-    return res.badRequest('Cannot request order when table is ' + table.Status);
+    return res.badRequest({
+      errorCode: 411,
+      message: 'order-badTableStatus-' + table.Status
+    });
   }
 
   var orderItems = req.body.OrderItems;
@@ -286,6 +289,16 @@ function bumpImportance (res, existingRequest, table, restaurantId) {
     // publish a message to the restaurant.
     // every client subscribed to the restaurant will get it.
     Restaurant.message(restaurantId, message);
+
+    if (existingRequest.Type == 'order') {
+      return res.badRequest({
+        errorCode: 412,
+        message: 'order-pendingPreviousOder',
+        data: {
+          orderItems: existingRequest.OrderItems
+        }
+      })
+    }
     return res.json(message);
   });
 }

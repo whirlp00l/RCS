@@ -30,6 +30,10 @@ module.exports = {
       type: 'float'
     },
 
+    Alias: {
+      type: 'string'
+    },
+
     Restaurant: { // Many to one
       model: 'restaurant',
       via: 'Menu'
