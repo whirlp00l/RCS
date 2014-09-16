@@ -8,7 +8,7 @@ div(id="page" layout="horizontal" layout-fill)
           ui-sref="{{navEntry.name}}" ui-sref-active="active")
           material-button.nav-entry
             i.fa.fa-2x(class="fa-{{navEntry.data.icon}}")
-            | &nbsp;{{navEntry.data.title}}
+            | {{navEntry.data.title}}
       material-button.nav-entry.hover(ng-if="ifSignedIn()===true" ng-click="clickUser()")
         b {{getCurrentUser().Name}}
       material-button.nav-entry.hover(id="signout" ng-if="ifSignedIn()===true" ng-click="clickSignOut()")

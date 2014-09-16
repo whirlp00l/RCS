@@ -30,6 +30,11 @@
   font-weight: bold;
 }
 
+#page material-button.nav-entry .fa {
+  width: 40px;
+  text-align: center;
+}
+
 #page material-button.nav-entry span,
 #page material-button.nav-entry b {
   font-size: 18px;
