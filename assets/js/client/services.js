@@ -499,6 +499,13 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
           RestaurantId: restaurantId
         })
         .error(errorAction);
+    },
+    listWaiter: function (restaurantId) {
+      return $http
+        .post('Restaurant/listWaiter', {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
     }
   }
 
@@ -631,6 +638,40 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
     delete: function (restaurantId, menuItemId) {
       return $http
         .post('MenuItem/delete/' + menuItemId, {
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    }
+  }
+
+  rcsHttp.Waiter = {
+    create: function (restaurantId, name) {
+      return $http
+        .post('Waiter/create', {
+          Name: name,
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    updateOnline: function (restaurantId, waiterId, isOnline) {
+      return $http
+        .post('Waiter/update/' + waiterId, {
+          Online: isOnline,
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    updateBusy: function (restaurantId, waiterId, isBusy) {
+      return $http
+        .post('Waiter/update/' + waiterId, {
+          Busy: isBusy,
+          RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    delete: function (restaurantId, waiterId) {
+      return $http
+        .post('Waiter/delete/' + waiterId, {
           RestaurantId: restaurantId
         })
         .error(errorAction);

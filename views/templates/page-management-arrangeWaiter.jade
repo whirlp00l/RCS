@@ -1,0 +1,24 @@
+div(id="waiter" flex layout="vertical" layout-fill)
+
+  div.text-unselectable(layout="horizontal" layout-align="center" layout-padding)
+    .pane.material-whiteframe-z3(layout="vertical" layout-align="center")
+
+      .text-center(ng-show="waiters == null")
+        i.fa.fa-spin.fa-refresh.fa-4x
+        p 同步数据...
+
+      div(ng-show="waiters != null")
+        h3.text-center(ng-show="waiters.length != 0") 当前服务员
+        p(ng-repeat="waiter in waiters") {{waiter.Name}}, {{waiter.Online}}, {{waiter.Busy}}
+
+        //- h3.text-center 新增服务员
+        //- material-list(id="newAdmin")
+        //-   material-item
+        //-     .material-tile-left
+        //-       material-button.material-button-raised.material-theme-light(
+        //-         ng-disabled="ifDisableAddAdmin()"
+        //-         ng-click="clickAddAdmin()")
+        //-         i.fa.fa-plus
+        //-     .material-tile-content
+        //-       .material-input-group.material-input-group-theme-light
+        //-         input.full-width(type="email" ng-model="newAdminEmail" placeholder="用户邮箱")

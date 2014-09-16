@@ -17,7 +17,8 @@ module.exports = {
     RestaurantName: {
       type: 'string',
       required: true,
-      notEmpty: true
+      notEmpty: true,
+      unique: true
     },
 
     Description: {
@@ -49,6 +50,11 @@ module.exports = {
       via: 'Restaurant'
     },
 
-    MenuVersion: 'int'
+    MenuVersion: 'int',
+
+    Waiters: { // One to many
+      collection: 'waiter',
+      via: 'Restaurant'
+    }
   }
 };

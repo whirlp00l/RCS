@@ -395,6 +395,20 @@ module.exports = {
     listMenu(req, res);
   },
 
+  listWaiter: function (req, res) {
+    var restaurantId = req.body.RestaurantId;
+
+    Restaurant.findOneById(restaurantId).populate('Waiters').exec(function (err, restaurant) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      return res.json({
+        Waiters: restaurant.Waiters
+      });
+    });
+  },
+
   deleteAll: function (req, res, next) {
     Restaurant.destroy({}).exec(function (err) {
       return res.send('All restaurants deleted.');

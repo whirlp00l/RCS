@@ -8,6 +8,7 @@ angular
   .controller('monitorTableCtrl', ['$scope', 'rcsSession', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
   .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', authorMenuCtrl])
+  .controller('arrangeWaiterCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', arrangeWaiterCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
 
 // shared
@@ -698,6 +699,27 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   }
 }
 
+function arrangeWaiterCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
+  // scope fields
+  $scope.waiters = null;
+
+  // initialize
+  if (!rcsSession.getSelectedRestaurant()) {
+    return $state.go('page.restaurant.list');
+  }
+
+  var restaurantId = rcsSession.getSelectedRestaurant().id;
+  initializeWaiter();
+
+  // defines
+  function initializeWaiter () {
+    return rcsHttp.Restaurant.listWaiter(restaurantId)
+      .success(function (res) {
+        $scope.waiters = res.Waiters;
+      })
+  }
+}
+
 function assignAdminCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
   // scope fields
   $scope.adminRows = null;
@@ -726,14 +748,7 @@ function assignAdminCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
       .success(function (res) {
         admins = res.Admins;
         $scope.adminRows = getAdminRows();
-      })
-    // >>> mock
-    // for (var i = 10 - 1; i >= 0; i--) {
-    //   admins.push({Email: 'admin' + i});
-    // }
-
-    // $scope.adminRows = getAdminRows();
-    // <<< mock
+      });
   }
 
   function getAdminRows () {

@@ -310,7 +310,7 @@ var updateTable = function (req, res, tableId, value, cb) {
         return res.serverError(err);
       }
 
-      Restaurant.message(table.Restaurant, {setTable:table});
+      Restaurant.message(table.Restaurant, {setTable: table});
 
       cb(table);
     });

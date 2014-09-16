@@ -112,6 +112,15 @@ function config ($urlRouterProvider, $stateProvider, $logProvider, stateHelperPr
           title: '菜单'
         }
       }, {
+        name: 'arrangeWaiter',
+        url: '/management/arrangeWaiter',
+        templateUrl: '/template/page-management-arrangeWaiter',
+        controller: 'arrangeWaiterCtrl',
+        data: {
+          icon: 'male',
+          title: '服务员'
+        }
+      }, {
         name: 'assignAdmin',
         url: '/management/assignAdmin',
         templateUrl: '/template/page-management-assignAdmin',

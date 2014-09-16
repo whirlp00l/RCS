@@ -58,7 +58,8 @@ module.exports.policies = {
     'checkMenuVersion': ['isAuthenticated', 'hasRestaurantPermission'],
     'listMenu': ['isAuthenticated', 'hasRestaurantPermission'],
     'downloadMenu': 'isLinkedTabletOfRestaurant',
-    'checkMenuVersion': 'isLinkedTabletOfRestaurant'
+    'checkMenuVersion': 'isLinkedTabletOfRestaurant',
+    'listWaiter': ['isAuthenticated', 'hasRestaurantPermission']
   },
 
   'Table':
@@ -90,6 +91,13 @@ module.exports.policies = {
   'MenuItem':
   {
     '*': ['isAuthenticated', 'hasRestaurantPermission']
+  },
+
+  'Waiter':
+  {
+    'create': ['isAuthenticated', 'hasRestaurantPermission'],
+    'update': ['isAuthenticated', 'hasRestaurantPermission'],
+    'delete': ['isAuthenticated', 'hasRestaurantPermission']
   }
 
   /***************************************************************************
