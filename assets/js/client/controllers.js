@@ -622,13 +622,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
         $scope.clickCancel = clickCancel;
 
         function clickDelete () {
-          // >>> mock
-          // $hideDialog();
-          // authorMenuScope.menuItems.splice(i, 1);
-          // master.menuItems.splice(i, 1);
-          // return;
-          // <<< mock
-
           rcsHttp.MenuItem.delete(
             menuItem.Restaurant,
             menuItem.id
@@ -673,14 +666,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       return;
     }
 
-    /// >>> mock
-    // var newMenuItem = angular.copy($scope.newMenuItem);
-    // $scope.menuItems.push(newMenuItem);
-    // master.menuItems.push(angular.copy(newMenuItem));
-    // $scope.clickResetNewItem();
-    // return;
-    /// <<< mock
-
     var newMenuItem = $scope.newMenuItem;
     return rcsHttp.MenuItem.create(
       restaurantId,
@@ -702,6 +687,13 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
 function arrangeWaiterCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession) {
   // scope fields
   $scope.waiters = null;
+  $scope.newWaiterName = '';
+
+  // scope methods
+  $scope.clickAddWaiter = clickAddWaiter;
+  $scope.clickDeleteWaiter = clickDeleteWaiter;
+  $scope.clickToggleOnline = clickToggleOnline;
+  $scope.ifDisableAddWaiter = ifDisableAddWaiter;
 
   // initialize
   if (!rcsSession.getSelectedRestaurant()) {
@@ -717,6 +709,71 @@ function arrangeWaiterCtrl($scope, $state, $materialDialog, rcsHttp, rcsSession)
       .success(function (res) {
         $scope.waiters = res.Waiters;
       })
+  }
+
+  function clickAddWaiter () {
+    if ($scope.ifDisableAddWaiter()) return;
+
+    rcsHttp.Waiter.create(
+      restaurantId,
+      $scope.newWaiterName
+    )
+    .success(function (res) {
+      $scope.waiters.push(res.Waiter);
+      $scope.newWaiterName = '';
+    })
+    .error(requestErrorAction);
+  }
+
+  function clickDeleteWaiter (waiter, event) {
+    var i = $scope.waiters.indexOf(waiter);
+    var waiterScope = $scope;
+
+    var dialogDelete = {
+      templateUrl: 'template/dialog-deleteTemplate',
+      targetEvent: event,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        $scope.deleteFrom = '服务员';
+        $scope.deleteItem = waiter.Name;
+        $scope.clickDelete = clickDelete;
+        $scope.clickCancel = clickCancel;
+
+        function clickDelete () {
+          rcsHttp.Waiter.delete(
+            waiter.Restaurant,
+            waiter.id
+          )
+          .success(function(res) {
+            $hideDialog();
+            waiterScope.waiters.splice(i, 1);
+          })
+          .error(requestErrorAction);
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    };
+    $materialDialog(dialogDelete);
+  }
+
+  function clickToggleOnline (waiter) {
+    var i = $scope.waiters.indexOf(waiter);
+
+    rcsHttp.Waiter.updateOnline(
+      waiter.Restaurant,
+      waiter.id,
+      !waiter.Online
+    )
+   .success(function (res) {
+     $scope.waiters[i] = res.Waiter;
+   })
+   .error(requestErrorAction);
+  }
+
+  function ifDisableAddWaiter () {
+    return !$scope.newWaiterName || $scope.waiters.indexOf($scope.newWaiterName) != -1;
   }
 }
 

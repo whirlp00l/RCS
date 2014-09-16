@@ -9,16 +9,34 @@ div(id="waiter" flex layout="vertical" layout-fill)
 
       div(ng-show="waiters != null")
         h3.text-center(ng-show="waiters.length != 0") 当前服务员
-        p(ng-repeat="waiter in waiters") {{waiter.Name}}, {{waiter.Online}}, {{waiter.Busy}}
+        h4.text-center(ng-show="waiters.length != 0") (<a ui-sref="page.management.monitor"><u>餐桌请求</u></a>可分配给在线服务员)
+        material-list
+          material-item.list-header
+            .material-tile-left
+            .material-tile-content
+              b 名称
+            .material-tile-right
+              b 在线状态(点击切换)
+          material-item(ng-repeat="waiter in waiters")
+            .material-tile-left
+              material-button.material-button-raised(ng-click="clickDeleteWaiter(waiter, $event)")
+                i.fa.fa-trash
+            .material-tile-content
+              {{waiter.Name}}
+            .material-tile-right
+              material-button.hover(ng-click="clickToggleOnline(waiter)")
+                span.online(ng-show="waiter.Online == true") 在线
+                span(ng-show="waiter.Online == false") 离线
 
-        //- h3.text-center 新增服务员
-        //- material-list(id="newAdmin")
-        //-   material-item
-        //-     .material-tile-left
-        //-       material-button.material-button-raised.material-theme-light(
-        //-         ng-disabled="ifDisableAddAdmin()"
-        //-         ng-click="clickAddAdmin()")
-        //-         i.fa.fa-plus
-        //-     .material-tile-content
-        //-       .material-input-group.material-input-group-theme-light
-        //-         input.full-width(type="email" ng-model="newAdminEmail" placeholder="用户邮箱")
+        br
+        h3.text-center 新增服务员
+        material-list(id="newWaiter")
+          material-item
+            .material-tile-left
+              material-button.material-button-raised.material-theme-light(
+                ng-disabled="ifDisableAddWaiter()"
+                ng-click="clickAddWaiter()")
+                i.fa.fa-plus
+            .material-tile-content
+              material-input-group.material-input-group-theme-light
+                material-input.full-width(type="text" ng-model="newWaiterName" placeholder="服务员名称" tabIndex="1")

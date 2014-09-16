@@ -21,15 +21,6 @@
   color: #606060 !important;
 }
 
-#page a {
-  color: #606060;
-}
-
-#page a:hover {
-  color: #8A1717;
-  font-weight: bold;
-}
-
 #page material-button.nav-entry .fa {
   width: 40px;
   text-align: center;

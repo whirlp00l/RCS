@@ -33,6 +33,15 @@ body *
   top: 10px;
 }
 
+#rcs a {
+  color: #606060;
+}
+
+#rcs a:hover {
+  color: #8A1717;
+  font-weight: bold;
+}
+
 #rcs .material-button-fab.right-conner {
   float: right;
   position: relative;
