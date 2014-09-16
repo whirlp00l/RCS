@@ -82,14 +82,14 @@ material-dialog(id="dialog-manageTable")
           .material-tile-left
             b 预订顾客
           .material-tile-content
-            .material-input-group.material-input-group-theme-light
-              input(type="text" ng-model="newBook.name" placeholder="请输入")
+            material-input-group.material-input-group-theme-light
+              material-input(type="text" ng-model="newBook.name" placeholder="请输入" tabIndex="1")
         material-item
           .material-tile-left
             b 联系方式
           .material-tile-content
-            .material-input-group.material-input-group-theme-light
-              input(type="text" ng-model="newBook.cell" placeholder="请输入")
+            material-input-group.material-input-group-theme-light
+              material-input(type="text" ng-model="newBook.cell" placeholder="请输入" tabIndex="2")
         material-item
           .material-tile-left
             b 预订日期

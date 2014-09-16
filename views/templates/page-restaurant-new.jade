@@ -9,12 +9,12 @@ div(id="restaurant-new" flex layout="vertical" layout-fill)
         i.fa.fa-check.fa-2x
 
       h3.text-center 请输入餐厅信息
-      .material-input-group.material-input-group-theme-light
+      material-input-group.material-input-group-theme-light
         label(for="name") 餐厅名称
-        input.full-width(id="name" type="text" ng-model="name")
-      .material-input-group.material-input-group-theme-light
+        material-input.full-width(id="name" type="text" ng-model="name" tabIndex="1")
+      material-input-group.material-input-group-theme-light
         label(for="description") 描述
-        input.full-width(id="description" type="text" ng-model="description")
+        material-input.full-width(id="description" type="text" ng-model="description" tabIndex="2")
 
       h3.text-center 请分配初始管理员
       material-list(id="admin-list")
@@ -31,5 +31,5 @@ div(id="restaurant-new" flex layout="vertical" layout-fill)
               ng-click="clickAddAdmin()")
               i.fa.fa-plus
           .material-tile-content
-            .material-input-group.material-input-group-theme-light
-              input.full-width(type="text" ng-model="newAdmin" placeholder="用户邮箱")
+            material-input-group.material-input-group-theme-light
+              material-input.full-width(type="email" ng-model="newAdmin" placeholder="用户邮箱" tabIndex="3")

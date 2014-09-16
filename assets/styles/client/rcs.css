@@ -5,6 +5,7 @@ html {
 body *
 {
    font-family: "Microsoft YaHei", Helvetica, Arial, sans-serif;
+   outline: none;
 }
 
 #rcs .font-en
@@ -85,4 +86,12 @@ body *
 
 #rcs material-button.material-theme-light canvas.material-ink-ripple {
   color: #f1f1f1;
+}
+
+#rcs material-radio-group:focus {
+  border-color: transparent;
+}
+
+#rcs material-button .material-button-inner[disabled] {
+  z-index: -1;
 }

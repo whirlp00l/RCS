@@ -7,8 +7,8 @@ material-dialog(id="dialog-createTable")
         .material-tile-left
           b 名称
         .material-tile-content
-          .material-input-group.material-input-group-theme-light
-            input(type="text" ng-model="newTable.name" placeholder="如:普通15")
+          material-input-group.material-input-group-theme-light
+            material-input(type="text" ng-model="newTable.name" placeholder="如:普通15" tabIndex="1")
       material-item
         .material-tile-left
           b 类型

@@ -32,10 +32,13 @@
 
 #dialog-viewRequestOrder .list-header .material-tile-content,
 #dialog-viewRequestOrder .list-header .material-tile-left,
+#dialog-viewRequestOrder .list-header .material-tile-right,
 #dialog-confirmPayment .list-header .material-tile-content,
 #dialog-confirmPayment .list-header .material-tile-left,
+#dialog-confirmPayment .list-header .material-tile-right,
 #dialog-manageTable .list-header .material-tile-content,
-#dialog-manageTable .list-header .material-tile-left {
+#dialog-manageTable .list-header .material-tile-left,
+#dialog-manageTable .list-header .material-tile-right {
   padding-top: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #8A1717;
@@ -58,7 +61,8 @@
 }
 
 #dialog-createTable .dialog-content,
-#dialog-editMenuType .dialog-content {
+#dialog-editMenuType .dialog-content,
+#dialog-manageTable .dialog-content {
   overflow: visible;
 }
 

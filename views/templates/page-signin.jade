@@ -16,37 +16,37 @@ div(id="user" flex layout="vertical" layout-fill)
     .pane.material-whiteframe-z3(ng-if="ifSignedIn() == false" ng-show="signUpShown")
       a.fa.fa-times.right-conner(ng-click="clickCloseSignUp()")
       h3.text-center 请输入注册信息
-      .material-input-group.material-input-group-theme-light
+      material-input-group.material-input-group-theme-light
         label(for="0") 注册邮箱
-        input(id="0" type="email" ng-model="signUp.email" ng-required="true")
-      .material-input-group.material-input-group-theme-light
+        material-input(id="0" type="email" ng-model="signUp.email" ng-required="true")
+      material-input-group.material-input-group-theme-light
         label(for="1") 密码
-        input(id="1" type="password" ng-model="signUp.pwd" ng-required="true")
-      .material-input-group.material-input-group-theme-light
+        material-input(id="1" type="password" ng-model="signUp.pwd" ng-required="true")
+      material-input-group.material-input-group-theme-light
         label(for="2") 请确认密码
-        input(id="2" type="password" ng-model="signUp.pwdConfirm" ng-required="true")
-      .material-input-group.material-input-group-theme-light
+        material-input(id="2" type="password" ng-model="signUp.pwdConfirm" ng-required="true")
+      material-input-group.material-input-group-theme-light
         label(for="6") 用户名称
-        input(id="6" type="text" ng-model="signUp.name" ng-required="true")
+        material-input(id="6" type="text" ng-model="signUp.name" ng-required="true")
 
       h3.text-center 请选择用户类型
       material-radio-group(ng-model="signUp.role" layout="horizontal" layout-align="space-around")
         material-radio-button(value="admin" aria-label="餐厅员工") 餐厅员工
         material-radio-button(value="manager" aria-label="餐厅经理") 餐厅经理
-      .material-input-group.material-input-group-theme-light(ng-if="signUp.role == 'manager'")
+      material-input-group.material-input-group-theme-light(ng-if="signUp.role == 'manager'")
         label(for="3") 注册码 (input 'key' for test)
-        input(id="3" type="text" ng-model="signUp.key" ng-required="true")
+        material-input(id="3" type="text" ng-model="signUp.key" ng-required="true")
       material-button.material-button-raised.material-theme-light(ng-click="clickSignUp(signUpFormn)") 注册
 
 
     .pane.material-whiteframe-z3(ng-if="ifSignedIn() == false" layout="vertical")
       h3.text-center 请输入登录信息
-      .material-input-group.material-input-group-theme-light
+      material-input-group.material-input-group-theme-light
         label(for="4") 用户邮箱
-        input(id="4" type="text" ng-model="signIn.email" ng-required="true")
-      .material-input-group.material-input-group-theme-light
+        material-input(id="4" type="text" ng-model="signIn.email" ng-required="true" tabIndex="1")
+      material-input-group.material-input-group-theme-light
         label(for="5") 密码
-        input(id="5" type="password" ng-model="signIn.pwd" ng-required="true")
+        material-input(id="5" type="password" ng-model="signIn.pwd" ng-required="true" tabIndex="2")
       material-button.material-button-raised.material-theme-light(ng-click="clickSignIn()") 登录
 
     .pane.material-whiteframe-z3(ng-if="ifSignedIn() == true")
