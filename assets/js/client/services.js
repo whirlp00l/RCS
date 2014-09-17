@@ -19,6 +19,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     getTableByName: getTableByName,
     getRequests: getRequests,
     getMenuItems: getMenuItems,
+    getWaiters: getWaiters,
     createTable: createTable,
     deleteTable: deleteTable,
     resetTable: resetTable,
@@ -27,6 +28,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     unbookTable: unbookTable,
     startRequest: startRequest,
     closeRequest: closeRequest,
+    toggleWaiterBusy: toggleWaiterBusy,
     ifSocketReady: ifSocketReady
   };
 
@@ -40,6 +42,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
   }
   var requests = [];
   var menuItems = [];
+  var waiters = [];
   var rcsSocket = null;
   var rcsSocketDataReady = false;
   var emitTableEvent = emitTableEvent;
@@ -69,6 +72,7 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     }
     requests = msg.request;
     menuItems = msg.menuItems;
+    waiters = msg.waiters;
 
     rcsSocketDataReady = true;
     $rootScope.$emit(RCS_EVENT.socketReady);
@@ -180,6 +184,39 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
       };
 
       // $rootScope.$emit(RCS_EVENT.menuItemsUpdate);
+    }
+
+    // handle new-waiter
+    if (data.newWaiter) {
+      waiters.push(data.newWaiter);
+
+      $rootScope.$emit(RCS_EVENT.waitersUpdate);
+    }
+
+    // handle set-waiter
+    if (data.setWaiter) {
+      var idToUpdate = data.setWaiter.id;
+      for (var i = waiters.length - 1; i >= 0; i--) {
+        if (waiters[i].id == idToUpdate) {
+          waiters[i] = data.setWaiter;
+          break;
+        }
+      };
+
+      $rootScope.$emit(RCS_EVENT.waitersUpdate);
+    }
+
+    // handle remove-waiter
+    if (data.removeWaiterId) {
+      var idToRemove = data.removeWaiterId;
+      for (var i = waiters.length - 1; i >= 0; i--) {
+        if (waiters[i].id == idToRemove) {
+          waiters.splice(i, 1);
+          break;
+        }
+      };
+
+      $rootScope.$emit(RCS_EVENT.waitersUpdate);
     }
   }
 
@@ -324,6 +361,10 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     return angular.copy(menuItems);
   }
 
+  function getWaiters () {
+    return angular.copy(waiters);
+  }
+
   function createTable (row, col, tableName, tableType, successAction, errorAction) {
     if (!angular.isFunction(successAction)) {
       successAction = function () {};
@@ -424,6 +465,21 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
     }
 
     rcsHttp.Request.close(request.id).success(successAction).error(errorAction);
+  }
+
+  function toggleWaiterBusy (waiter, successAction, errorAction) {
+    if (!angular.isFunction(successAction)) {
+      successAction = function () {};
+    }
+
+    if (!angular.isFunction(errorAction)) {
+      errorAction = function () {};
+    }
+
+    rcsHttp.Waiter
+      .updateBusy(waiter.Restaurant, waiter.id, !waiter.Busy)
+      .success(successAction)
+      .error(errorAction);
   }
 
   function getRequest (id) {

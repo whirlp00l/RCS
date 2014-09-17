@@ -45,3 +45,19 @@ div.text-unselectable(id="monitor" flex layout="vertical" layout-fill)
         rcs-request(ng-repeat="request in requests | filter:ifUnclosed | orderBy:['-Importance','createdAt'] | limitTo: 10 track by $index")
       material-list(ng-if="selectedIndex == 1")
         rcs-request(ng-repeat="request in requests | filter:ifClosed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
+
+    .pane.pane-waiters.material-whiteframe-z3(id="waiters" ng-controller="monitorWaiterCtrl")
+      h4.text-center 在线服务员: <b>{{getOnlineWaiterCount()}}</b>
+        a(ui-sref="page.management.arrangeWaiter") &nbsp;
+          u 配置
+      h4.text-center 空闲服务员: <b>{{getFreeWaiterCount()}}</b>
+      material-item.list-header
+        .material-tile-content
+        .material-tile-right
+      material-item.list-items(ng-repeat="waiter in waiters | filter:ifOnline" ng-click="clickToggleBusy(waiter)")
+        .material-tile-content {{waiter.Name}}
+        .material-tile-right
+          material-button.hover
+            span.free(ng-show="waiter.Busy == false") 空闲
+            i.fa.fa-spin.fa-circle-o-notch(ng-show="waiter.Busy == true")
+            span(ng-show="waiter.Busy == true") 忙碌

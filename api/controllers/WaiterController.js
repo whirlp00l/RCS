@@ -71,6 +71,10 @@ module.exports = {
         waiter.Busy = busy;
       }
 
+      if (waiter.Online == false) {
+        waiter.Busy = false;
+      }
+
       waiter.save(function (err, watier) {
         if (err) {
           return res.serverError(err);

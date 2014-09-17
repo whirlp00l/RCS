@@ -95,7 +95,7 @@ module.exports = {
       if (obj.Restaurant.RestaurantName) {
         var restaurantName = obj.Restaurant.RestaurantName;
         delete obj.Restaurant;
-        obj.Resaurant = {RestaurantName:restaurantName};
+        obj.Restaurant = {RestaurantName:restaurantName};
       }
 
       return obj;

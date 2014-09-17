@@ -26,6 +26,18 @@ module.exports = {
 
     Restaurant: { // Many to one
       model: 'restaurant'
+    },
+
+    toJSON: function() {
+      var obj = this.toObject();
+
+      if (obj.Restaurant.id) {
+        var id = obj.Restaurant.id;
+        delete obj.Restaurant;
+        obj.Restaurant = id;
+      }
+
+      return obj;
     }
   }
 };

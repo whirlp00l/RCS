@@ -7,6 +7,7 @@ angular
   .controller('monitorCtrl', ['$rootScope', '$scope', '$state', 'rcsSession', 'RCS_EVENT', monitorCtrl])
   .controller('monitorTableCtrl', ['$scope', 'rcsSession', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
+  .controller('monitorWaiterCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorWaiterCtrl])
   .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', authorMenuCtrl])
   .controller('arrangeWaiterCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', arrangeWaiterCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
@@ -391,7 +392,7 @@ function monitorRequestCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
   $scope.ifUnclosed = ifUnclosed;
 
   // events
-  $rootScope.$on(RCS_EVENT.requestsUpdate, initializeRequests)
+  $rootScope.$on(RCS_EVENT.requestsUpdate, initializeRequests);
 
   // initialize
   initializeRequests();
@@ -419,6 +420,60 @@ function monitorRequestCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
 
   function ifUnclosed (request) {
     return !$scope.ifClosed(request);
+  }
+}
+
+function monitorWaiterCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
+  // scope fields
+  $scope.waiters = [];
+
+  // scope methods
+  $scope.clickToggleBusy = clickToggleBusy;
+  $scope.getFreeWaiterCount = getFreeWaiterCount;
+  $scope.getOnlineWaiterCount = getOnlineWaiterCount;
+  $scope.ifOnline = ifOnline;
+
+  // events
+  $rootScope.$on(RCS_EVENT.waitersUpdate, initializeWaiters);
+
+  // initialize
+  initializeWaiters();
+
+  // defines
+  function initializeWaiters () {
+    $scope.waiters = rcsSession.getWaiters();
+    $scope.safeApply();
+  }
+
+  function clickToggleBusy (waiter) {
+    rcsSession.toggleWaiterBusy(waiter,
+      null, requestErrorAction);
+  }
+
+  function getOnlineWaiterCount () {
+    var count = 0;
+    for (var i = $scope.waiters.length - 1; i >= 0; i--) {
+      if ($scope.waiters[i].Online == true) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  function getFreeWaiterCount () {
+    var count = 0;
+    for (var i = $scope.waiters.length - 1; i >= 0; i--) {
+      if ($scope.waiters[i].Online == true && $scope.waiters[i].Busy == false) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  function ifOnline (waiter) {
+    return waiter.Online == true;
   }
 }
 

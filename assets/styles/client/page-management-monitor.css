@@ -14,12 +14,17 @@
 }
 
 #monitor .pane-tables {
-  width: 800px;
+  width: 700px;
 }
 
 #monitor .pane-requests {
-  width: 300px;
-  margin-left: 20px;
+  width: 285px;
+  margin-left: 15px;
+}
+
+#monitor .pane-waiters {
+  width: 200px;
+  margin-left: 10px;
 }
 
 #monitor .tooltip {
@@ -167,6 +172,10 @@
   color: #f1f1f1;
 }
 
+#requests .tabs-header {
+  background-color: #8A1717;
+}
+
 #requests material-ink-bar {
   height: 5px;
   background: #8A1717;
@@ -202,4 +211,36 @@
 
 #requests .rcs-request .material-tile-right .fa-spinner {
   color: #8a1717;
+}
+
+#waiters a {
+  color: #8A1717;
+}
+
+#waiters .list-header .material-tile-content,
+#waiters .list-header .material-tile-right {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-bottom: 2px solid #8A1717;
+}
+
+#waiters span.free {
+  font-weight: bold;
+  color: #8A1717;
+}
+
+#waiters .list-items {
+  cursor: pointer;
+}
+
+#waiters .list-items:hover {
+  color: #8a1717;
+}
+
+#waiters .list-items:hover .material-tile-content {
+  font-weight: bold;
+}
+
+#waiters .fa-circle-o-notch {
+  margin-right: 5px;
 }

@@ -12,6 +12,7 @@ angular
     tableUpdate: 'table-update',
     requestsUpdate: 'requests-update',
     menuItemsUpdate: 'menuItems-update',
+    waitersUpdate: 'waiters-update',
     forbidden: '403',
     socketReady: 'socket-ready'
   })
