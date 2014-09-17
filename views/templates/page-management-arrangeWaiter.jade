@@ -10,7 +10,7 @@ div(id="waiter" flex layout="vertical" layout-fill)
       div(ng-show="waiters != null")
         h3.text-center(ng-show="waiters.length != 0") 当前服务员
         h4.text-center(ng-show="waiters.length != 0") (<a ui-sref="page.management.monitor"><u>餐桌请求</u></a>可分配给在线服务员)
-        material-list
+        material-list(ng-show="waiters.length != 0")
           material-item.list-header
             .material-tile-left
             .material-tile-content
