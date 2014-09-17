@@ -29,6 +29,10 @@
   color: #fff
 }
 
+#author .tabs-header {
+  background-color: #8A1717;
+}
+
 #author material-tab {
   background-color: #D3CFCA;
 }
