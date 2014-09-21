@@ -67,11 +67,15 @@ module.exports = {
   },
 
   logout: function(req, res){
-    var user = req.session.user;
-    req.session.user = null;
-    req.session.subscribedRestaurant = null;
-    sails.log.debug('User/logout: req.session.user := ' + req.session.user);
-    res.json({message: 'User ' + user.Email + ' has been logged out'}, 200);
+    if (req.session.user) {
+      var user = req.session.user;
+      req.session.user = null;
+      req.session.subscribedRestaurant = null;
+      sails.log.debug('User/logout: req.session.user := ' + req.session.user);
+      res.json({message: 'User ' + user.Email + ' has been logged out'}, 200);
+    } else {
+      res.ok();
+    }
   },
 
   create: function (req, res, next) {

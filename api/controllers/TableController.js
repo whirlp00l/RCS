@@ -246,6 +246,20 @@ module.exports = {
     });
   },
 
+  validateToken: function (req, res) {
+    // the policy - isLinkedTabletOfRestaurant already done the validation
+    // :)
+
+    // log the user out, as tablet should use token auth
+    if (req.session.user) {
+      var user = req.session.user;
+      req.session.user = null;
+      req.session.subscribedRestaurant = null;
+    }
+
+    return res.ok();
+  },
+
   /**
    * Overrides for the settings in `config/controllers.js`
    * (specific to TableController)

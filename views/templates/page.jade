@@ -20,7 +20,7 @@ div(id="page" layout="horizontal" layout-fill)
         material-button(hide-md ng-click="clickToggleNav()")
           span.fa.fa-th-list.fa-2x
         breadcrumb
-        .div(flex)
+        div(flex)
         material-button.hover(ng-if="ifSelectedRestaurant()===true" ng-click="clickRestaurant()")
           b {{getCurrentRestaurant()}}
         material-button.hover(ng-if="ifSelectedRestaurant()===true" ng-click="clickSelectRestaurant()")

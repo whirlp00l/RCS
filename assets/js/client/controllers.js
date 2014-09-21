@@ -634,7 +634,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
         }
       }]
     }
-    $materialDialog(dialogEditMenuItemType)
+    $materialDialog(dialogEditMenuItemType);
   }
 
   function clickUpdateItem (menuItem) {

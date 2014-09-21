@@ -38,7 +38,7 @@ module.exports.policies = {
   {
     'deleteAll': true, // test only
 
-    'logout': 'isAuthenticated',
+    'logout': true,
     'login': true,
     'create': true,
     'handshake': true
@@ -75,6 +75,7 @@ module.exports.policies = {
     'modifyOrder': ['isAuthenticated', 'hasTablePermission'],
     'newOrder': false,
     'listOrder': 'isLinkedTabletOfRestaurant',
+    'validateToken': 'isLinkedTabletOfRestaurant',
 
     'deleteAll': true // test only
   },
