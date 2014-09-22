@@ -259,7 +259,7 @@ module.exports = {
       req.session.subscribedRestaurant = null;
     }
 
-    Table.findOneById(tableId).exec(function (err, table) {
+    Table.findOneById(tableId).populate('Restaurant').exec(function (err, table) {
       if (err) {
         return res.serverError(err);
       }
@@ -268,7 +268,7 @@ module.exports = {
         return res.badRequest('Invalid tableId = ' + tableId);
       }
 
-      return res.json(table);
+      return res.json({Table: table});
     });
   },
 
