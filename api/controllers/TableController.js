@@ -168,17 +168,16 @@ module.exports = {
     Table.findOneByLinkedTabletId(tabletId).exec(function (err, linkedTable) {
       // remove link from previous linked table if exists
       if (linkedTable) {
-        linkedTable
-        updateTable(req, res, linkedTable.id, {
+        return updateTable(req, res, linkedTable.id, {
           LinkedTabletId: null,
           LinkTime: null,
           Token: null
         }, function () {
           return linkTable(req, res, tableId, tabletId);
         });
+      } else {
+        return linkTable(req, res, tableId, tabletId);
       }
-
-      return linkTable(req, res, tableId, tabletId);
     });
   },
 
@@ -246,8 +245,11 @@ module.exports = {
     });
   },
 
+  // validate token and return table info in positive case
   validateToken: function (req, res) {
-    // the policy - isLinkedTabletOfRestaurant already done the validation
+    var tableId = req.body.TableId;
+
+    // as for validation, the "policy - isLinkedTabletOfRestaurant" has already done the work
     // :)
 
     // log the user out, as tablet should use token auth
@@ -257,7 +259,17 @@ module.exports = {
       req.session.subscribedRestaurant = null;
     }
 
-    return res.ok();
+    Table.findOneById(tableId).exec(function (err, table) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!table) {
+        return res.badRequest('Invalid tableId = ' + tableId);
+      }
+
+      return res.json(table);
+    });
   },
 
   /**
@@ -391,19 +403,26 @@ function linkTable (req, res, tableId, tabletId) {
     }
 
     if (!table) {
-      return res.badRequest('Table [' + tableId + '] is invalid.');
+      return res.rcsTableNotFound({tableId:tableId});
     }
 
     // block link request when the target table is linked to other tablet
     if (table.LinkedTabletId && table.LinkedTabletId != tabletId) {
-      return res.badRequest('Table [' + table.TableName + '] is already linked to other tablet.');
+      return res.rcsTableAlreadyLinked({LinkedTabletId: table.LinkedTabletId});
     }
+
+    var token = require('node-uuid').v4();
 
     updateTable(req, res, tableId, {
       LinkedTabletId: tabletId,
       LinkTime: new Date(),
-      Token: require('node-uuid').v4()
+      Token: token
     }, function (table) {
+      var token = require('node-uuid').v4();
+      sails.log('api - LinkTable: assign token to table')
+      sails.log('  id = ' + table.id);
+      sails.log('  Token = ' + table.Token);
+
       return res.json({
         id: table.id,
         Token: table.Token,

@@ -12,33 +12,32 @@ module.exports = function(req, res, next) {
   var tableId = req.body.TableId;
   var token = req.body.Token;
 
-  if (typeof restaurantId == 'undefined') {
-    return res.badRequest('Missing required fields: RestaurantId');
+  sails.log('policy - isLinkedTabletOfRestaurant');
+  sails.log('  restaurantId: ' + restaurantId);
+  sails.log('  tableId: ' + tableId);
+  sails.log('  token: ' + token);
+
+  if (typeof restaurantId == 'undefined' || typeof tableId == 'undefined' || !token) {
+    return res.rcsMissingFields(['RestaurantId', 'TableId', 'Token']);
   }
 
-  sails.log('policy - isLinkedTabletOfRestaurant: restaurantId = ' + restaurantId);
-
-  if (typeof tableId == 'undefined' || !token) {
-    return res.forbidden();
-  }
-
-  Table.findOneById(tableId).populate('Restaurant').exec(function (err, table) {
+  Table.findOne({
+    Restaurant: restaurantId,
+    id: tableId
+  }).exec(function (err, table) {
     if (err) {
       return res.serverError(err);
     }
 
-    if (!table || table.Token != token) {
-      return res.forbidden();
+    if (!table) {
+      return res.rcsTableNotFound({tableId:tableId});
     }
 
-    sails.log.debug('token match');
-    sails.log.debug('If table belong to ' + restaurantId);
-    if (table.Restaurant.id !== restaurantId) {
-      sails.log.debug('No');
-      return res.forbidden();
+    sails.log('  expected token: ' + table.Token);
+    if (table.Token != token) {
+      return res.rcsTableInvalidToken();
     }
 
-    sails.log.debug('Yes');
     return next();
   });
 };
