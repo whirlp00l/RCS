@@ -268,7 +268,17 @@ module.exports = {
         return res.badRequest('Invalid tableId = ' + tableId);
       }
 
-      return res.json({Table: table});
+      Restaurant.findOneById(table.Restaurant.id).populate('Menu').exec(function (err, restaurant) {
+        if (err) {
+          return res.serverError(err);
+        }
+
+        return res.json({
+          Table: table,
+          MenuVersion: restaurant.MenuVersion,
+          Menu: restaurant.Menu
+        });
+      });
     });
   },
 
