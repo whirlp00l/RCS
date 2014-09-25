@@ -28,11 +28,11 @@ module.exports = {
     var password = req.body.Password;
 
     if (req.session.user && req.session.user.Email != email) {
-      return res.badRequest('Already logged in as [' + req.session.user.Email + '].');
+      return res.rcsPleaseSignout(req.session.user.Email);
     }
 
     if (!email || !password) {
-      return res.badRequest('Missing required fields.')
+      return res.rcsMissingFields(['Email', 'Password']);
     }
 
     var bcrypt = require('bcrypt');
@@ -57,11 +57,11 @@ module.exports = {
             });
           } else {
             req.session.user = null;
-            return res.forbidden();
+            return res.rcsSignInFail();
           }
         });
       } else {
-        return res.forbidden();
+        return res.rcsSignInFail();
       }
     });
   },

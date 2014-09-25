@@ -185,7 +185,7 @@ function createOrder (req, res, table, restaurantId, type) {
   var orderItems = req.body.OrderItems;
 
   if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
-    return res.badRequest('Missing required field: OrderItems');
+    return res.rcsMissingFields(['OrderItems']);
   }
 
   var validateCount = 0;
@@ -291,13 +291,7 @@ function bumpImportance (res, existingRequest, table, restaurantId) {
     Restaurant.message(restaurantId, message);
 
     if (existingRequest.Type == 'order') {
-      return res.badRequest({
-        errorCode: 412,
-        message: 'order-pendingPreviousOder',
-        data: {
-          orderItems: existingRequest.OrderItems
-        }
-      })
+      return res.rcsPendingOrder(existingRequest.OrderItems)
     }
     return res.json(message);
   });
