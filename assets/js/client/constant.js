@@ -42,7 +42,7 @@ angular
   })
   .constant('REQUEST_TYPE', {
     call: 'call',
-    callText: '呼叫服务',
+    callText: '叫服务员',
     pay: 'pay',
     payText: '请求结账',
     water: 'water',

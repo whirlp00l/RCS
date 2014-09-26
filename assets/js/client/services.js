@@ -1,9 +1,9 @@
 angular
   .module('rcs')
   .factory('rcsHttp', ['$rootScope', '$http', '$state', '$log', 'RCS_EVENT', rcsHttp])
-  .factory('rcsSession', ['$rootScope', '$log', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
+  .factory('rcsSession', ['$rootScope', '$state', '$log', 'rcsHttp', 'RCS_EVENT', 'REQUEST_STATUS', rcsSession]);
 
-function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
+function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
   // service methods
   var sessionService = {
     handshake: handshake,
@@ -60,6 +60,12 @@ function rcsSession ($rootScope, $log, rcsHttp, RCS_EVENT, REQUEST_STATUS) {
   rcsSocket.on('connect', function () {
     $log.debug("rcsSocket: just connected!");
     rcsSocketConnected = true;
+  });
+
+  rcsSocket.on('disconnect', function () {
+    $log.debug("rcsSocket: just disconnect!");
+    rcsSocketConnected = false;
+    $state.go('page.restaurant.list');
   });
 
   rcsSocket.on('init', function (msg) {
