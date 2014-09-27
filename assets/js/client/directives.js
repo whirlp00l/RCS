@@ -577,8 +577,8 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
 
               $scope.totalPrice = 0;
               for (var i = $scope.orderItems.length - 1; i >= 0; i--) {
-                // TODO: check if to use premium price
-                $scope.totalPrice += $scope.orderItems[i].price * $scope.orderItems[i].count;
+                var unitPrice = $scope.request.IsPremium ? $scope.orderItems[i].premiumPrice : $scope.orderItems[i].price;
+                $scope.totalPrice += unitPrice * $scope.orderItems[i].count;
               }
 
               // scope methods
@@ -651,7 +651,7 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
                     }
                   }
 
-                  text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - request.IsPremium ? totalPricePremium : totalPrice);
+                  text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - (request.IsPremium ? totalPricePremium : totalPrice));
                 }
               }
               break;
