@@ -224,9 +224,10 @@ function createOrder (req, res, table, restaurantId, type) {
 function createPay (req, res, table, restaurantId, type) {
   var payType = req.body.PayType;
   var payAmount = req.body.PayAmount;
+  var isPremium = req.body.IsPremium;
 
   if (!payType || !payAmount ) {
-    return res.badRequest('Missing required fields: payType, payAmount')
+    return res.rcsMissingFields(['PayType'], ['PayAmount'])
   }
 
   var request = {
@@ -234,7 +235,8 @@ function createPay (req, res, table, restaurantId, type) {
     Restaurant: restaurantId,
     Type: type,
     PayType: payType,
-    PayAmount: payAmount
+    PayAmount: payAmount,
+    IsPremium: isPremium
   };
 
   table.Status = 'paying';

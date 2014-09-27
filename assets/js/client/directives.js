@@ -627,7 +627,7 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
 
     function getRequestText () {
       var request = $scope.request;
-      return getRequestTypeText(request);
+      return getRequestTypeText(request) + (request.IsPremium ? '(会员)' : '');
     }
 
     function getRequestAdditionalText () {
@@ -643,15 +643,15 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
                     rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
                     rcsSession.getMenuItems());
                   var totalPrice = 0;
+                  var totalPricePremium = 0;
                   if (orderItems) {
                     for (var i = orderItems.length - 1; i >= 0; i--) {
                       totalPrice += orderItems[i].price * orderItems[i].count;
+                      totalPricePremium += orderItems[i].premiumPrice * orderItems[i].count;
                     }
                   }
 
-                  text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - totalPrice);
-                } else {
-                  text = '支付{0}元'.format(request.PayAmount);
+                  text = '支付{0}元 找零{1}元'.format(request.PayAmount, request.PayAmount - request.IsPremium ? totalPricePremium : totalPrice);
                 }
               }
               break;

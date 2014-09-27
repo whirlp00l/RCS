@@ -317,19 +317,7 @@ module.exports = {
           var table = tables[i];
           for (var j = table.Requests.length - 1; j >= 0; j--) {
             var request = table.Requests[j];
-            requests.push({
-              id: request.id,
-              Type: request.Type,
-              Status: request.Status,
-              Importance: request.Importance,
-              createdAt: request.createdAt,
-              PayType: request.PayType,
-              PayAmount: request.PayAmount,
-              OrderItems: request.OrderItems,
-              Table: {
-                TableName: table.TableName
-              }
-            })
+            requests.push(request.getMessage(table.TableName));
           };
         };
 

@@ -27,6 +27,11 @@ module.exports = {
       type: 'float'
     },
 
+    IsPremium: {
+      type: 'boolean',
+      defaultsTo: false
+    },
+
     Status: {
       type: 'string',
       in: ['new', 'inProgress', 'closed'],
@@ -67,6 +72,7 @@ module.exports = {
         ClosedAt: this.ClosedAt,
         PayType: this.PayType,
         PayAmount: this.PayAmount,
+        IsPremium: this.IsPremium,
         OrderItems: this.OrderItems,
         Table: {
           TableName: tableName
