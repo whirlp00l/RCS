@@ -127,6 +127,10 @@ module.exports = {
         return res.serverError(err);
       }
 
+      if (!request) {
+        return res.badRequest('Invalid requestId = ' + requestId);
+      }
+
       request.Status = 'closed';
       request.ClosedAt = new Date();
 
@@ -162,6 +166,22 @@ module.exports = {
           });
         });
       });
+    });
+  },
+
+  get: function (req, res) {
+    var requestId = req.param('id');
+
+    Request.findOneById(requestId).exec(function (err, request) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      if (!request) {
+        return res.badRequest('Invalid requestId = ' + requestId);
+      }
+
+      return res.json({Request:request.getMessage(null)});
     });
   },
 
