@@ -245,6 +245,7 @@ function createPay (req, res, table, restaurantId, type) {
   var payType = req.body.PayType;
   var payAmount = req.body.PayAmount;
   var isPremium = req.body.IsPremium;
+  var cellPhone = req.body.CellPhone;
 
   if (!payType || !payAmount ) {
     return res.rcsMissingFields(['PayType'], ['PayAmount'])
@@ -256,7 +257,8 @@ function createPay (req, res, table, restaurantId, type) {
     Type: type,
     PayType: payType,
     PayAmount: payAmount,
-    IsPremium: isPremium
+    IsPremium: isPremium,
+    CellPhone: cellPhone
   };
 
   table.Status = 'paying';

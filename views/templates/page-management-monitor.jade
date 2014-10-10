@@ -42,9 +42,9 @@ div.text-unselectable(id="monitor" flex layout="vertical" layout-fill)
         i.fa.fa-check
         | 没有未完成请求
       material-list(ng-if="selectedIndex == 0")
-        rcs-request(ng-repeat="request in requests | filter:ifUnclosed | orderBy:['-Importance','createdAt'] | limitTo: 10 track by $index")
+        rcs-request(ng-repeat="request in requests | filter:ifUnclosed | orderBy:['-Importance','createdAt'] | limitTo: 8 track by $index")
       material-list(ng-if="selectedIndex == 1")
-        rcs-request(ng-repeat="request in requests | filter:ifClosed | orderBy:'ClosedAt':true | limitTo: 10 track by $index")
+        rcs-request(ng-repeat="request in requests | filter:ifClosed | orderBy:'ClosedAt':true | limitTo: 8 track by $index")
 
     .pane.pane-waiters.material-whiteframe-z3(id="waiters" ng-controller="monitorWaiterCtrl")
       h4.text-center 在线服务员: <b>{{getOnlineWaiterCount()}}</b>

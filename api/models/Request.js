@@ -32,6 +32,10 @@ module.exports = {
       defaultsTo: false
     },
 
+    CellPhone: {
+      type: 'int'
+    },
+
     Status: {
       type: 'string',
       in: ['new', 'inProgress', 'closed'],
@@ -73,6 +77,7 @@ module.exports = {
         PayType: this.PayType,
         PayAmount: this.PayAmount,
         IsPremium: this.IsPremium,
+        CellPhone: this.CellPhone,
         OrderItems: this.OrderItems,
         Table: {
           TableName: tableName

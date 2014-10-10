@@ -11,6 +11,7 @@ material-item.rcs-request(
   .material-tile-content
     h2 <b>{{request.Table.TableName}}</b> {{getRequestText()}}
     h3 {{getRequestAdditionalText()}}
+    h3(ng-show="request.CellPhone") 会员 <b>{{request.CellPhone}}</b>
   .material-tile-right
     span.fa.fa-flag(ng-show="ifImportant() && request.Status==requestStatus.new")
     span.fa.fa-check-square-o(ng-show="request.Status==requestStatus.closed")
