@@ -34,6 +34,7 @@ function makeOrderGroup () {
             tempOrderGroup[itemId].count++;
           } else {
             tempOrderGroup[itemId] = {
+              id: itemId,
               name: menuItem.Name,
               type: menuItem.Type,
               price: menuItem.Price,
