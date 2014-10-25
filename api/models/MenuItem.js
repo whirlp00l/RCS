@@ -34,6 +34,10 @@ module.exports = {
       type: 'string'
     },
 
+    Flavor: {
+      type: 'array'
+    },
+
     Restaurant: { // Many to one
       model: 'restaurant',
       via: 'Menu'

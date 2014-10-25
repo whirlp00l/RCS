@@ -20,9 +20,10 @@ module.exports = {
     var premiumPrice = req.body.PremiumPrice;
     var restaurantId = req.body.RestaurantId;
     var alias = req.body.Alias;
+    var flavor = req.body.Flavor;
 
     if (!name || !type || !restaurantId || typeof price == 'undefined') {
-      return res.badRequest('Missing required fields.');
+      return res.rcsMissingFields(['Name', 'Type', 'Price', 'RestaurantId']);
     }
 
     MenuItem.findOne({
@@ -42,8 +43,9 @@ module.exports = {
         Type: type,
         Price: price,
         PremiumPrice: premiumPrice,
+        Alias: alias,
+        Flavor: flavor,
         Restaurant: restaurantId,
-        Alias: alias
       }).exec(function (err, menuItem) {
         if (err) {
           return res.serverError(err);
@@ -59,7 +61,8 @@ module.exports = {
               Type: menuItem.Type,
               Price: menuItem.Price,
               PremiumPrice: menuItem.PremiumPrice,
-              Alias: alias,
+              Alias: menuItem.Alias,
+              Flavor: menuItem.Flavor,
               Restaurant: restaurantId
             },
             Restaurant: {
@@ -91,6 +94,7 @@ module.exports = {
       var price = req.body.Price;
       var premiumPrice = req.body.PremiumPrice;
       var alias = req.body.Alias;
+      var flavor = req.body.Flavor;
 
       if (typeof type != 'undefined') {
         menuItem.Type = type;
@@ -106,6 +110,10 @@ module.exports = {
 
       if (typeof alias != 'undefined') {
         menuItem.Alias = alias;
+      }
+
+      if (typeof flavor != 'undefined') {
+        menuItem.Flavor = flavor;
       }
 
       menuItem.save(function (err, menuItem) {
@@ -124,8 +132,9 @@ module.exports = {
               Type: menuItem.Type,
               Price: menuItem.Price,
               PremiumPrice: menuItem.PremiumPrice,
+              Alias: menuItem.Alias,
+              Flavor: menuItem.Flavor,
               Restaurant: restaurantId,
-              Alias: alias
             },
             Restaurant: {
               MenuVersion: version
