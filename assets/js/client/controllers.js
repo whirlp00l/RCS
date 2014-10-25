@@ -488,6 +488,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   // scope methods
   $scope.clickDeleteItem = clickDeleteItem;
   $scope.clickDiscardChange = clickDiscardChange;
+  $scope.clickItemFlavor = clickItemFlavor;
   $scope.clickItemType = clickItemType;
   $scope.clickNewItem = clickNewItem;
   $scope.clickNewType = clickNewType;
@@ -498,6 +499,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   $scope.ifValidItem = ifValidItem;
   $scope.ifValidNewType = ifValidNewType;
   $scope.onTabSelected = onTabSelected;
+  $scope.getFlavorText = getFlavorText;
 
   // locals
   var master = {menuItems: []};
@@ -590,6 +592,71 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   function clickDiscardChange (menuItem) {
     var i = $scope.menuItems.indexOf(menuItem);
     $scope.menuItems[i] = angular.copy(master.menuItems[i]);
+  }
+
+  function clickItemFlavor (menuItem, event) {
+    var i = $scope.menuItems.indexOf(menuItem);
+    var authorMenuScope = $scope;
+
+    var dialogEditMenuItemFlavor = {
+      templateUrl: 'template/dialog-editMenuItemFlavor',
+      targetEvent: event,
+      clickOutsideToClose: false,
+      escapeToClose: false,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        // scope fields
+        $scope.flavorList = menuItem.Flavor ? angular.copy(menuItem.Flavor) : [];
+        $scope.name = menuItem.Name;
+        $scope.newFlavor = null;
+
+        // scope methods
+        $scope.ifValidNewFlavor = ifValidNewFlavor;
+        $scope.clickDeleteFlavor = clickDeleteFlavor;
+        $scope.clickNewFlavor = clickNewFlavor;
+        $scope.clickUpdateFlavorList = clickUpdateFlavorList;
+        $scope.clickCancel = clickCancel;
+
+        // defines
+        function ifValidNewFlavor () {
+          return $scope.newFlavor && $scope.flavorList.indexOf($scope.newFlavor) == -1;
+        }
+
+        function clickDeleteFlavor (index) {
+          $scope.flavorList.splice(index, 1);
+        }
+
+        function clickNewFlavor () {
+          if (!$scope.ifValidNewFlavor()) return;
+
+          $scope.flavorList.push($scope.newFlavor);
+          $scope.newFlavor = null;
+        }
+
+        function clickUpdateFlavorList () {
+          rcsHttp.MenuItem.update(
+            menuItem.Restaurant,
+            menuItem.id,
+            undefined, // not to change Type
+            undefined, // not to change Price
+            undefined, // not to change PremiumPrice
+            undefined, // not to change Alias
+            $scope.flavorList
+          )
+          .success(function(res) {
+            var updatedMenuItem = res.MenuItem;
+            authorMenuScope.menuItems[i] = angular.copy(updatedMenuItem);
+            master.menuItems[i] = angular.copy(updatedMenuItem);
+            $hideDialog();
+          })
+          .error(requestErrorAction);
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    }
+    $materialDialog(dialogEditMenuItemFlavor);
   }
 
   function clickItemType (menuItem, event) {
@@ -736,6 +803,21 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       $scope.clickResetNewItem();
     })
     .error(requestErrorAction);
+  }
+
+  function getFlavorText (menuItem) {
+    var flavorList = menuItem.Flavor;
+    if (!flavorList || !angular.isArray(flavorList) || flavorList.length == 0) {
+      return '(无)';
+    }
+
+    var text = '';
+    for (var i = 0 ; i < flavorList.length; i++) {
+      if (i != 0) text += '/';
+      text += flavorList[i];
+    }
+
+    return text;
   }
 }
 

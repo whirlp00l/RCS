@@ -61,7 +61,8 @@ div(id="author" flex layout="vertical" layout-fill)
                   flex="10"
                   ng-class="{'dirty':form{{menuItem.id}}.PremiumPrice.$dirty}"
                   type="text" ng-model="menuItem.PremiumPrice" name="PremiumPrice")
-                div(flex)
+                material-button.hover(
+                  flex ng-click="clickItemFlavor(menuItem, $event)") {{getFlavorText(menuItem)}}
             .material-tile-right
               material-button.material-button-colored(
                 ng-show="ifDirty(menuItem)"
@@ -96,6 +97,7 @@ div(id="author" flex layout="vertical" layout-fill)
                 ng-class="{'dirty':newMenuItem.PremiumPrice!=''}"
                 type="text" ng-model="newMenuItem.PremiumPrice" name="PremiumPrice" placeholder="会员价")
               div(flex)
+
             .material-tile-right
               material-button.material-button-colored(
                 ng-show="newMenuItem.Name!='' || newMenuItem.Price!='' || newMenuItem.PremiumPrice!=''"

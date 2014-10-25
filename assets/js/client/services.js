@@ -674,7 +674,7 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
   }
 
   rcsHttp.MenuItem = {
-    create: function (restaurantId, name, type, price, premiumPrice, alias) {
+    create: function (restaurantId, name, type, price, premiumPrice, alias, flavor) {
       return $http
         .post('MenuItem/create', {
           Name: name,
@@ -682,17 +682,19 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
           Price: price,
           PremiumPrice: premiumPrice,
           Alias: alias,
+          Flavor: flavor,
           RestaurantId: restaurantId
         })
         .error(errorAction);
     },
-    update: function (restaurantId, menuItemId, type, price, premiumPrice, alias) {
+    update: function (restaurantId, menuItemId, type, price, premiumPrice, alias, flavor) {
       return $http
         .post('MenuItem/update/' + menuItemId, {
           Type: type,
           Price: price,
           PremiumPrice: premiumPrice,
           Alias: alias,
+          Flavor: flavor,
           RestaurantId: restaurantId
         })
         .error(errorAction);

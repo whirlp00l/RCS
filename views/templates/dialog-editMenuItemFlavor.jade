@@ -1,0 +1,26 @@
+material-dialog.width-md.text-unselectable(id="dialog-editMenuFlavor")
+  .dialog-content.height-md
+    h4 编辑菜品<b>{{name}}</b>特调:
+    material-list
+      material-item(ng-repeat="flavor in flavorList track by $index")
+        .material-tile-left
+          material-button.material-button-raised(
+            ng-click="clickDeleteFlavor($index)")
+            i.fa.fa-trash
+        .material-tile-content
+          span {{flavor}}
+      material-item.new
+        .material-tile-left
+          material-button.material-button-raised.material-theme-light(
+            ng-click="clickNewFlavor()"
+            ng-disabled="ifValidNewFlavor()===false")
+            i.fa.fa-plus
+        .material-tile-content
+          material-input(
+            type="text" ng-model="newFlavor" placeholder="特调名称")
+
+  .dialog-actions(layout="horizontal")
+    material-button.material-button-raised.material-theme-light(
+      ng-click="clickUpdateFlavorList()") 确认更改
+    material-button.material-button-colored(
+      ng-click="clickCancel()") 取消
