@@ -15,27 +15,24 @@ function makeOrderGroup () {
     var tempOrderGroup = [];
 
     for (var i = orderItems.length - 1; i >= 0; i--) {
-      var itemId = orderItems[i]; // in format list 28.4, 17.1, 36
+      var itemId = orderItems[i].toString(); // in format list 28.4, 17.10, 36
+      var menuItemId = parseInt(itemId.split('.')[0]); // --> 28, 17, 36
+      var flavorId = parseInt(itemId.split('.')[1]) // --> 4, 10, NaN
 
-      if (tempOrderGroup[itemId]) {
-        tempOrderGroup[itemId].count++;
-      } else {
-        var menuItemId = parseInt(Math.floor(itemId)); // --> 28, 17, 36
-        var flavorId = parseInt(Math.floor(itemId*10 - menuItemId*10)) // --> 4, 1, 0. *10 to handle 28.48 case
+      for (var j = menuItems.length - 1; j >= 0; j--) {
+        if (menuItems[j].id == menuItemId) {
+          var menuItem = menuItems[j];
+          var flavor = undefined;
 
-        for (var j = menuItems.length - 1; j >= 0; j--) {
-          if (menuItems[j].id == menuItemId) {
-            var menuItem = menuItems[j];
-            var flavor = undefined;
+          if (flavorId > 0 && menuItem.Flavor && angular.isArray(menuItem.Flavor) && menuItem.Flavor.length >= flavorId) {
+            flavor = menuItem.Flavor[flavorId - 1];
+          } else {
+              itemId = menuItemId + ".0";
+          }
 
-            if (flavorId > 0) {
-              if (menuItem.Flavor && angular.isArray(menuItem.Flavor) && menuItem.Flavor.length >= flavorId) {
-                flavor = menuItem.Flavor[flavorId - 1];
-              } else {
-                itemId = menuItemId;
-              }
-            }
-
+          if (tempOrderGroup[itemId]) {
+            tempOrderGroup[itemId].count++;
+          } else {
             tempOrderGroup[itemId] = {
               name: menuItem.Name,
               type: menuItem.Type,
@@ -45,8 +42,9 @@ function makeOrderGroup () {
               flavor: flavor,
               count: 1
             };
-            break;
           }
+
+          break;
         }
       }
     }
