@@ -66,8 +66,19 @@
   border-bottom: 1px solid #8A1717;
 }
 
+#author .list-header .material-tile-content b {
+  padding-left: 6px;
+  padding-right: 4px;
+}
+
 #author .material-tile-right {
   width: 80px;
+}
+
+#author .material-tile-content > form > span {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 32px;
 }
 
 #author .material-tile-content input {
@@ -87,6 +98,10 @@
 #author .material-tile-content input[readonly]:focus {
   border-color: transparent;
   border-bottom-width: 0px;
+}
+
+#author material-item.new .material-tile-content input[readonly] {
+  color: #A0A0A0;
 }
 
 #author form material-button {

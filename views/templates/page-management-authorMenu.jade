@@ -46,10 +46,7 @@ div(id="author" flex layout="vertical" layout-fill)
                 i.fa.fa-trash
             .material-tile-content
               form(name="form{{menuItem.id}}" layout="horizontal")
-                material-input(
-                  flex="30"
-                  disabled
-                  type="text" ng-model="menuItem.Name" name="Name")
+                span.text-selectable(flex="30") {{menuItem.Name}}
                 material-input(
                   flex="10"
                   ng-class="{'dirty':form{{menuItem.id}}.Alias.$dirty}"
@@ -69,7 +66,8 @@ div(id="author" flex layout="vertical" layout-fill)
               material-button.material-button-colored(
                 ng-show="ifDirty(menuItem)"
                 ng-click="clickDiscardChange(menuItem)") 清除改动
-          material-item
+
+          material-item.new
             .material-tile-left
               material-button.material-button-raised.material-theme-light(
                 ng-click="clickNewItem()"
