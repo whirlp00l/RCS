@@ -15,7 +15,8 @@ material-dialog(id="dialog-viewRequestOrder")
           b {{orderItem.alias}}
         .material-tile-content
           h2 {{orderItem.name}}
-          h3 {{orderItem.price}}元 ({{orderItem.type}})
+            span(ng-show="orderItem.flavor") &nbsp;({{orderItem.flavor}})
+          h3 {{orderItem.type}} {{orderItem.price}}元
         .material-tile-right
           | x{{orderItem.count}}
 

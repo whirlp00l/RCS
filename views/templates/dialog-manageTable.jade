@@ -56,6 +56,7 @@ material-dialog(id="dialog-manageTable")
           | {{orderItem.type}}
         .material-tile-content
           h2 {{orderItem.name}}
+            span(ng-show="orderItem.flavor") &nbsp;({{orderItem.flavor}})
           h3 {{orderItem.price}}元
         .material-tile-right
           | x{{orderItem.count}}
