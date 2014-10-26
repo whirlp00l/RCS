@@ -59,7 +59,8 @@ module.exports.policies = {
     'listMenu': ['isAuthenticated', 'hasRestaurantPermission'],
     'downloadMenu': 'isLinkedTabletOfRestaurant',
     'checkMenuVersion': 'isLinkedTabletOfRestaurant',
-    'listWaiter': ['isAuthenticated', 'hasRestaurantPermission']
+    'listWaiter': ['isAuthenticated', 'hasRestaurantPermission'],
+    'updateFlavorRequirements': ['isAuthenticated', 'hasRestaurantPermission']
   },
 
   'Table':

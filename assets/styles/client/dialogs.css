@@ -8,13 +8,15 @@
 #dialog-manageTable material-list,
 #dialog-manageTable material-button,
 #dialog-editMenuType material-button,
-#dialog-editMenuFlavor material-button {
+#dialog-editMenuFlavor material-button,
+#dialog-editFlavorRequirements material-button {
   font-size: 18px;
 }
 
 #dialog-delete material-button,
 #dialog-editMenuType material-button,
-#dialog-editMenuFlavor material-button {
+#dialog-editMenuFlavor material-button,
+#dialog-editFlavorRequirements material-button {
   width: 100%;
   margin-left: 5px;
   margin-right: 5px;
@@ -65,6 +67,7 @@
 #dialog-createTable .dialog-content,
 #dialog-editMenuType .dialog-content,
 #dialog-editMenuFlavor .dialog-content,
+#dialog-editFlavorRequirements .dialog-content,
 #dialog-manageTable .dialog-content {
   overflow: visible;
 }
@@ -172,20 +175,24 @@
   margin-left: 10px;
 }
 
-#dialog-editMenuFlavor .material-tile-left material-button {
+#dialog-editMenuFlavor .material-tile-left material-button,
+#dialog-editFlavorRequirements .material-tile-left material-button {
   width: 40px;
   font-size: 20px;
 }
 
-#dialog-editMenuFlavor .material-tile-content * {
+#dialog-editMenuFlavor .material-tile-content *,
+#dialog-editFlavorRequirements .material-tile-content * {
   font-size: 16px;
 }
 
-#dialog-editMenuFlavor .material-tile-content span {
+#dialog-editMenuFlavor .material-tile-content span,
+#dialog-editFlavorRequirements .material-tile-content span {
   font-weight: bold;
 }
 
-#dialog-editMenuFlavor .material-tile-content input {
+#dialog-editMenuFlavor .material-tile-content input,
+#dialog-editFlavorRequirements .material-tile-content input {
   border-color: #8A1717;
   border-bottom-width: 2px;
 }

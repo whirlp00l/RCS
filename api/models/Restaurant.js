@@ -55,6 +55,10 @@ module.exports = {
     Waiters: { // One to many
       collection: 'waiter',
       via: 'Restaurant'
+    },
+
+    FlavorRequirements: {
+      type: 'array'
     }
   }
 };

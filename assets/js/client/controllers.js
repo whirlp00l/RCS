@@ -479,6 +479,7 @@ function monitorWaiterCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
 
 function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsSession) {
   // scope fields
+  $scope.flavorRequirements = null;
   $scope.menuItems = null;
   $scope.menuTypes = null;
   $scope.newMenuItem = null;
@@ -488,6 +489,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   // scope methods
   $scope.clickDeleteItem = clickDeleteItem;
   $scope.clickDiscardChange = clickDiscardChange;
+  $scope.clickFlavorRequirements = clickFlavorRequirements;
   $scope.clickItemFlavor = clickItemFlavor;
   $scope.clickItemType = clickItemType;
   $scope.clickNewItem = clickNewItem;
@@ -500,6 +502,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   $scope.ifValidNewType = ifValidNewType;
   $scope.onTabSelected = onTabSelected;
   $scope.getFlavorText = getFlavorText;
+  $scope.getFlavorRequirementsText = getFlavorRequirementsText;
 
   // locals
   var master = {menuItems: []};
@@ -516,8 +519,9 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   function initializeMenu () {
     return rcsHttp.Restaurant.listMenu(restaurantId)
       .success(function (res) {
-        var menu = res.Menu;
+        $scope.flavorRequirements = res.FlavorRequirements;
 
+        var menu = res.Menu;
         $scope.menuItems = menu;
         $scope.menuTypes = [];
 
@@ -592,6 +596,65 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   function clickDiscardChange (menuItem) {
     var i = $scope.menuItems.indexOf(menuItem);
     $scope.menuItems[i] = angular.copy(master.menuItems[i]);
+  }
+
+  function clickFlavorRequirements () {
+    var authorMenuScope = $scope;
+
+    $materialDialog({
+      templateUrl: 'template/dialog-editFlavorRequirements',
+      targetEvent: event,
+      clickOutsideToClose: false,
+      escapeToClose: false,
+      controller: ['$scope', '$hideDialog', function($scope, $hideDialog) {
+        // scope fields
+        $scope.requirements =
+          authorMenuScope.flavorRequirements ?
+          angular.copy(authorMenuScope.flavorRequirements) :
+          [];
+
+        $scope.newRequirement = null;
+
+        // scope methods
+        $scope.ifValidNewRequirement = ifValidNewRequirement;
+        $scope.clickDeleteRequirement = clickDeleteRequirement;
+        $scope.clickNewRequirements = clickNewRequirements;
+        $scope.clickUpdateFlavorRequirements = clickUpdateFlavorRequirements;
+        $scope.clickCancel = clickCancel;
+
+        // defines
+        function ifValidNewRequirement () {
+          return $scope.newRequirement && $scope.requirements.indexOf($scope.newRequirement) == -1;
+        }
+
+        function clickDeleteRequirement (index) {
+          $scope.requirements.splice(index, 1);
+        }
+
+        function clickNewRequirements () {
+          if (!$scope.ifValidNewRequirement()) return;
+
+          $scope.requirements.push($scope.newRequirement);
+          $scope.newRequirement = null;
+        }
+
+        function clickUpdateFlavorRequirements () {
+          rcsHttp.Restaurant.updateFlavorRequirements(
+            restaurantId,
+            $scope.requirements
+          )
+          .success(function(res) {
+            authorMenuScope.flavorRequirements = res.FlavorRequirements;
+            $hideDialog();
+          })
+          .error(requestErrorAction);
+        }
+
+        function clickCancel () {
+          $hideDialog();
+        }
+      }]
+    });
   }
 
   function clickItemFlavor (menuItem, event) {
@@ -815,6 +878,21 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
     for (var i = 0 ; i < flavorList.length; i++) {
       if (i != 0) text += '/';
       text += flavorList[i];
+    }
+
+    return text;
+  }
+
+  function getFlavorRequirementsText () {
+    var requirements = $scope.flavorRequirements;
+    if (!requirements || !angular.isArray(requirements) || requirements.length == 0) {
+      return '(无)';
+    }
+
+    var text = '';
+    for (var i = 0 ; i < requirements.length; i++) {
+      if (i != 0) text += '/';
+      text += requirements[i];
     }
 
     return text;

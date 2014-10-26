@@ -13,6 +13,7 @@ angular
     requestsUpdate: 'requests-update',
     menuItemsUpdate: 'menuItems-update',
     waitersUpdate: 'waiters-update',
+    flavorRequirementsUpdate: 'flavorRequirements-update',
     forbidden: '403',
     socketReady: 'socket-ready'
   })

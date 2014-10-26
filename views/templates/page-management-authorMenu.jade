@@ -8,6 +8,11 @@ div(id="author" flex layout="vertical" layout-fill)
         p 同步数据...
 
       div(ng-show="menuItems != null")
+        material-button.flavorRequirements.hover(
+          ng-click="clickFlavorRequirements()")
+          span <b>编辑忌口:</b> {{getFlavorRequirementsText()}}
+        p
+          b(style="margin-left: 5px;") 编辑菜单:
         div.header(layout="horizontal")
           material-tabs(flex="80" selected="selectedIndex" nobar)
             material-tab(

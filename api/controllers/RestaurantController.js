@@ -297,9 +297,11 @@ module.exports = {
 
       var menuItems = restaurant.Menu;
       var waiters = restaurant.Waiters;
+      var flavorRequirements = restaurant.FlavorRequirements;
       // remove unnecessary info before string to req session
       delete restaurant.Menu;
       delete restaurant.Waiters;
+      delete restaurant.FlavorRequirements;
       // subscribe the requesting socket to the 'message' context of the restaurant
       Restaurant.subscribe(req, restaurant, ['message']);
       req.session.subscribedRestaurant = restaurant;
@@ -327,7 +329,8 @@ module.exports = {
           table: tables,
           request: requests,
           menuItems: menuItems,
-          waiters: waiters
+          waiters: waiters,
+          flavorRequirements: flavorRequirements
         });
 
         // notify other subscribers for new comer
@@ -401,6 +404,25 @@ module.exports = {
     });
   },
 
+  updateFlavorRequirements: function (req, res) {
+    var restaurantId = req.body.RestaurantId;
+    var flavorRequirements = req.body.FlavorRequirements;
+
+    Restaurant.update({id:restaurantId}, {FlavorRequirements:flavorRequirements}).exec(function (err, updated) {
+      if (err) {
+        return res.serverError(err);
+      }
+
+      var updatedFlavorRequirements = updated[0].FlavorRequirements;
+
+      Restaurant.message(restaurantId, {setFlavorRequirements: updatedFlavorRequirements});
+
+      return res.json({
+        FlavorRequirements: updatedFlavorRequirements
+      });
+    });
+  },
+
   deleteAll: function (req, res, next) {
     Restaurant.destroy({}).exec(function (err) {
       return res.send('All restaurants deleted.');
@@ -426,7 +448,8 @@ var listMenu = function (req, res) {
 
     return res.json({
       MenuVersion: restaurant.MenuVersion,
-      Menu: restaurant.Menu
+      Menu: restaurant.Menu,
+      FlavorRequirements: restaurant.FlavorRequirements
     });
   });
 }

@@ -20,6 +20,7 @@ function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATU
     getRequests: getRequests,
     getMenuItems: getMenuItems,
     getWaiters: getWaiters,
+    getFlavorRequirements: getFlavorRequirements,
     createTable: createTable,
     deleteTable: deleteTable,
     resetTable: resetTable,
@@ -43,6 +44,7 @@ function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATU
   var requests = [];
   var menuItems = [];
   var waiters = [];
+  var flavorRequirements = [];
   var rcsSocket = null;
   var rcsSocketDataReady = false;
   var emitTableEvent = emitTableEvent;
@@ -79,6 +81,7 @@ function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATU
     requests = msg.request;
     menuItems = msg.menuItems;
     waiters = msg.waiters;
+    flavorRequirements = msg.flavorRequirements;
 
     rcsSocketDataReady = true;
     $rootScope.$emit(RCS_EVENT.socketReady);
@@ -223,6 +226,13 @@ function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATU
       };
 
       $rootScope.$emit(RCS_EVENT.waitersUpdate);
+    }
+
+    // handle set-flavorRequirements
+    if (data.setFlavorRequirements) {
+      flavorRequirements = data.setFlavorRequirements;
+
+      // $rootScope.$emit(RCS_EVENT.flavorRequirementsUpdate);
     }
   }
 
@@ -369,6 +379,10 @@ function rcsSession ($rootScope, $state, $log, rcsHttp, RCS_EVENT, REQUEST_STATU
 
   function getWaiters () {
     return angular.copy(waiters);
+  }
+
+  function getFlavorRequirements () {
+    return angular.copy(flavorRequirements);
   }
 
   function createTable (row, col, tableName, tableType, successAction, errorAction) {
@@ -566,6 +580,14 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
       return $http
         .post('Restaurant/listWaiter', {
           RestaurantId: restaurantId
+        })
+        .error(errorAction);
+    },
+    updateFlavorRequirements: function (restaurantId, newRequirements) {
+      return $http
+        .post('Restaurant/updateFlavorRequirements', {
+          RestaurantId: restaurantId,
+          FlavorRequirements: newRequirements
         })
         .error(errorAction);
     }
