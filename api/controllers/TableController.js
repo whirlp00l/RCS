@@ -212,7 +212,8 @@ module.exports = {
       updateTable(req, res, tableId, {
         Status: 'empty',
         StatusUpdateAt: new Date(),
-        OrderItems: null
+        OrderItems: null,
+        FlavorRequirements: null,
       }, function (table) {
         return res.json(table);
       });
@@ -339,6 +340,10 @@ var updateTable = function (req, res, tableId, value, cb) {
 
     if (typeof value.OrderItems != 'undefined') {
       table.OrderItems = value.OrderItems;
+    }
+
+    if (typeof value.FlavorRequirements != 'undefined') {
+      table.FlavorRequirements = value.FlavorRequirements;
     }
 
     table.save(function (err, table) {

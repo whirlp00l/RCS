@@ -70,6 +70,8 @@ module.exports = {
 
     OrderItems: 'array',
 
+    FlavorRequirements: 'array',
+
     toJSON: function() {
       var obj = this.toObject();
 

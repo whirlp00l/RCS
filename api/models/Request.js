@@ -65,6 +65,8 @@ module.exports = {
 
     OrderItems: 'array',
 
+    FlavorRequirements: 'array',
+
     // Attributes methods
     getMessage: function (tableName) {
       return {
@@ -79,6 +81,7 @@ module.exports = {
         IsPremium: this.IsPremium,
         CellPhone: this.CellPhone,
         OrderItems: this.OrderItems,
+        FlavorRequirements: this.FlavorRequirements,
         Table: {
           TableName: tableName
         }

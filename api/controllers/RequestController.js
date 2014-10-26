@@ -149,6 +149,18 @@ module.exports = {
           if (request.Type == 'order') {
             table.Status = 'ordered';
             table.OrderItems = table.OrderItems ? table.OrderItems.concat(request.OrderItems) : request.OrderItems;
+
+            if (request.FlavorRequirements && request.FlavorRequirements.length > 0) {
+              if (!table.FlavorRequirements) {
+                table.FlavorRequirements = request.FlavorRequirements;
+              } else {
+                for (var i = 0 ; i < request.FlavorRequirements.length; i++) {
+                  if (table.FlavorRequirements.indexOf(request.FlavorRequirements[i]) == -1) {
+                    table.FlavorRequirements.push(request.FlavorRequirements[i]);
+                  }
+                }
+              }
+            }
           }
 
           table.save(function (err) {
@@ -203,6 +215,7 @@ function createOrder (req, res, table, restaurantId, type) {
   }
 
   var orderItems = req.body.OrderItems;
+  var flavorRequirements = req.body.FlavorRequirements;
 
   if (!orderItems || !Array.isArray(orderItems) || orderItems.length == 0) {
     return res.rcsMissingFields(['OrderItems']);
@@ -231,7 +244,8 @@ function createOrder (req, res, table, restaurantId, type) {
           Table: table.id,
           Restaurant: restaurantId,
           Type: type,
-          OrderItems: orderItems
+          OrderItems: orderItems,
+          FlavorRequirements: flavorRequirements
         };
 
         table.Status = 'ordering';
