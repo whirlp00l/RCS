@@ -44,6 +44,8 @@ material-dialog(id="dialog-manageTable")
           h3(ng-show="ifLinked() == true") (关联时间: {{table.LinkTime | date:'medium'}})
 
     material-list(ng-if="selectedIndex == 1")
+      h4(style="margin-left: 5px;") <b>忌口</b>: {{table.FlavorRequirements | makeArrayText}}
+
       material-item.list-header
         .material-tile-left
           b 类型

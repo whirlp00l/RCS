@@ -2,6 +2,8 @@ material-dialog(id="dialog-viewRequestOrder")
   .dialog-content.height-md
     h4 餐桌 <b>{{request.Table.TableName}}</b> 提交点菜
 
+    h4 <b>忌口</b>: {{request.FlavorRequirements | makeArrayText}}
+
     material-list
       material-item.list-header
         .material-tile-left

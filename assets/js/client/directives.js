@@ -1,8 +1,8 @@
 angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb])
-  .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
-  .directive('rcsRequest', ['$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
+  .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'makeArrayTextFilter', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
+  .directive('rcsRequest', ['$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'makeArrayTextFilter', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
 
 // directives
 function breadcrumb ($state, $stateParams, $interpolate) {
@@ -34,7 +34,7 @@ function breadcrumb ($state, $stateParams, $interpolate) {
   }
 }
 
-function rcsTable ($rootScope, $materialDialog, rcsSession, makeOrderGroupFilter, RCS_EVENT, TABLE_STATUS) {
+function rcsTable ($rootScope, $materialDialog, rcsSession, makeOrderGroupFilter, makeArrayTextFilter, RCS_EVENT, TABLE_STATUS) {
   return {
     link: link,
     $scope: {
@@ -431,7 +431,7 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, makeOrderGroupFilter
   }
 }
 
-function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
+function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, makeArrayTextFilter, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
   return {
     link: link,
     $scope: {
