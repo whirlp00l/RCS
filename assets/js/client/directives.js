@@ -515,18 +515,28 @@ function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, makeArra
                 requestScope.request.OrderItems,
                 rcsSession.getMenuItems());
               $scope.allowAction = allowAction;
+              $scope.justClick = false;
 
               // scope methods
               $scope.clickConfirmOrder = function() {
                 if (!allowAction) return;
 
+                if ($scope.justClick == true) return;
+
+                $scope.justClick = true;
+
                 var request = $scope.request;
 
                 rcsSession.closeRequest(request,
                   function success () {
+                    $scope.justClick = false;
                     $hideDialog();
                     toastRequest('关闭请求');
-                  }, errorAction);
+                  },
+                  function error () {
+                    $scope.justClick = false;
+                    errorAction();
+                  });
               };
 
               $scope.clickCancel = function () {
@@ -572,6 +582,7 @@ function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, makeArra
                 rcsSession.getTableByName($scope.request.Table.TableName).OrderItems,
                 rcsSession.getMenuItems());
               $scope.allowAction = allowAction;
+              $scope.justClick = false;
 
               $scope.totalPrice = 0;
               for (var i = $scope.orderItems.length - 1; i >= 0; i--) {
@@ -582,12 +593,20 @@ function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, makeArra
               // scope methods
               $scope.clickConfirmPayment = function () {
                 if (!allowAction) return;
+                if ($scope.justClick == true) return;
+
+                $scope.justClick = true;
 
                 rcsSession.closeRequest($scope.request,
                   function success () {
+                    $scope.justClick = false;
                     $hideDialog();
                     toastRequest('关闭请求');
-                  }, errorAction);
+                  },
+                  function error () {
+                    $scope.justClick = false;
+                    errorAction();
+                  });
               };
 
               $scope.clickCancel = function () {

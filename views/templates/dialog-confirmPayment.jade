@@ -24,7 +24,11 @@ material-dialog(id="dialog-confirmPayment")
   .dialog-actions(layout="horizontal")
     material-button.material-button-raised.material-theme-light(
       ng-if="allowAction == true"
-      flex="80" ng-click="clickConfirmPayment()") 已付款，关闭请求
+      ng-disabled="justClick == true"
+      flex="80" ng-click="clickConfirmPayment()")
+      span(ng-show="justClick == false") 已付款，关闭请求
+      span(ng-show="justClick == true") 正在处理&nbsp;
+        i.fa.fa-spin.fa-spinner
     material-button.material-button-colored(
       flex="20" ng-click="clickCancel()")
       span(ng-if="allowAction == true") 取消

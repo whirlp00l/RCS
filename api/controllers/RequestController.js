@@ -131,6 +131,12 @@ module.exports = {
         return res.badRequest('Invalid requestId = ' + requestId);
       }
 
+      if (request.Status == 'closed') {
+        return res.json({
+          message: 'request has already been closed'
+        });
+      }
+
       request.Status = 'closed';
       request.ClosedAt = new Date();
 
@@ -140,6 +146,9 @@ module.exports = {
         }
 
         Table.findOneById(request.Table).populate('Requests').exec(function (err, table) {
+          if (err || !table) {
+            return res.serverError(err);
+          }
 
           if (request.Type == 'pay') {
             table.Status = 'paid';
