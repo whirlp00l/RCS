@@ -72,6 +72,11 @@
   overflow: visible;
 }
 
+#dialog-editMenuFlavor .dialog-content,
+#dialog-editFlavorRequirements .dialog-content {
+  overflow-y: scroll;
+}
+
 #dialog-manageTable .dialog-actions {
   min-height: 40px;
   margin-bottom: 5px;
