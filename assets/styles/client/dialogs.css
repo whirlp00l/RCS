@@ -73,7 +73,8 @@
 }
 
 #dialog-editMenuFlavor .dialog-content,
-#dialog-editFlavorRequirements .dialog-content {
+#dialog-editFlavorRequirements .dialog-content,
+#dialog-manageTable .dialog-content {
   overflow-y: scroll;
 }
 
