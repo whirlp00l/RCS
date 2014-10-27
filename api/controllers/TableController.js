@@ -277,7 +277,8 @@ module.exports = {
         return res.json({
           Table: table,
           MenuVersion: restaurant.MenuVersion,
-          Menu: restaurant.Menu
+          Menu: restaurant.Menu,
+          FlavorRequirements: restaurant.FlavorRequirements
         });
       });
     });
