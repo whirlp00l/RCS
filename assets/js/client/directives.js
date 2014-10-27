@@ -1,8 +1,8 @@
 angular
   .module('rcs')
   .directive('breadcrumb', ['$state', '$stateParams', '$interpolate', breadcrumb])
-  .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
-  .directive('rcsRequest', ['$materialDialog', 'rcsSession', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
+  .directive('rcsTable', ['$rootScope', '$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'RCS_EVENT', 'TABLE_STATUS', rcsTable])
+  .directive('rcsRequest', ['$materialDialog', 'rcsSession', 'makeOrderGroupFilter', 'REQUEST_STATUS', 'REQUEST_TYPE', 'PAY_TYPE', rcsRequest]);
 
 // directives
 function breadcrumb ($state, $stateParams, $interpolate) {
@@ -34,7 +34,7 @@ function breadcrumb ($state, $stateParams, $interpolate) {
   }
 }
 
-function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STATUS) {
+function rcsTable ($rootScope, $materialDialog, rcsSession, makeOrderGroupFilter, RCS_EVENT, TABLE_STATUS) {
   return {
     link: link,
     $scope: {
@@ -71,7 +71,6 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
     var getTableStatusText = getTableStatusText;
     var getTableUpdateDurationMin = getTableUpdateDurationMin;
     var tableEvent = '{0}({1},{2})'.format(RCS_EVENT.tableUpdate, mapRow, mapCol);
-    var makeOrderGroupFilter = makeOrderGroup();
     var toastTable = toastTable;
     var errorAction = errorAction;
 
@@ -432,7 +431,7 @@ function rcsTable ($rootScope, $materialDialog, rcsSession, RCS_EVENT, TABLE_STA
   }
 }
 
-function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
+function rcsRequest ($materialDialog, rcsSession, makeOrderGroupFilter, REQUEST_STATUS, REQUEST_TYPE, PAY_TYPE) {
   return {
     link: link,
     $scope: {
@@ -463,7 +462,6 @@ function rcsRequest ($materialDialog, rcsSession, REQUEST_STATUS, REQUEST_TYPE, 
     var viewRequest = viewRequest;
     var getRequestTypeText = getRequestTypeText;
     var getRequestCreateDurationText = getRequestCreateDurationText;
-    var makeOrderGroupFilter = makeOrderGroup();
     var toastRequest = toastRequest;
     var errorAction = errorAction;
 

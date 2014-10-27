@@ -10,7 +10,7 @@ div(id="author" flex layout="vertical" layout-fill)
       div(ng-show="menuItems != null")
         material-button.flavorRequirements.hover(
           ng-click="clickFlavorRequirements()")
-          span <b>编辑忌口:</b> {{getFlavorRequirementsText()}}
+          span <b>编辑忌口:</b> {{flavorRequirements | makeArrayText}}
         p
           b(style="margin-left: 5px;") 编辑菜单:
         div.header(layout="horizontal")
@@ -67,7 +67,7 @@ div(id="author" flex layout="vertical" layout-fill)
                   ng-class="{'dirty':form{{menuItem.id}}.PremiumPrice.$dirty}"
                   type="text" ng-model="menuItem.PremiumPrice" name="PremiumPrice")
                 material-button.hover(
-                  flex ng-click="clickItemFlavor(menuItem, $event)") {{getFlavorText(menuItem)}}
+                  flex ng-click="clickItemFlavor(menuItem, $event)") {{menuItem.Flavor | makeArrayText}}
             .material-tile-right
               material-button.material-button-colored(
                 ng-show="ifDirty(menuItem)"

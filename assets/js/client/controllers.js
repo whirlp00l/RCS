@@ -8,7 +8,7 @@ angular
   .controller('monitorTableCtrl', ['$scope', 'rcsSession', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
   .controller('monitorWaiterCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorWaiterCtrl])
-  .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', authorMenuCtrl])
+  .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', 'makeArrayTextFilter', authorMenuCtrl])
   .controller('arrangeWaiterCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', arrangeWaiterCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
 
@@ -477,7 +477,7 @@ function monitorWaiterCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
   }
 }
 
-function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsSession) {
+function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsSession, makeArrayTextFilter) {
   // scope fields
   $scope.flavorRequirements = null;
   $scope.menuItems = null;
@@ -501,8 +501,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   $scope.ifValidItem = ifValidItem;
   $scope.ifValidNewType = ifValidNewType;
   $scope.onTabSelected = onTabSelected;
-  $scope.getFlavorText = getFlavorText;
-  $scope.getFlavorRequirementsText = getFlavorRequirementsText;
 
   // locals
   var master = {menuItems: []};
@@ -770,13 +768,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   function clickUpdateItem (menuItem) {
     var i = $scope.menuItems.indexOf(menuItem);
 
-    // >>> mock
-    // var updatedMenuItem = angular.copy(menuItem);
-    // $scope.menuItems[i] = updatedMenuItem;
-    // master.menuItems[i] = angular.copy(updatedMenuItem);
-    // return;
-    // <<< mock
-
     rcsHttp.MenuItem.update(
       menuItem.Restaurant,
       menuItem.id,
@@ -866,36 +857,6 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       $scope.clickResetNewItem();
     })
     .error(requestErrorAction);
-  }
-
-  function getFlavorText (menuItem) {
-    var flavorList = menuItem.Flavor;
-    if (!flavorList || !angular.isArray(flavorList) || flavorList.length == 0) {
-      return '(无)';
-    }
-
-    var text = '';
-    for (var i = 0 ; i < flavorList.length; i++) {
-      if (i != 0) text += '/';
-      text += flavorList[i];
-    }
-
-    return text;
-  }
-
-  function getFlavorRequirementsText () {
-    var requirements = $scope.flavorRequirements;
-    if (!requirements || !angular.isArray(requirements) || requirements.length == 0) {
-      return '(无)';
-    }
-
-    var text = '';
-    for (var i = 0 ; i < requirements.length; i++) {
-      if (i != 0) text += '/';
-      text += requirements[i];
-    }
-
-    return text;
   }
 }
 

@@ -3,7 +3,8 @@ angular
     'ui.router',
     'ui.router.stateHelper',
     'ui.bootstrap',
-    'ngMaterial'
+    'ngMaterial',
+    'rcsFilter'
   ])
   .config([
     '$urlRouterProvider',
