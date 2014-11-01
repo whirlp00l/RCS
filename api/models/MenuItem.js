@@ -38,6 +38,11 @@ module.exports = {
       type: 'array'
     },
 
+    OrderCount: {
+      type: 'int',
+      defaultsTo: 0
+    },
+
     Restaurant: { // Many to one
       model: 'restaurant',
       via: 'Menu'
