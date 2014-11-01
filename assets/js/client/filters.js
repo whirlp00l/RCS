@@ -1,7 +1,8 @@
 angular
   .module('rcsFilter', [])
   .filter('makeOrderGroup', makeOrderGroup)
-  .filter('makeArrayText', makeArrayText);
+  .filter('makeArrayText', makeArrayText)
+  .filter('makeNumber', makeNumber);
 
 function makeOrderGroup () {
   return function (orderItems, menuItems) {
@@ -75,5 +76,15 @@ function makeArrayText () {
     }
 
     return text;
+  }
+}
+
+function makeNumber () {
+  return function (number) {
+    if (!number || !parseInt(number)) {
+      return '0';
+    }
+
+    return parseInt(number);
   }
 }

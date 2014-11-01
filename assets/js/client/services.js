@@ -709,7 +709,7 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
         })
         .error(errorAction);
     },
-    update: function (restaurantId, menuItemId, type, price, premiumPrice, alias, flavor) {
+    update: function (restaurantId, menuItemId, type, price, premiumPrice, alias, flavor, isRecommended) {
       return $http
         .post('MenuItem/update/' + menuItemId, {
           Type: type,
@@ -717,6 +717,7 @@ function rcsHttp ($rootScope, $http, $state, $log, RCS_EVENT) {
           PremiumPrice: premiumPrice,
           Alias: alias,
           Flavor: flavor,
+          IsRecommended: isRecommended,
           RestaurantId: restaurantId
         })
         .error(errorAction);

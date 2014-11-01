@@ -44,7 +44,7 @@ div(id="author" flex layout="vertical" layout-fill)
             .material-tile-left
               material-button.material-button-raised.material-theme-light(
                 ng-show="ifDirty(menuItem)" ng-click="clickUpdateItem(menuItem)"
-                ng-disabled="ifValidItem(menuItem)===false")
+                ng-disabled="ifValidItem(menuItem)===false || justClickUpdate == true")
                 i.fa.fa-check
               material-button.material-button-raised(
                 ng-show="ifDirty(menuItem)===false" ng-click="clickDeleteItem(menuItem, $event)")
@@ -52,6 +52,7 @@ div(id="author" flex layout="vertical" layout-fill)
             .material-tile-content
               form(name="form{{menuItem.id}}" layout="horizontal")
                 span.text-selectable(flex="30") {{menuItem.Name}}
+                  h3 被点{{menuItem.OrderCount | makeNumber}}次
                 material-input(
                   flex="10"
                   ng-class="{'dirty':form{{menuItem.id}}.Alias.$dirty}"
@@ -72,6 +73,12 @@ div(id="author" flex layout="vertical" layout-fill)
               material-button.material-button-colored(
                 ng-show="ifDirty(menuItem)"
                 ng-click="clickDiscardChange(menuItem)") 清除改动
+              material-button.material-button-colored(
+                ng-show="ifDirty(menuItem) == false"
+                ng-click="clickToggleStar(menuItem)"
+                ng-disabled="justClickUpdate == true")
+                i.fa.fa-star(ng-show="menuItem.IsRecommended == true")
+                i.fa.fa-star-o(ng-show="!menuItem.IsRecommended")
 
           material-item.new
             .material-tile-left

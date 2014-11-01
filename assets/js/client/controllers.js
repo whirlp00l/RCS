@@ -8,7 +8,7 @@ angular
   .controller('monitorTableCtrl', ['$scope', 'rcsSession', monitorTableCtrl])
   .controller('monitorRequestCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorRequestCtrl])
   .controller('monitorWaiterCtrl', ['$rootScope', '$scope', 'rcsSession', 'RCS_EVENT', monitorWaiterCtrl])
-  .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', 'makeArrayTextFilter', authorMenuCtrl])
+  .controller('authorMenuCtrl', ['$scope', '$state', '$timeout', '$materialDialog', 'rcsHttp', 'rcsSession', 'makeArrayTextFilter', 'makeNumberFilter', authorMenuCtrl])
   .controller('arrangeWaiterCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', arrangeWaiterCtrl])
   .controller('assignAdminCtrl', ['$scope', '$state', '$materialDialog', 'rcsHttp', 'rcsSession', assignAdminCtrl]);
 
@@ -477,7 +477,7 @@ function monitorWaiterCtrl ($rootScope, $scope, rcsSession, RCS_EVENT) {
   }
 }
 
-function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsSession, makeArrayTextFilter) {
+function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsSession, makeArrayTextFilter, makeNumberFilter) {
   // scope fields
   $scope.flavorRequirements = null;
   $scope.menuItems = null;
@@ -485,6 +485,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   $scope.newMenuItem = null;
   $scope.newType = '';
   $scope.selectedIndex = 0;
+  $scope.justClickUpdate = false;
 
   // scope methods
   $scope.clickDeleteItem = clickDeleteItem;
@@ -495,6 +496,7 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   $scope.clickNewItem = clickNewItem;
   $scope.clickNewType = clickNewType;
   $scope.clickResetNewItem = clickResetNewItem;
+  $scope.clickToggleStar = clickToggleStar;
   $scope.clickUpdateItem = clickUpdateItem;
   $scope.ifBelongToType = ifBelongToType;
   $scope.ifDirty = ifDirty;
@@ -766,6 +768,10 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
   }
 
   function clickUpdateItem (menuItem) {
+    if ($scope.justClickUpdate) return;
+
+    $scope.justClickUpdate = true;
+
     var i = $scope.menuItems.indexOf(menuItem);
 
     rcsHttp.MenuItem.update(
@@ -777,11 +783,15 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       menuItem.Alias == '' ? null: menuItem.Alias
     )
     .success(function(res) {
+      $scope.justClickUpdate = false;
       var updatedMenuItem = res.MenuItem;
       $scope.menuItems[i] = updatedMenuItem;
       master.menuItems[i] = angular.copy(updatedMenuItem);
     })
-    .error(requestErrorAction);
+    .error(function(res, status) {
+      $scope.justClickUpdate = false;
+      requestErrorAction(res, status);
+    });
   }
 
   function clickDeleteItem (menuItem, event) {
@@ -857,6 +867,35 @@ function authorMenuCtrl($scope, $state, $timeout, $materialDialog, rcsHttp, rcsS
       $scope.clickResetNewItem();
     })
     .error(requestErrorAction);
+  }
+
+  function clickToggleStar (menuItem) {
+    if ($scope.justClickUpdate) return;
+
+    $scope.justClickUpdate = true;
+
+    var i = $scope.menuItems.indexOf(menuItem);
+
+    rcsHttp.MenuItem.update(
+      menuItem.Restaurant,
+      menuItem.id,
+      undefined, // ingore Type,
+      undefined, // ingore Price,
+      undefined, // ingore PremiumPrice,
+      undefined, // ingore Alias
+      undefined, // ingore Flavor
+      !menuItem.IsRecommended ? true: false
+    )
+    .success(function(res) {
+      $scope.justClickUpdate = false;
+      var updatedMenuItem = res.MenuItem;
+      $scope.menuItems[i] = updatedMenuItem;
+      master.menuItems[i] = angular.copy(updatedMenuItem);
+    })
+    .error(function(res, status) {
+      $scope.justClickUpdate = false;
+      requestErrorAction(res, status);
+    });
   }
 }
 

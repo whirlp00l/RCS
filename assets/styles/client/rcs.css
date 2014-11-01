@@ -87,7 +87,7 @@ body *
 
 #rcs material-button[disabled] {
   background-color: #eaeaea !important;
-  cursor: not-allowed;
+  /*cursor: not-allowed;*/
 }
 
 #rcs material-button.material-button-colored {
