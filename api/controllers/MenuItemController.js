@@ -95,6 +95,7 @@ module.exports = {
       var premiumPrice = req.body.PremiumPrice;
       var alias = req.body.Alias;
       var flavor = req.body.Flavor;
+      var isRecommended = req.body.IsRecommended;
 
       if (typeof type != 'undefined') {
         menuItem.Type = type;
@@ -116,6 +117,10 @@ module.exports = {
         menuItem.Flavor = flavor;
       }
 
+      if (typeof isRecommended != 'undefined') {
+        menuItem.IsRecommended = isRecommended;
+      }
+
       menuItem.save(function (err, menuItem) {
         if (err) {
           return res.serverError(err);
@@ -126,16 +131,7 @@ module.exports = {
 
         bumpRestaurantMenuVersion(res, restaurantId, function (version) {
           return res.json({
-            MenuItem: {
-              id: menuItem.id,
-              Name: menuItem.Name,
-              Type: menuItem.Type,
-              Price: menuItem.Price,
-              PremiumPrice: menuItem.PremiumPrice,
-              Alias: menuItem.Alias,
-              Flavor: menuItem.Flavor,
-              Restaurant: restaurantId,
-            },
+            MenuItem: menuItem,
             Restaurant: {
               MenuVersion: version
             }

@@ -43,6 +43,11 @@ module.exports = {
       defaultsTo: 0
     },
 
+    IsRecommended: {
+      type: 'boolean',
+      defaultsTo: false
+    },
+
     Restaurant: { // Many to one
       model: 'restaurant',
       via: 'Menu'
