@@ -146,40 +146,42 @@ module.exports = {
         }
 
         // add order count
-        var orderItems = request.OrderItems;
-        var orderMenuItems = {
-          ids: [],
-          counts: []
-        };
-        for (var i = orderItems.length - 1; i >= 0; i--) {
-          var menuItemId = (Math.floor(orderItems[i]));
-          var index = orderMenuItems.ids.indexOf(menuItemId);
-          if (index == -1) {
-            orderMenuItems.ids.push(menuItemId);
-            orderMenuItems.counts.push(1);
-          } else {
-            orderMenuItems.counts[index]++;
-          }
-        }
-
-        MenuItem.find({Restaurant: request.Restaurant}).exec(function (err, menuItems) {
-          if (menuItems) {
-            for (var i = menuItems.length - 1; i >= 0; i--) {
-              var index = orderMenuItems.ids.indexOf(menuItems[i].id);
-              if (index != -1) {
-                sails.log.debug(menuItems[i].Name + " " +  menuItems[i].OrderCount + " + " + orderMenuItems.counts[index]);
-
-                if (menuItems[i].OrderCount) {
-                  menuItems[i].OrderCount = parseInt(menuItems[i].OrderCount) + orderMenuItems.counts[index];
-                } else {
-                  menuItems[i].OrderCount = orderMenuItems.counts[index];
-                }
-
-                menuItems[i].save();
-              }
+        if (request.Type == 'order') {
+          var orderItems = request.OrderItems;
+          var orderMenuItems = {
+            ids: [],
+            counts: []
+          };
+          for (var i = orderItems.length - 1; i >= 0; i--) {
+            var menuItemId = (Math.floor(orderItems[i]));
+            var index = orderMenuItems.ids.indexOf(menuItemId);
+            if (index == -1) {
+              orderMenuItems.ids.push(menuItemId);
+              orderMenuItems.counts.push(1);
+            } else {
+              orderMenuItems.counts[index]++;
             }
           }
-        })
+
+          MenuItem.find({Restaurant: request.Restaurant}).exec(function (err, menuItems) {
+            if (menuItems) {
+              for (var i = menuItems.length - 1; i >= 0; i--) {
+                var index = orderMenuItems.ids.indexOf(menuItems[i].id);
+                if (index != -1) {
+                  sails.log.debug(menuItems[i].Name + " " +  menuItems[i].OrderCount + " + " + orderMenuItems.counts[index]);
+
+                  if (menuItems[i].OrderCount) {
+                    menuItems[i].OrderCount = parseInt(menuItems[i].OrderCount) + orderMenuItems.counts[index];
+                  } else {
+                    menuItems[i].OrderCount = orderMenuItems.counts[index];
+                  }
+
+                  menuItems[i].save();
+                }
+              }
+            }
+          })
+        }
 
         // change table properties
         Table.findOneById(request.Table).populate('Requests').exec(function (err, table) {
